@@ -13,8 +13,9 @@
 #include <sstream>
 #include <csignal>
 
-#define PORT "8081"
+#define PORT "8082"
 #define IP "127.0.0.1"
+#define MSGLEN 5000
 
 void throw_error(const char* msg)
 {
@@ -72,6 +73,8 @@ void	send_msg_to_client(int client_fd, const char *message)
 {
 	std::cout << "Socket client en position POLLIN : envoi d un message" << std::endl;
 	ssize_t msg_len = std::strlen(message);
+	if (!msg_len)
+		return((void)(std::cout << "strlen est egal a 0" << std::endl)) ; 
 	ssize_t count = 0;
 	ssize_t	sent = 0;
 	while (count < msg_len)
@@ -85,34 +88,46 @@ void	send_msg_to_client(int client_fd, const char *message)
 	//send(client_fd,"\nOK\n", 4, 0);
 }
 
-void	handle_client_request(std::vector<struct pollfd> &pfds, nfds_t &j, std::vector<char> &buffer)
+void	handle_client_request(std::vector<struct pollfd> &pfds, nfds_t &j)
 {
-	int bytes_read, sender_fd;
-	sender_fd = pfds[j].fd;
-	char buf[BUFSIZ];
-	std::memset(&buf, '\0', sizeof(buf));
-	int i = -1;
-	bytes_read = recv(sender_fd, &buf, BUFSIZ, 0);
-	if (bytes_read < 0)
-		throw_error("recv");
-	if (bytes_read == 0)
+	int count = 0, bytes_read = 1, sender_fd = pfds[j].fd, i = 0;
+	char buffer[BUFSIZ];
+	std::string recieved;
+	// while (count < MSGLEN)
+	while (bytes_read > 0)
 	{
-		std::cout << "[" << sender_fd << "] Client socket closed connection." << '\n';
-		erase_from_pollfd(pfds, j);
+		bytes_read = 0;
+		memset(buffer, 0, sizeof(buffer));
+		bytes_read = recv(sender_fd, &buffer,BUFSIZ, 0);
+		if (bytes_read < 0)
+			throw_error("recv");
+		if (bytes_read == 0)
+		{
+			std::cout << "[" << sender_fd << "] Client socket closed connection." << '\n';
+			erase_from_pollfd(pfds, j);
+		}
+		std::cout << "byte read : " << bytes_read << std::endl;
+		recieved += buffer;
+		count += bytes_read;
+		std::cout << "count : " << count << std::endl;
+		i++;
 	}
-	i = -1;
-	while (buf[++i])
-		buffer.push_back(buf[i]);
-	std::cout << "\ntaille message recu: " << buffer.size() << '\n';
-	std::cout << "[" << sender_fd << "] Got message: " << buffer.data() << '\n';
+	std::cout << "\ntaille message recu: " << recieved.size() << '\n';
+	std::cout << "[" << sender_fd << "] Got message: " << recieved << '\n';
 	//transform cleint request into answer
-	send_msg_to_client(sender_fd, buffer.data());
+	send_msg_to_client(sender_fd, recieved.c_str());
 }
 
 void sigIntHandler(int signal)
 {
 	if (signal == SIGINT)
-		std::exception();	
+		throw std::runtime_error(std::string("CTRL + C caught!"));	
+}
+
+void sigQuitHandler(int signal)
+{
+	if (signal == SIGQUIT)
+		throw std::runtime_error(std::string("CTRL + \\ caught!"));	
 }
 
 int	main()
@@ -120,8 +135,8 @@ int	main()
 	try
 	{
 		std::signal(SIGINT, sigIntHandler);
+		std::signal(SIGQUIT, sigQuitHandler);
 		std::vector<struct pollfd> pfds;
-		std::vector<char> buffer;
 		int status, server_fd = make_listening_socket();
 		if (server_fd < 0)
 			return (1);
@@ -129,7 +144,6 @@ int	main()
 		pfds.push_back(temp);
 		while(1)
 		{
-			std::memset(&buffer, '\0', sizeof(buffer));
 			status = poll(pfds.data(), pfds.size(), 2000);
 			if (status < 0)
 				throw_error("poll");
@@ -146,7 +160,7 @@ int	main()
 				if (pfds[j].fd == server_fd && (pfds[j].revents & POLLIN))
 					add_client_to_pollfds(pfds, server_fd);
 				else if (pfds[j].fd != server_fd && (pfds[j].revents & POLLIN)) // On est sur un socket client en position POLLIN
-					handle_client_request(pfds, j, buffer);
+					handle_client_request(pfds, j);
 				// if (pfds[j].fd != server_fd && (pfds[j].revents & POLLOUT))
 				// 	send_msg_to_client(pfds[j].fd , buffer);
 			}
