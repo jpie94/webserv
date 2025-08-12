@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
+#    Updated: 2025/08/12 16:44:57 by jpiech           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = webserv
 
 CC = c++
@@ -8,7 +20,8 @@ CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98 -I./$(INCLUDES_DIR)
 
 SRCS_DIR = srcs
 
-SRCS =	$(SRCS_DIR)/server.cpp
+SRCS =	$(SRCS_DIR)/server.cpp \
+		$(SRCS_DIR)/Client.cpp
 
 OBJ_DIR = obj
 

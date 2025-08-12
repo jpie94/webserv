@@ -1,22 +1,16 @@
-#include <iostream>
+#include "Client.hpp"
 #include <cstdio>
-#include <string>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <cstring>
-#include <poll.h>
-#include <vector>
 #include <exception>
 #include <sstream>
 #include <csignal>
+#include <vector>
 
 #define PORT "8080"
 #define IP "127.0.0.1"
-#define BODYLEN 5000
-#define HEADERLEN 0
+
 
 void throw_error(const char* msg)
 {
@@ -51,7 +45,7 @@ int	make_listening_socket()
 	return (socket_fd);
 }
 
-void	add_client_to_pollfds(std::vector<struct pollfd> &pfds, int server_fd)
+void	add_client_to_pollfds(std::vector<struct pollfd> &pfds, int server_fd, nfds_t &j, std::vector<Client> &client_list)
 {
 	int socket_fd;
 	socket_fd = accept(server_fd, NULL, 0);
@@ -59,6 +53,8 @@ void	add_client_to_pollfds(std::vector<struct pollfd> &pfds, int server_fd)
 		throw_error("accept");
 	struct pollfd temp = {socket_fd, POLLIN, 0};
 	pfds.push_back(temp);
+	Client temp1(socket_fd, j);
+	client_list.push_back(temp1);
 	std::cout << "Connection accepted for new client "<< socket_fd << std::endl;
 }
 
@@ -67,58 +63,7 @@ void	erase_from_pollfd(std::vector<struct pollfd> &pfds, nfds_t &j)
 	if (close(pfds[j].fd) < 0)
 		throw_error("close");
 	pfds.erase(pfds.begin() + j--);
-}
-
-void	send_answer(std::vector<struct pollfd> &pfds, nfds_t &j)
-{
-	const char message[] = "hello client, I want to answer you but I'm to dumb to make a reel HTTP/1.1 answer O_o\n";
-	ssize_t msg_len = std::strlen(message);
-	if (!msg_len)
-		return((void)(std::cout << "strlen est egal a 0" << std::endl)) ; 
-	ssize_t count = 0;
-	ssize_t	sent = 0;
-	sent = send(pfds[j].fd, message + count, msg_len - count, 0);
-	if (sent < 0)
-		throw_error("send");
-	count += sent;
-	std::cout << "\ntaille message envoye: " << count << '\n';
-	if(count == msg_len)
-	{
-		pfds[j].events = POLLIN;
-		//message.erase();
-		count = 0;
-	}
-}
-
-void	handle_request(std::vector<struct pollfd> &pfds, nfds_t &j)
-{
-	int count = 0, bytes_read = 1, sender_fd = pfds[j].fd;
-	char buffer[4096];
-	std::string recieved;
-	bytes_read = 0;
-	memset(buffer, 0, sizeof(buffer));
-	bytes_read = recv(sender_fd, &buffer,BUFSIZ, 0);
-	if (bytes_read < 0)
-	{
-		std::cout << "[" << sender_fd << "] Error: recv, connection closed." << '\n';
-		erase_from_pollfd(pfds, j);
-	}
-	if (bytes_read == 0)
-	{
-		std::cout << "[" << sender_fd << "] Client socket closed connection." << '\n';
-		erase_from_pollfd(pfds, j);
-	}
-	std::cout << "byte read : " << bytes_read << std::endl;
-	recieved += buffer;
-	count += bytes_read;
-	std::cout << "count : " << count << std::endl;
-	std::cout << "\ntaille message recu: " << recieved.size() << '\n';
-	std::cout << "[" << sender_fd << "] Got message:\n" << recieved << '\n';
-	if (count == HEADERLEN + BODYLEN)
-	{
-		pfds[j].events = POLLOUT;
-		count = 0;
-	}
+	//Faudra penser a mettre a jour l attribut index dans tous les clients en fonction de cet erase pour faire correspondre a la structure de pollfds
 }
 
 void sigIntHandler(int signal)
@@ -141,6 +86,7 @@ int	main()
 		std::signal(SIGINT, sigIntHandler);
 		std::signal(SIGQUIT, sigQuitHandler);
 		std::vector<struct pollfd> pfds;
+		std::vector<Client> client_list;
 		int status, server_fd = make_listening_socket();
 		if (server_fd < 0)
 			return (1);
@@ -162,11 +108,11 @@ int	main()
 					continue;
 				std::cout << "Ready for I/O operation" << '\n';
 				if (pfds[j].fd == server_fd && (pfds[j].revents & POLLIN))
-					add_client_to_pollfds(pfds, server_fd);
+					add_client_to_pollfds(pfds, server_fd, j, client_list);
 				else if (pfds[j].fd != server_fd && (pfds[j].revents & POLLIN))
-					handle_request(pfds, j);
+					client_list[j].handle_request(pfds[j]);
 				if (pfds[j].fd != server_fd && (pfds[j].revents & POLLOUT))
-					send_answer(pfds, j);
+					client_list[j].send_answer(pfds[j]);
 			}
 		}
 	}
