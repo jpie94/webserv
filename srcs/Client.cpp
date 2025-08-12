@@ -6,13 +6,13 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:56:08 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/12 17:39:24 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/12 17:46:54 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 // *****************_________CANONICAL______________******************
-Client::Client(void) :fd(), index(), count(), recieved("lol")
+Client::Client(void) :fd(), index(), count(), recieved()
 {
 }
 
@@ -38,7 +38,7 @@ Client &Client::operator=(Client const & rhs)
 }
 
 // *****************_________MEMBER______________******************
-Client::Client(int i, nfds_t j) : count(), recieved("lol")
+Client::Client(int i, nfds_t j) : count(), recieved()
 {
 	fd = i;
 	index = j;
