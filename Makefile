@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/13 15:55:33 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/08/13 18:06:18 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,9 +21,8 @@ CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98 -I./$(INCLUDES_DIR)
 SRCS_DIR = srcs
 
 SRCS =	$(SRCS_DIR)/main.cpp \
-	$(SRCS_DIR)/Client.cpp \
 	$(SRCS_DIR)/Webserv.cpp \
-	$(SRCS_DIR)/Server.cpp
+	$(SRCS_DIR)/WebSocket.cpp
 
 OBJ_DIR = obj
 

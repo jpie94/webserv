@@ -1,4 +1,3 @@
-#include "Client.hpp"
 #include "Webserv.hpp"
 #include <cstdio>
 #include <netdb.h>
@@ -22,7 +21,6 @@ void sigQuitHandler(int signal)//webserv class
 
 int	main()
 {
-	int server_fd;
 	try
 	{
 		Webserv ws;
@@ -35,6 +33,5 @@ int	main()
 	{
 		std::cerr << e.what() << '\n';
 	}
-	close(server_fd);
 	return (0);
 }

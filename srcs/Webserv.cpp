@@ -1,7 +1,8 @@
 #include "Webserv.hpp"
+#include "WebSocket.hpp"
 
 // *****************_________CANONICAL______________******************
-Webserv::Webserv(void) : _serverNumber(0)
+Webserv::Webserv(void)
 {
 }
 
@@ -20,7 +21,6 @@ Webserv &Webserv::operator=(Webserv const & rhs)
     {
         this->_pfds = rhs._pfds;
         this->_socket_list = rhs._socket_list;
-        this->_serverNumber = rhs._serverNumber;
     }
     return (*this);
 }
@@ -59,7 +59,6 @@ void Webserv::make_listening_socket()
 		throw_error("listen");
     struct pollfd temp = {socket_fd, POLLIN, 0};
 	this->_pfds.push_back(temp);
-    this->_serverNumber++;
 }
 void    Webserv::runWebserv()
 {
