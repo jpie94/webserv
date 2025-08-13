@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:38:50 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/12 18:07:39 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/13 15:08:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include "Server.hpp"
 
 #define BODYLEN 5000
 #define HEADERLEN 0
 
-class Client 
+class Client : public Server
 {
     private :
-    
-        int fd;
-        nfds_t index;
-        int count;
-        std::string recieved;
+        int _count;
+        std::string _recieved;
         // std::string request_line;
         // std::string header;
         // int headerlen;
@@ -46,7 +44,7 @@ class Client
         ~Client(void);//Canonical
         
         Client(int i, nfds_t j);   
-        void	send_answer(struct pollfd &pfd);
-        void	handle_request(struct pollfd &pfd);
+        void	send_answer();
+        void	handle_request();
 };
 #endif 

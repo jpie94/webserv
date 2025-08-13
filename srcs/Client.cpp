@@ -3,17 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 15:56:08 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/12 17:46:54 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/13 15:11:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 // *****************_________CANONICAL______________******************
-Client::Client(void) :fd(), index(), count(), recieved()
+Client::Client(void) : Server(), _count(), _recieved()
 {
+	this->_type = CLIENT;
 }
 
 Client::Client(const Client& srcs)
@@ -29,26 +30,27 @@ Client &Client::operator=(Client const & rhs)
 {
     if (this != &rhs)
     {
-		this->index = rhs.index;
-		this->fd = rhs.fd;
-		this->count = rhs.count;
-        this->recieved = rhs.recieved;
+		this->_index = rhs._index;
+		this->_fd = rhs._fd;
+		this->_count = rhs._count;
+        this->_recieved = rhs._recieved;
     }
     return (*this);
 }
 
 // *****************_________MEMBER______________******************
-Client::Client(int i, nfds_t j) : count(), recieved()
+Client::Client(int i, nfds_t j) : _count(), _recieved()
 {
-	fd = i;
-	index = j;
+	_fd = i;
+	_index = j;
+	this->_type = CLIENT;
 }
 
-void	Client::handle_request(struct pollfd &pfds)
+void	Client::handle_request()
 {
 	char buffer[4096];
 	std::memset(buffer, 0, sizeof(buffer));
-	int bytes_read = recv(pfds.fd, &buffer,BUFSIZ, 0);
+	int bytes_read = recv(_pfds[this->_index].fd, &buffer,BUFSIZ, 0);
 	// if (bytes_read < 0)
 	// {
 	// 	std::cout << "[" << pfds.fd << "] Error: recv, connection closed." << '\n';
@@ -61,34 +63,34 @@ void	Client::handle_request(struct pollfd &pfds)
 	// }
 	std::cout << "index= " << index << std::endl;
 	std::cout << "byte read : " << bytes_read << std::endl;
-	std::cout << "recieved= " << recieved << std::endl;
-	recieved = recieved + buffer;
-	count += bytes_read;
-	std::cout << "count : " << count << std::endl;
-	std::cout << "\ntaille message recu: " << recieved.size() << '\n';
-	std::cout << "[" << pfds.fd << "] Got message:\n" << recieved << '\n';
-	if (count == HEADERLEN + BODYLEN)
+	std::cout << "_recieved= " << _recieved << std::endl;
+	_recieved = _recieved + buffer;
+	_count += bytes_read;
+	std::cout << "count : " << _count << std::endl;
+	std::cout << "\ntaille message recu: " << _recieved.size() << '\n';
+	std::cout << "[" << _pfds[_index].fd << "] Got message:\n" << _recieved << '\n';
+	if (_count == HEADERLEN + BODYLEN)
 	{
-		pfds.events = POLLOUT;
-		count = 0;
+		_pfds[_index].events = POLLOUT;
+		_count = 0;
 	}
 }
 
-void	Client::send_answer(struct pollfd &pfds)
+void	Client::send_answer()
 {
 	const char message[] = "hello client, I want to answer you but I'm to dumb to make a reel HTTP/1.1 answer O_o\n";
 	ssize_t msg_len = std::strlen(message);
 	if (!msg_len)
 		return((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl)) ; 
-	size_t sent = send(pfds.fd, message + count, msg_len - count, 0);
+	size_t sent = send(this->_pfds[this->_index].fd, message + _count, msg_len - _count, 0);
 	// if (sent < 0)
 	// 	throw_error("send");
-	count += sent;
-	std::cout << "\ntaille message envoye: " << count << '\n';
-	if(count == msg_len)
+	_count += sent;
+	std::cout << "\ntaille message envoye: " << _count << '\n';
+	if(_count == msg_len)
 	{
-		pfds.events = POLLIN;
+		this->_pfds[this->_index].events = POLLIN;
 		//message.erase();
-		count = 0;
+		_count = 0;
 	}
 }

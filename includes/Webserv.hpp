@@ -9,17 +9,17 @@
 #include <netdb.h>
 #include <cstring>
 #include "Client.hpp"
+
 #define PORT "8080"
 #define IP "127.0.0.1"
 
-// class Client;
+class Server;
 
 class Webserv
 {
     protected:
-                std::vector<struct pollfd> _pfds;
-                std::vector<Client> _client_list;
-                std::vector<int>    _server_socket;
+                static std::vector<struct pollfd> _pfds;
+                static std::vector<Server> _socket_list;
                 size_t              _serverNumber;
     public:
                 Webserv(void); //Canonical
