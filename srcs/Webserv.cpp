@@ -1,6 +1,9 @@
 #include "Webserv.hpp"
 #include "WebSocket.hpp"
 
+std::vector<struct pollfd> Webserv::_pfds;
+std::vector<WebSocket> Webserv::_web_sockets;
+
 // *****************_________CANONICAL______________******************
 Webserv::Webserv(void)
 {
@@ -17,11 +20,12 @@ Webserv::~Webserv(void)
 
 Webserv &Webserv::operator=(Webserv const & rhs)
 {
-    if (this != &rhs)
-    {
-        this->_pfds = rhs._pfds;
-        this->_socket_list = rhs._socket_list;
-    }
+    (void)rhs;
+    // if (this != &rhs)
+    // {
+    //     this->_pfds = rhs._pfds;
+    //     this->_web_sockets = rhs._web_sockets;
+    // }
     return (*this);
 }
 
@@ -59,7 +63,11 @@ void Webserv::make_listening_socket()
 		throw_error("listen");
     struct pollfd temp = {socket_fd, POLLIN, 0};
 	this->_pfds.push_back(temp);
+    WebSocket temp1(socket_fd, (this->_pfds.size() -1), SERVER);
+	this->_web_sockets.push_back(temp1);
+    std::cout << "socket accept!" << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
 }
+
 void    Webserv::runWebserv()
 {
     int status;
@@ -78,12 +86,12 @@ void    Webserv::runWebserv()
             if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
                 continue;
             std::cout << "Ready for I/O operation" << '\n';
-            if (_socket_list[j].getType() == SERVER && (_pfds[j].revents & POLLIN))
-                this->_socket_list[j].add_client_to_pollfds();
-            else if (this->_socket_list[j].getType() == CLIENT && (_pfds[j].revents & POLLIN))
-                _socket_list[j].handle_request();
-            if (this->_socket_list[j].getType() == CLIENT && (_pfds[j].revents & POLLOUT))
-                _socket_list[j].send_answer();
+            if (_web_sockets[j].getType() == SERVER && (_pfds[j].revents & POLLIN))
+                this->_web_sockets[j].add_client_to_pollfds();
+            else if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLIN))
+                _web_sockets[j].handle_request();
+            if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLOUT))
+                _web_sockets[j].send_answer();
         }
     }
 }

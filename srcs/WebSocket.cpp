@@ -45,8 +45,10 @@ void	WebSocket::add_client_to_pollfds()//WebSocket class
 	struct pollfd temp = {socket_fd, POLLIN, 0};
 	this->_pfds.push_back(temp);
 	WebSocket temp1(socket_fd, (this->_pfds.size() -1), CLIENT);
-	this->_socket_list.push_back(temp1);
+	this->_web_sockets.push_back(temp1);
 	std::cout << "Connection accepted for new client "<< socket_fd << std::endl;
+	std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
+
 }
 
 void	WebSocket::erase_from_pollfd(nfds_t &j)//WebSocket class
@@ -54,9 +56,9 @@ void	WebSocket::erase_from_pollfd(nfds_t &j)//WebSocket class
 	if (close(this->_pfds[j].fd) < 0)
 		throw_error("close");
 	this->_pfds.erase(this->_pfds.begin() + j);
-	this->_socket_list.erase(this->_socket_list.begin() + j);
-	for(unsigned int i = j; i < this->_socket_list.size(); ++i)
-		this->_socket_list[i]._index--;
+	this->_web_sockets.erase(this->_web_sockets.begin() + j);
+	for(unsigned int i = j; i < this->_web_sockets.size(); ++i)
+		this->_web_sockets[i]._index--;
 	//Faudra penser a mettre a jour l attribut index dans tous les clients en fonction de cet erase pour faire correspondre a la structure de pollfds
 }
 
@@ -71,16 +73,16 @@ void	WebSocket::handle_request()
 	char buffer[4096];
 	std::memset(buffer, 0, sizeof(buffer));
 	int bytes_read = recv(_pfds[this->_index].fd, &buffer,BUFSIZ, 0);
-	// if (bytes_read < 0)
-	// {
-	// 	std::cout << "[" << pfds.fd << "] Error: recv, connection closed." << '\n';
-	// 	erase_from_pollfd(pfds, j);
-	// }
-	// if (bytes_read == 0)
-	// {
-	// 	std::cout << "[" << pfds.fd << "] Client socket closed connection." << '\n';
-	// 	erase_from_pollfd(pfds, j);
-	// }
+	if (bytes_read < 0)
+	{
+		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
+		erase_from_pollfd(this->_index);
+	}
+	if (bytes_read == 0)
+	{
+		std::cout << "[" << this->_fd << "] Client socket closed connection." << '\n';
+		erase_from_pollfd(this->_index);
+	}
 	std::cout << "index= " << _index << std::endl;
 	std::cout << "byte read : " << bytes_read << std::endl;
 	std::cout << "_recieved= " << _recieved << std::endl;
@@ -103,8 +105,8 @@ void	WebSocket::send_answer()
 	if (!msg_len)
 		return((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl)) ; 
 	size_t sent = send(this->_pfds[this->_index].fd, message + _count, msg_len - _count, 0);
-	// if (sent < 0)
-	// 	throw_error("send");
+	if (sent < 0)
+		throw_error("send");
 	_count += sent;
 	std::cout << "\ntaille message envoye: " << _count << '\n';
 	if(_count == msg_len)

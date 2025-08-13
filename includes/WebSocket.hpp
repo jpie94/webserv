@@ -23,14 +23,14 @@ class WebSocket : public Webserv
 		// std::string message;
 		// ssize_t message_len;
 	public:
-			WebSocket();
-			virtual ~WebSocket();
-			WebSocket(const WebSocket&);
-			WebSocket&	operator=(const WebSocket&);
-			WebSocket(int fd, nfds_t index, t_socket type);
-		int	getType() const;
-		void	add_client_to_pollfds();
-		void	erase_from_pollfd(nfds_t &j);
-		void	send_answer();
-        	void	handle_request();
+				WebSocket();
+		virtual		~WebSocket();
+				WebSocket(const WebSocket&);
+		WebSocket&	operator=(const WebSocket&);
+				WebSocket(int fd, nfds_t index, t_socket type);
+		int		getType() const;
+		void		add_client_to_pollfds();
+		void		erase_from_pollfd(nfds_t &j);
+		void		send_answer();
+        	void		handle_request();
 };

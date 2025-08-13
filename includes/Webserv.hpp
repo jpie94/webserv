@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <iostream>
 
-#define PORT "8080"
+#define PORT "8081"
 #define IP "127.0.0.1"
 
 typedef enum e_socket
@@ -28,18 +28,18 @@ class Webserv
 {
 
     protected:
-                std::vector<struct pollfd> _pfds;
-                std::vector<WebSocket> _socket_list;
+                static std::vector<struct pollfd>      _pfds;
+                static std::vector<WebSocket>          _web_sockets;
     public:
-                Webserv(void); //Canonical
-                Webserv(const Webserv & srcs);//Canonical
-                Webserv & operator=(const Webserv & rhs);//Canonical
-                virtual ~Webserv(void);//Canonical
-        // virtual void	send_answer();
-        // virtual	void	handle_request();
-	// virtual void	add_client_to_pollfds();
-        // virtual void	erase_from_pollfd(nfds_t &j);
-                void     make_listening_socket();
-                void    throw_error(const char*);
-                void    runWebserv();
+                                                Webserv(); //Canonical
+                                                Webserv(const Webserv& srcs);//Canonical
+                Webserv&                        operator=(const Webserv& rhs);//Canonical
+                virtual                         ~Webserv(void);//Canonical
+                void                            make_listening_socket();
+                void                            throw_error(const char*);
+                void                            runWebserv();
+                // virtual void	send_answer();
+                // virtual	void	handle_request();
+                // virtual void	add_client_to_pollfds();
+                // virtual void	erase_from_pollfd(nfds_t &j);
 };
