@@ -95,7 +95,8 @@ void	Webserv::make_listening_socket()
 	_pfds.push_back(temp);
 	WebSocket temp1(socket_fd, (_pfds.size() -1), SERVER);
 	_web_sockets.push_back(temp1);
-	std::cout << "socket accept!" << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
+	std::cout << "socket accept!" << '\n';
+	//std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
 }
 
 void	Webserv::runWebserv()

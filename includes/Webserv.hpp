@@ -32,7 +32,7 @@ class Webserv
 		static std::vector<struct pollfd>	_pfds;
 		static std::vector<WebSocket>		_web_sockets;
 	public:
-			/* Canonical Form*/
+			/* Canonical Form */
 							Webserv();
 							Webserv(const Webserv& srcs);
 		Webserv&				operator=(const Webserv& rhs);

@@ -49,7 +49,7 @@ void	WebSocket::add_client_to_pollfds()
 	WebSocket temp1(socket_fd, (_pfds.size() -1), CLIENT);
 	_web_sockets.push_back(temp1);
 	std::cout << "Connection accepted for new client "<< socket_fd << std::endl;
-	std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
+	// std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
 
 }
 
