@@ -61,6 +61,11 @@ void	Webserv::throw_error(const char* msg)
 	throw std::runtime_error(msg);
 }
 
+std::vector<struct pollfd>&	Webserv::getPfds()
+{
+	return (_pfds);
+}
+
 void	Webserv::make_listening_socket()
 {
 	struct addrinfo	hint;

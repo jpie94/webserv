@@ -41,4 +41,5 @@ class Webserv
 		void					make_listening_socket();
 		void					throw_error(const char*);
 		void					runWebserv();
+		std::vector<struct pollfd>&		getPfds();
 };

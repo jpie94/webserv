@@ -95,7 +95,7 @@ void	WebSocket::handle_request()
 	std::cout << "count : " << this->_count << std::endl;
 	std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
 	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
-	if (this->_count == HEADERLEN + BODYLEN)
+	if (this->_count >= HEADERLEN + BODYLEN)
 	{
 		_pfds[this->_index].events = POLLOUT;
 		this->_count = 0;
@@ -104,7 +104,7 @@ void	WebSocket::handle_request()
 
 void	WebSocket::send_answer()
 {
-	const char	message[] = "hello client, I want to answer you but I'm to dumb to make a reel HTTP/1.1 answer O_o\n";
+	const char	message[] = "hello client, I want to answer you but I'm to dumb to make a real HTTP/1.1 answer O_o\n";
 	ssize_t		msg_len = std::strlen(message);
 
 	if (!msg_len)
@@ -115,7 +115,6 @@ void	WebSocket::send_answer()
 		std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
 		erase_client(this->_index);
 	}
-		throw_error("send");
 	this->_count += sent;
 	std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if(this->_count == msg_len)
