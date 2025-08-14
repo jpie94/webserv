@@ -1,45 +1,44 @@
 #pragma once
 
-#include <poll.h>
-#include <vector>
-#include <string>
+#include <csignal>
+#include <cstdio>
+#include <cstring>
 #include <exception>
+#include <iostream>
+#include <netdb.h>
+#include <poll.h>
 #include <stdexcept>
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <cstring>
-#include <cstdio>
-#include <iostream>
+#include <vector>
 
-#define PORT "8081"
 #define IP "127.0.0.1"
+#define PORT "8081"
 
-typedef enum e_socket
+typedef enum	e_socket
 {
 	UNDEF,
 	SERVER,
 	CLIENT
-}	t_socket;
+}		t_socket;
 
 class WebSocket;
 
 class Webserv
 {
 
-    protected:
-                static std::vector<struct pollfd>      _pfds;
-                static std::vector<WebSocket>          _web_sockets;
-    public:
-                                                Webserv(); //Canonical
-                                                Webserv(const Webserv& srcs);//Canonical
-                Webserv&                        operator=(const Webserv& rhs);//Canonical
-                virtual                         ~Webserv(void);//Canonical
-                void                            make_listening_socket();
-                void                            throw_error(const char*);
-                void                            runWebserv();
-                // virtual void	send_answer();
-                // virtual	void	handle_request();
-                // virtual void	add_client_to_pollfds();
-                // virtual void	erase_from_pollfd(nfds_t &j);
+	protected:
+		static std::vector<struct pollfd>	_pfds;
+		static std::vector<WebSocket>		_web_sockets;
+	public:
+			/* Canonical Form*/
+							Webserv();
+							Webserv(const Webserv& srcs);
+		Webserv&				operator=(const Webserv& rhs);
+		virtual					~Webserv();
+			/* Member Functions */
+		void					make_listening_socket();
+		void					throw_error(const char*);
+		void					runWebserv();
 };
