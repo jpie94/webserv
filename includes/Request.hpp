@@ -7,6 +7,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <dirent.h>
 
 #define CRLFCRLF "\n\n"
 
@@ -39,6 +40,7 @@ class Request : public Webserv
 		void					parsRequestLine(std::string&);
 		void					parsHeaders(std::string&);
 		void					parsBody(std::string&);
-		std::string				trim_white_spaces(std::string) const;
+		void					checkRequest();
+//		std::string				trim_white_spaces(std::string) const;
 
 };
