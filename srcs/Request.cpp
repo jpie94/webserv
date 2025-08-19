@@ -32,6 +32,13 @@ Request::~Request() {}
 
 /*****************	MEMBER		*******************/
 
+static void	strCapitalizer(std::string &str)
+{
+	size_t	i = -1;
+	while (str[++i])
+		str[i] = static_cast<char>(std::toupper(str[i]));	
+}
+
 static std::string	trim_white_spaces(std::string str)//end = end - start??
 {
 	size_t	start = 0, end = 0;
@@ -82,6 +89,7 @@ void	Request::parsHeaders(std::string& msg)
 		if (found == std::string::npos)
 			Webserv::throw_error("Bad request : header without ':'");
 		key = trim_white_spaces(line.substr(0, found));
+		strCapitalizer(key);
 		value = trim_white_spaces(line.substr(found + 1));
 		if (this->_headers.find(key) != this->_headers.end())
 		{
@@ -90,8 +98,8 @@ void	Request::parsHeaders(std::string& msg)
 		}
 		else
 			this->_headers[key] = value;
-		// std::cout << "key = " << key << '\n';
-		// std::cout << "value= " << value << '\n';
+		std::cout << "key = " << key << '\n';
+		std::cout << "value= " << value << '\n';
 		std::getline(ss, line, '\n');
 	}
 	// for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
@@ -134,7 +142,7 @@ void	Request::checkRequest()
 		throw_error("Error: closedir");
 	if (this->_protocol.compare("HTTP/1.1") && this->_protocol.compare("HTTP/0.9") && this->_protocol.compare("HTTP/1.0"))
 		Webserv::throw_error("Error: Wrong HTTP request Protocol");
-	if (this->_headers.find("Host") == this->_headers.end())
+	if (this->_headers.find("HOST") == this->_headers.end())
 		Webserv::throw_error("Error: Bad HTTP request - missing \'Host\' header");
 }
 
@@ -152,4 +160,30 @@ void	Request::parsRequest()
 		Webserv::throw_error("Bad request: invalid header");
 	// std::cout << "\nrequest_len= " << this->_request_len << '\n' << "reqline= " << this->_reqline_len;
 	// std::cout << ", headerslen= " << this->_headers_len << ", bodylen= " << this->_body_len << std::endl;
+}
+
+void	Request::_get() const
+{
+	std::cout << "GET methode called\n";
+}
+
+void	Request::_post() const
+{
+	std::cout << "POST methode called\n";
+}
+
+void	Request::_delete() const
+{
+	std::cout << "DELETE methode called\n";
+}
+
+void	Request::handleMethode()
+{
+	std::string	methodes[3] = {"GET", "POST", "DELETE"};
+	void	(Request::*f[])(void) const = {&Request::_get, &Request::_post, &Request::_delete};
+
+	for (int i = 0; i < 3; ++i)
+		if (!methodes[i].compare(this->_methode))
+			return ((this->*f[i])());
+	Webserv::throw_error("Error: Unknow Methode");
 }

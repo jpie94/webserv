@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 	{
 		Request r(argv[1]);
 		r.parsRequest();
+		r.handleMethode();
 	}
 	catch(const std::exception& e)
 	{

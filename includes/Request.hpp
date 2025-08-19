@@ -24,6 +24,9 @@ class Request : public Webserv
 		size_t					_reqline_len;
 		size_t					_headers_len;
 		size_t					_body_len;
+		void					_get() const;
+		void					_post() const;
+		void					_delete() const;
 	public:
 		/* Canonical Form + Paramtric constructor */
 							~Request();
@@ -41,6 +44,7 @@ class Request : public Webserv
 		void					parsHeaders(std::string&);
 		void					parsBody(std::string&);
 		void					checkRequest();
+		void					handleMethode();
 //		std::string				trim_white_spaces(std::string) const;
 
 };
