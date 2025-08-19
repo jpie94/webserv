@@ -14,7 +14,7 @@
 class Request : public Webserv
 {
 	private:
-		const std::string			_request_msg;
+		const std::string			_request_msg;//can be a pb if there is a '\0' in the body-> try with char*
 		std::map<std::string, std::string>	_headers;//name:value until empty line
 		std::string				_body;//if there is a content-length header
 		std::string				_methode;

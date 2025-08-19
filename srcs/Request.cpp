@@ -32,7 +32,7 @@ Request::~Request() {}
 
 /*****************	MEMBER		*******************/
 
-static std::string	trim_white_spaces(std::string str)
+static std::string	trim_white_spaces(std::string str)//end = end - start??
 {
 	size_t	start = 0, end = 0;
 	while (std::isspace(str[start]) && str[start])
@@ -43,7 +43,7 @@ static std::string	trim_white_spaces(std::string str)
 	if (end < str.size())
 		end++;
 	if (start <= end)
-		return (str.substr(start, end));
+		return (str.substr(start, end - start));
 	return ("");
 }
 
@@ -97,9 +97,9 @@ void	Request::parsHeaders(std::string& msg)
 	// for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
 	// 	std::cout << "[" << it->first << "]-> " << it->second << '\n';
 	msg = ss.str();
-	if (count + 1 < msg.size())
+	if (count + 1 <= msg.size())
 		msg = msg.substr(count + 1);
-	this->_headers_len = count + 1 - count_double;
+	this->_headers_len = count + 1;
 }
 
 void	Request::parsBody(std::string& msg)
