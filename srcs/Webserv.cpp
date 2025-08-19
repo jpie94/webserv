@@ -44,6 +44,10 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 }
 
 /*****************	MEMBER		*******************/
+Webserv::Webserv(char *argv1)
+{
+
+}
 
 void	Webserv::throw_error(const char* msg)
 {

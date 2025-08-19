@@ -2,14 +2,24 @@
 #include "Request.hpp"
 #include "Signals.hpp"
 
-int	main()
+int	main(int argc, char *argv[])
 {
 	try
 	{
-		Webserv ws;
 		std::signal(SIGINT, sigIntHandler);
 		std::signal(SIGQUIT, sigQuitHandler);
-		ws.runWebserv();
+		if (argc == 1)
+		{
+			Webserv ws;
+			ws.runWebserv();
+		}
+		else if (argc == 2)
+		{
+			Webserv ws(argv[1]);
+			ws.runWebserv();	
+		}
+		else
+			throw std::invalid_argument("Wrong number of arguments, must be 1 or 0");
 	}
 	catch(const std::exception& e)
 	{

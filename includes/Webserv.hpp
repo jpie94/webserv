@@ -38,6 +38,7 @@ class Webserv
 		Webserv&				operator=(const Webserv& rhs);
 		virtual					~Webserv();
 			/* Member Functions */
+								Webserv(char *argv1);
 		void					make_listening_socket();
 		void					throw_error(const char*);
 		void					runWebserv();
