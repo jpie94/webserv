@@ -47,6 +47,35 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 Webserv::Webserv(char *FileName)
 {
 	std::string Config = ExtractConfig(FileName);
+	if(Config.find("Server") == std::string::npos)
+		throw std::invalid_argument(std::string("No server bloc found in : " + std::string(FileName)));
+	while(Config.size() != 0)
+	{
+		size_t it = Config.find("Server");
+		if(it == std::string::npos)
+			Config.clear();
+		else
+			ExtractBloc(Config, it + 6);
+	}
+}
+
+void	Webserv::ExtractBloc(std::string Config, size_t it)
+{
+	std::string key, value;
+
+	size_t i = it;
+	size_t j;
+	while (std::isspace(Config[i] && Config[i]))
+		i++;
+	if (Config[i] != '{')
+		throw std::invalid_argument(std::string("Patern error in configuration bloc before '{'"));
+	while (std::isspace(Config[i] && Config[i]))
+		i++;
+	j = i;
+	while (!std::isspace(Config[i] && Config[i]))
+		i++;
+	key = Config.substr(j, i);
+	
 }
 
 std::string		Webserv::ExtractConfig(char *FileName)
@@ -58,7 +87,7 @@ std::string		Webserv::ExtractConfig(char *FileName)
 	while (!ConfigFile.eof())
 	{
 		std::getline(ConfigFile, line);
-		Config += line + '\n';
+		Config += line;
 	}
 	ConfigFile.close();
 	return(Config);
