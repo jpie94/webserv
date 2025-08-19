@@ -47,35 +47,89 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 Webserv::Webserv(char *FileName)
 {
 	std::string Config = ExtractConfig(FileName);
-	if(Config.find("Server") == std::string::npos)
+	if(Config.find("server") == std::string::npos)
 		throw std::invalid_argument(std::string("No server bloc found in : " + std::string(FileName)));
 	while(Config.size() != 0)
 	{
-		size_t it = Config.find("Server");
+		size_t it = Config.find("server");
 		if(it == std::string::npos)
 			Config.clear();
 		else
+		{
 			ExtractBloc(Config, it + 6);
+			Config.erase(0, it + 6);
+		}
 	}
 }
 
-void	Webserv::ExtractBloc(std::string Config, size_t it)
+void	Webserv::ExtractBloc(std::string & Config, size_t it)
 {
+	static int recursion;
 	std::string key, value;
 
 	size_t i = it;
 	size_t j;
-	while (std::isspace(Config[i] && Config[i]))
+	while (std::isspace(Config[i]) && Config[i])
 		i++;
 	if (Config[i] != '{')
+	{
+		std::cout << Config[i] << std::endl;
 		throw std::invalid_argument(std::string("Patern error in configuration bloc before '{'"));
-	while (std::isspace(Config[i] && Config[i]))
-		i++;
-	j = i;
-	while (!std::isspace(Config[i] && Config[i]))
-		i++;
-	key = Config.substr(j, i);
-	
+	}	
+	i++;	
+	while (Config[i])
+	{
+		while (std::isspace(Config[i]) && Config[i])
+			i++;
+		if (Config[i] == '}')
+			break;
+		j = i;
+		while (!std::isspace(Config[i]) && Config[i])
+			i++;
+		key = Config.substr(j, (i - j));
+		if (key == "location" )
+		{
+			if (recursion == 0)
+			{
+				std::cout << "***********Extracting location....********" << std::endl;
+				while (std::isspace(Config[i]) && Config[i])
+					i++;
+				j = i;
+				while (!std::isspace(Config[i]) && Config[i])
+					i++;
+				std::string location_name = Config.substr(j, (i-j));
+				std::cout << "***********Location name : " << location_name << std::endl;
+				recursion = 1;
+				ExtractBloc(Config, i);
+				continue ;
+			}
+			else
+				throw std::invalid_argument(std::string("Patern error in configuration bloc : location inside location !"));
+		}
+		if (key == "server")
+				throw std::invalid_argument(std::string("Patern error in configuration bloc : server inside server !"));
+		while (std::isspace(Config[i]) && Config[i])
+			i++;
+		j = i;
+		while (Config[i] != '\n' && Config[i])
+			i++;
+		value = Config.substr(j, (i-j));
+		std::cout << "|Key = " << key << "|" << "Value = " << value << "|" << std::endl;
+		while (std::isspace(Config[i]) && Config[i])
+			i++;
+	}
+	if (Config[i] && Config[i] == '}')
+	{
+		std::cout << "!!!!!Deleting previous bloc....!!!!!" << std::endl;
+		Config.erase(it, (i - it + 1));
+		if (recursion == 1)
+		{
+			std::cout << "recursion activated" << std::endl;
+			recursion = 0;
+		}
+	}
+	else
+		throw std::invalid_argument(std::string("Patern error in configuration bloc : missing '}'"));
 }
 
 std::string		Webserv::ExtractConfig(char *FileName)
@@ -87,7 +141,7 @@ std::string		Webserv::ExtractConfig(char *FileName)
 	while (!ConfigFile.eof())
 	{
 		std::getline(ConfigFile, line);
-		Config += line;
+		Config += line + "\n";
 	}
 	ConfigFile.close();
 	return(Config);
