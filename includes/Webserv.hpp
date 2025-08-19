@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <vector>
+#include <fstream>
 
 #define IP "127.0.0.1"
 #define PORT "8081"
@@ -38,7 +39,8 @@ class Webserv
 		Webserv&				operator=(const Webserv& rhs);
 		virtual					~Webserv();
 			/* Member Functions */
-								Webserv(char *argv1);
+								Webserv(char *FileName);
+		std::string				ExtractConfig(char *FileName);
 		void					make_listening_socket();
 		void					throw_error(const char*);
 		void					runWebserv();

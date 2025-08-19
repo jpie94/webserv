@@ -44,9 +44,24 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 }
 
 /*****************	MEMBER		*******************/
-Webserv::Webserv(char *argv1)
+Webserv::Webserv(char *FileName)
 {
+	std::string Config = ExtractConfig(FileName);
+}
 
+std::string		Webserv::ExtractConfig(char *FileName)
+{
+	std::string Config, line;
+	std::ifstream	ConfigFile(FileName);
+	if (!ConfigFile.is_open())
+		throw std::runtime_error(std::string("Could not open file : " + std::string(FileName)));
+	while (!ConfigFile.eof())
+	{
+		std::getline(ConfigFile, line);
+		Config += line + '\n';
+	}
+	ConfigFile.close();
+	return(Config);
 }
 
 void	Webserv::throw_error(const char* msg)
