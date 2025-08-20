@@ -47,9 +47,7 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 Webserv::Webserv(char *FileName)
 {
 	std::string Config = ExtractConfig(FileName);
-	if(Config.find("server")== std::string::npos)
-			throw std::invalid_argument(std::string("No server bloc found in :\n " + Config));
-	while(!Config.empty())
+	while(Config.find("server") != std::string::npos)
 	{
 		size_t it = Config.find("server");
 		for(size_t i = 0; i < it; i++)
@@ -60,6 +58,11 @@ Webserv::Webserv(char *FileName)
 		ExtractBloc(Config, it + 6);
 		Config.erase(0, it + 6);
 	}
+	for(size_t i = 0; i < Config.size(); i++)
+		{
+			if(!isspace(Config[i]))
+				throw std::invalid_argument(std::string("Error : Something left at end of file"));
+		}
 }
 void	Webserv::CheckBeforeBracket(std::string Config, size_t & i)
 {
