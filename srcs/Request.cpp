@@ -164,7 +164,28 @@ void	Request::parsRequest()
 
 void	Request::_get() const
 {
-	std::cout << "GET methode called\n";
+	// std::string	answer, body, line;
+	// std::ifstream	ifs(this->_path, std::ifstream::in);
+	// struct stat	path_stat;
+
+	// std::cout << "GET methode called\n";
+	// if (ifs.fail() || !ifs.is_open())
+	// 	std::cerr << "Error: opening file: " << this->_path << std::endl;
+	// if (stat(this->_path.c_str(), &path_stat) != 0)
+	// 	std::cerr << "Error: cannot access " << this->_path << std::endl;
+	// if (S_ISDIR(path_stat.st_mode))
+	// 	std::cerr << "Error: " << this->_path << " is a directory, not a file." << std::endl;
+	// std::getline(ifs, line);
+	// while (!ifs.eof())
+	// {
+	// 	if (ifs.fail())
+	// 		return (ifs.clear(), ifs.close(), (void)(std::cerr << "Error: reading file: " << this->_path <<std::endl));
+	// 	body += line + "\n";
+	// 	std::getline(ifs, line);
+
+	// }
+	// answer += "HTTP/1.1 200 OK\nServer: Webserv\nContent-Length: ";
+
 }
 
 void	Request::_post() const
@@ -177,7 +198,7 @@ void	Request::_delete() const
 	std::cout << "DELETE methode called\n";
 }
 
-void	Request::handleMethode()
+void	Request::callMethode()
 {
 	std::string	methodes[3] = {"GET", "POST", "DELETE"};
 	void	(Request::*f[])(void) const = {&Request::_get, &Request::_post, &Request::_delete};

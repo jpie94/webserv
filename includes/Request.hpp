@@ -3,11 +3,13 @@
 #include "Webserv.hpp"
 #include <cstdlib>
 #include <cctype>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define CRLFCRLF "\n\n"
 
@@ -44,7 +46,5 @@ class Request : public Webserv
 		void					parsHeaders(std::string&);
 		void					parsBody(std::string&);
 		void					checkRequest();
-		void					handleMethode();
-//		std::string				trim_white_spaces(std::string) const;
-
+		void					callMethode();
 };
