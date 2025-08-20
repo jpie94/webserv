@@ -1,4 +1,4 @@
-```
+
 server
 {
 	listen 8080 8081;
@@ -258,4 +258,3 @@ server
 	allowed_methods	GET POST DELETE;
 
 }
-```

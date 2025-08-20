@@ -86,6 +86,22 @@ std::string Webserv::GetConfigKey(std::string Config, size_t & i)
 		return(Config.substr(j, (i - j)));
 }
 
+std::string Webserv::GetConfigValue(std::string Config, size_t & i)
+{
+	size_t j;
+
+	while (std::isspace(Config[i]) && Config[i])
+		i++;
+	j = i;
+	while (Config[i] != '\n' && Config[i])
+	{
+		if (Config[i] == '}' || Config[i] == '{')
+			return("");
+		i++;
+	}
+	return(Config.substr(j, (i-j)));
+}
+
 std::string Webserv::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
 {
 	if (recursion == true)
@@ -103,7 +119,7 @@ void	Webserv::ExtractBloc(std::string & Config, size_t it)
 {
 	static bool recursion;
 	std::string key, value;
-	size_t j, i = it;
+	size_t	i = it;
 	CheckBeforeBracket(Config, i);	
 	while (Config[i])
 	{
@@ -119,15 +135,10 @@ void	Webserv::ExtractBloc(std::string & Config, size_t it)
 		}
 		if (key == "server")
 			throw std::invalid_argument(std::string("Patern error in configuration bloc : server inside server !"));
-		while (std::isspace(Config[i]) && Config[i])
-			i++;
-		j = i;
-		while (Config[i] != '\n' && Config[i])
-			i++;
-		value = Config.substr(j, (i-j));
+		value = GetConfigValue(Config, i);
+		if (value.empty())
+			break;
 		std::cout << "|Key = " << key << "|" << "Value = " << value << "|" << std::endl;
-		while (std::isspace(Config[i]) && Config[i])
-			i++;
 	}
 	if (Config[i] && Config[i] == '}')
 	{
