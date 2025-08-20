@@ -16,7 +16,7 @@
 #include <map>
 
 #define IP "127.0.0.1"
-#define PORT "8082"
+#define PORT "8081"
 
 class Client;
 class Server;
@@ -50,6 +50,5 @@ class Webserv
 		void					runWebserv();
 		void					setIndex();
 		std::vector<struct pollfd>&		getPfds();
-		std::map<int, Client*>		getClient();
-		std::map<int, Server*>		getServer();
+		void 					cleanAll();
 };

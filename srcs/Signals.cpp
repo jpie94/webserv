@@ -15,6 +15,7 @@ void	sigIntHandler(int signal)
 				ws.getPfds()[i].fd = -1;
 			}
 		}
+		ws.cleanAll();
 		throw std::runtime_error(std::string("CTRL + C caught!"));
 	}
 }
@@ -34,7 +35,7 @@ void	sigQuitHandler(int signal)
 				ws.getPfds()[i].fd = -1;
 			}
 		}
-		
+		ws.cleanAll();
 		throw std::runtime_error(std::string("CTRL + \\ caught!"));
 	}
 }

@@ -19,20 +19,7 @@ Webserv::Webserv(const Webserv& srcs)
 
 Webserv::~Webserv()
 {
-	// for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
-	// {
-	// 	if(it->second)
-	// 		delete it->second;
-	// 	it->second = NULL;
-	// }
-	// _servers.clear();
-	// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
-	// {
-	// 	if(it->second)
-	// 		delete it->second;
-	// 	it->second = NULL;
-	// }
-	// _clients.clear();
+
 }
 
 Webserv	&Webserv::operator=(Webserv const& rhs)
@@ -47,6 +34,21 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 }
 
 /*****************	MEMBER		*******************/
+void 	Webserv::cleanAll()
+{
+	for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	{
+		if(it->second)
+			delete it->second;
+	}
+	_servers.clear();
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if(it->second)
+			delete it->second;
+	}
+	_clients.clear();
+}
 Webserv::Webserv(char *FileName)
 {
 	std::string Config = ExtractConfig(FileName);
@@ -178,13 +180,13 @@ void	Webserv::throw_error(const char* msg)
 	std::perror(msg);
 	for (unsigned int i = 0; i < _pfds.size(); ++i)
 	{
-	if (_pfds[i].fd > 0)
-	{
-		if (close(_pfds[i].fd) < 0)
-			throw_error("close");
-		else
-			_pfds[i].fd = -1;
-	}
+		if (_pfds[i].fd > 0)
+		{
+			if (close(_pfds[i].fd) < 0)
+				throw_error("close");
+			else
+				_pfds[i].fd = -1;
+		}
 	}
 	throw std::runtime_error(msg);
 }
@@ -213,6 +215,7 @@ void	Webserv::make_listening_socket()
 	}
 	if (bind(socket_fd, addr->ai_addr, addr->ai_addrlen) != 0)
 	{
+		close(socket_fd);
 		freeaddrinfo(addr);
 		throw_error("bind");
 	}
