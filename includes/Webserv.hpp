@@ -43,6 +43,8 @@ class Webserv
 		std::string				ExtractConfig(char *FileName);
 		void					ExtractBloc(std::string & Config, size_t it);
 		void					CheckBeforeBracket(std::string Config, size_t & i);
+		std::string 			GetConfigKey(std::string Config, size_t & i);
+		std::string 			ExtractLocation(std::string & Config, size_t & i, bool & recursion);
 		void					make_listening_socket();
 		void					throw_error(const char*);
 		void					runWebserv();
