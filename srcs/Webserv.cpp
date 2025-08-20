@@ -152,7 +152,7 @@ void	Webserv::ExtractBloc(std::string & Config, size_t it)
 			recursion = false;
 	}
 	else
-		throw std::invalid_argument(std::string("Patern error in configuration bloc : missing '}'"));
+		throw std::invalid_argument(std::string("Patern error in configuration bloc : didn't reach and of bloc with '}'"));
 }
 
 std::string		Webserv::ExtractConfig(char *FileName)
