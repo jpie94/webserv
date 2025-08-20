@@ -13,25 +13,24 @@
 #include <sys/socket.h>
 #include <vector>
 #include <fstream>
+#include <map>
 
 #define IP "127.0.0.1"
-#define PORT "8081"
+#define PORT "8082"
 
-typedef enum	e_socket
-{
-	UNDEF,
-	SERVER,
-	CLIENT
-}		t_socket;
-
-class WebSocket;
+class Client;
+class Server;
 
 class Webserv
 {
 
 	protected:
-		static std::vector<struct pollfd>	_pfds;
-		static std::vector<WebSocket>		_web_sockets;
+		static std::vector<struct pollfd> _pfds;
+		static std::map<int, Client*> _clients;
+		static std::map<int, Server*> _servers;
+        int		_fd;
+		int		_index;
+
 	public:
 			/* Canonical Form */
 							Webserv();
@@ -49,5 +48,8 @@ class Webserv
 		void					make_listening_socket();
 		void					throw_error(const char*);
 		void					runWebserv();
+		void					setIndex();
 		std::vector<struct pollfd>&		getPfds();
+		std::map<int, Client*>		getClient();
+		std::map<int, Server*>		getServer();
 };

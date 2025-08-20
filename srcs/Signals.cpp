@@ -34,6 +34,7 @@ void	sigQuitHandler(int signal)
 				ws.getPfds()[i].fd = -1;
 			}
 		}
+		
 		throw std::runtime_error(std::string("CTRL + \\ caught!"));
 	}
 }

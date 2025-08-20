@@ -1,40 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/20 18:07:28 by jpiech           ###   ########.fr       */
+/*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
+/*   Updated: 2025/08/20 17:00:20 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
-#include <iostream>
-#include <string>
-#include <map>
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 #include "Webserv.hpp"
 
-class Client;
+#define HEADERLEN 10
+#define BODYLEN 0
 
-class Server : public Webserv
+class Client : public Webserv
 {
     private :
 
-        std::map<std::string, std::string> config;
-        std::map<std::string, std::map<std::string, std::string> > locations;   
+      int 		    _count;
+		  std::string 	_recieved;
     
     public :
 
-        Server();
-        virtual ~Server();
-        Server(const Server & srcs);
-        Server & operator=(const Server & rhs);
+                    Client();
+        virtual		~Client();
+                    Client(const Client&);
+        Client&	operator=(const Client&);
 
-        Server(int i, nfds_t j);
-        void		add_client_to_pollfds();
-};
+      Client(int fd, nfds_t index);
 
+		  void		send_answer();
+      void		handle_request();
+      void		erase_client();
+} ;
 #endif

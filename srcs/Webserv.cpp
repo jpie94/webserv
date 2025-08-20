@@ -1,8 +1,10 @@
 #include "Webserv.hpp"
-#include "WebSocket.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
 
-std::vector<struct pollfd>	Webserv::_pfds;
-std::vector<WebSocket>		Webserv::_web_sockets;
+ std::vector<struct pollfd>	Webserv::_pfds;
+ std::map<int, Client*> Webserv::_clients;
+ std::map<int, Server*> Webserv::_servers;
 
 /*****************	CANONICAL	*******************/
 
@@ -17,19 +19,20 @@ Webserv::Webserv(const Webserv& srcs)
 
 Webserv::~Webserv()
 {
-	// std::cout << "pfsd.size= " << _pfds.size() << '\n';
-	// for (unsigned int i = 0; i < _pfds.size(); ++i)
-	//     std::cout << "i= " << i << ", fd= " << _pfds[i].fd << std::endl;
-	// for (unsigned int i = 0; i < _pfds.size(); ++i)
+	// for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
 	// {
-	//     if (_pfds[i].fd > 0)
-	//     {
-	//         if (close(_pfds[i].fd) < 0)
-	//             throw_error("close");
-	//         else
-	//             _pfds[i].fd = -1;
-	//     }
+	// 	if(it->second)
+	// 		delete it->second;
+	// 	it->second = NULL;
 	// }
+	// _servers.clear();
+	// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	// {
+	// 	if(it->second)
+	// 		delete it->second;
+	// 	it->second = NULL;
+	// }
+	// _clients.clear();
 }
 
 Webserv	&Webserv::operator=(Webserv const& rhs)
@@ -186,7 +189,7 @@ void	Webserv::throw_error(const char* msg)
 	throw std::runtime_error(msg);
 }
 
-std::vector<struct pollfd>&	Webserv::getPfds()
+std::vector<struct pollfd> &	Webserv::getPfds()
 {
 	return (_pfds);
 }
@@ -216,10 +219,12 @@ void	Webserv::make_listening_socket()
 	freeaddrinfo(addr);
 	if (listen(socket_fd, 1001) < 0)
 		throw_error("listen");
-	struct pollfd temp = {socket_fd, POLLIN, 0};
-	_pfds.push_back(temp);
-	WebSocket temp1(socket_fd, (_pfds.size() -1), SERVER);
-	_web_sockets.push_back(temp1);
+	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
+	_pfds.push_back(newPollfd);
+	Server *newServer = new Server(socket_fd, (_pfds.size() -1));
+	_servers[socket_fd] = newServer;
+	// for (std::map<int, Server>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	// 	std::cout << it->first << std::endl;
 	std::cout << "socket accept!" << '\n';
 	//std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
 }
@@ -228,7 +233,7 @@ void	Webserv::runWebserv()
 {
 	int status;
 
-	make_listening_socket();
+	make_listening_socket(); 
 	while(1)
 	{
 		status = poll(_pfds.data(), _pfds.size(), 2000);
@@ -244,12 +249,42 @@ void	Webserv::runWebserv()
 			if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
 				continue;
 			std::cout << "Ready for I/O operation" << '\n';
-			if (_web_sockets[j].getType() == SERVER && (_pfds[j].revents & POLLIN))
-				this->_web_sockets[j].add_client_to_pollfds();
-			else if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLIN))
-				this->_web_sockets[j].handle_request();
-			if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLOUT))
-				this->_web_sockets[j].send_answer();
+			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
+				_servers[_pfds[j].fd]->add_client_to_pollfds();
+			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
+				_clients[_pfds[j].fd]->handle_request();
+			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
+				_clients[_pfds[j].fd]->send_answer();
 		}
+	}
+}
+
+void	Webserv::setIndex()
+{
+	std::map<int, Server*>::iterator itServer = _servers.begin();
+	while(itServer != _servers.end())
+	{
+		for (size_t i = 0; i < _pfds.size(); i++)
+		{
+			if (itServer->first == _pfds[i].fd)
+			{
+				itServer->second->_fd = i;
+				break;
+			}			
+		}
+		itServer++;
+	}
+	std::map<int, Client*>::iterator itClient = _clients.begin();
+	while(itClient != _clients.end())
+	{
+		for (size_t i = 0; i < _pfds.size(); i++)
+		{
+			if (itClient->first == _pfds[i].fd)
+			{
+				itClient->second->_fd = i;
+				break;
+			}			
+		}
+		itClient++;
 	}
 }
