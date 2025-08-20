@@ -64,6 +64,7 @@ Webserv::Webserv(char *FileName)
 				throw std::invalid_argument(std::string("Error : Something left at end of file"));
 		}
 }
+
 void	Webserv::CheckBeforeBracket(std::string Config, size_t & i)
 {
 	while (std::isspace(Config[i]) && Config[i])
@@ -82,7 +83,7 @@ std::string Webserv::GetConfigKey(std::string Config, size_t & i)
 		j = i;
 		while (!std::isspace(Config[i]) && Config[i])
 		{
-			if (Config[i] == '}' || Config[i] == '{')
+			if (Config[i] == '}' || Config[i] == '{' || Config[i] == ';')
 				return("");
 			i++;
 		}
@@ -96,13 +97,14 @@ std::string Webserv::GetConfigValue(std::string Config, size_t & i)
 	while (std::isspace(Config[i]) && Config[i])
 		i++;
 	j = i;
-	while (Config[i] != '\n' && Config[i])
+	while (Config[i] != ';' && Config[i])
 	{
-		if (Config[i] == '}' || Config[i] == '{')
+		if (Config[i] == '}' || Config[i] == '{' || Config[i] =='\n')
 			return("");
 		i++;
 	}
-	return(Config.substr(j, (i-j)));
+	i++;
+	return(Config.substr(j, (i-j) -1));
 }
 
 std::string Webserv::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
@@ -145,13 +147,9 @@ void	Webserv::ExtractBloc(std::string & Config, size_t it)
 	}
 	if (Config[i] && Config[i] == '}')
 	{
-		std::cout << "!!!!!Deleting previous bloc....!!!!!" << std::endl;
 		Config.erase(it, (i - it + 1));
 		if (recursion == true)
-		{
-			std::cout << "recursion activated" << std::endl;
 			recursion = false;
-		}
 	}
 	else
 		throw std::invalid_argument(std::string("Patern error in configuration bloc : missing '}'"));

@@ -5,11 +5,11 @@ server
 	root URIs;
 	index index.html;
 	allowed_methods GET DELETE POST;
-	auto_index on
+	auto_index on;
 	cgi .py /usr/bin/python3;
 	cgi .sh /bin/bash;
 	cgi .php /bin/php8.1;
-	error_page 504 /uploads/post.html
+	error_page 504 /uploads/post.html;
 	upload_folder /uploads;
 
 	location /tests
