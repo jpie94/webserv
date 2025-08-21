@@ -40,14 +40,22 @@ Webserv::Webserv(char *FileName)
 	std::string Config = ExtractConfig(FileName);
 	while(Config.find("server") != std::string::npos)
 	{
-		Server *newServer = new Server(Config);
-		_servers[newServer->_fd] = newServer;
+		try
+		{
+			Server *newServer = new Server(Config);
+			_servers[newServer->_fd] = newServer;
+		}
+		catch (std::exception &e)
+		{
+			std::cerr<< e.what()<< std::endl;
+			continue;
+		}
 	}
 	for(size_t i = 0; i < Config.size(); i++)
-		{
-			if(!isspace(Config[i]))
-				throw std::invalid_argument(std::string("Error : Something left at end of file"));
-		}
+	{
+		if(!isspace(Config[i]))
+			throw std::invalid_argument(std::string("Error : Something left at end of file"));
+	}
 }
 
 std::string		Webserv::ExtractConfig(char *FileName)
