@@ -6,7 +6,7 @@
 #    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/20 16:57:44 by jpiech           ###   ########.fr        #
+#    Updated: 2025/08/21 14:47:27 by jpiech           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,4 +51,6 @@ fclean: clean
 
 re: fclean all
 
+test : 
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./$(NAME) test_config.txt
 .PHONY: all clean fclean re

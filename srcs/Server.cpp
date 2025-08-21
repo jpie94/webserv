@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 12:51:57 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/21 15:19:56 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ Server::Server(std::string & Config) : Webserv(), locations()
 	}
 	ExtractBloc(Config, it + 6);
 	Config.erase(0, it + 6);
-	make_listening_socket();
 }
 
 void	Server::ExtractBloc(std::string & Config, size_t it)
@@ -145,7 +144,7 @@ void	Server::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
 	ExtractBloc(Config, i);
 }
 
-void	Server::make_listening_socket()
+int	Server::make_listening_socket()
 {
 	struct addrinfo	hint;
 	struct addrinfo	*addr;
@@ -156,22 +155,34 @@ void	Server::make_listening_socket()
 	hint.ai_socktype = SOCK_STREAM;
 	const char *port = config["listen"].c_str();
 	if (getaddrinfo(IP, port , &hint, &addr) != 0)
-		throw_error("getaddrinfo");
+	{
+		// throw_error("getaddrinfo");
+		std::cout << "getaddrinfo" << std::endl;
+		return (0);
+	}
 	int socket_fd = socket(addr->ai_family, addr->ai_socktype, 0);
 	if (socket_fd < 0)
 	{
 		freeaddrinfo(addr);
-		throw_error("socket");
+		std::cout << "socket" << std::endl;
+	// 	throw_error("socket");
+		return (0);
 	}
 	if (bind(socket_fd, addr->ai_addr, addr->ai_addrlen) != 0)
 	{
 		close(socket_fd);
 		freeaddrinfo(addr);
-		throw_error("bind");
+		std::cout << "bind" << std::endl;
+		// throw_error("bind");
+		return (0);
 	}
 	freeaddrinfo(addr);
 	if (listen(socket_fd, 1001) < 0)
-		throw_error("listen");
+	{
+		std::cout << "listen" << std::endl;
+		// throw_error("listen");
+		return (0);
+	}
 	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
 	_pfds.push_back(newPollfd);
 	this->_fd = socket_fd;
@@ -180,12 +191,14 @@ void	Server::make_listening_socket()
 	// 	std::cout << it->first << std::endl;
 	std::cout << "socket accept!" << '\n';
 	//std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
+	return(1);
 }
 
 void	Server::add_client_to_pollfds()
 {
 	int	socket_fd;
 
+	std::cout << "New call to add client to pollfd whit fd server fd :" << this->_fd << std::endl;
 	socket_fd = accept(this->_fd, NULL, 0);
 	if (socket_fd < 0)
 		throw_error("accept");

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/20 18:02:30 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/21 13:54:57 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,12 +102,3 @@ void	Client::send_answer()
 	}
 }
 
-void	Client::erase_client()
-{
-	if (close(_pfds[this->_index].fd) < 0)
-		throw_error("close");
-	_pfds.erase(_pfds.begin() + this->_index);
-	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
-	_clients.erase(it);
-	setIndex();
-}

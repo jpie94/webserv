@@ -40,16 +40,11 @@ Webserv::Webserv(char *FileName)
 	std::string Config = ExtractConfig(FileName);
 	while(Config.find("server") != std::string::npos)
 	{
-		try
-		{
-			Server *newServer = new Server(Config);
+		Server *newServer = new Server(Config);
+		if (newServer->make_listening_socket())
 			_servers[newServer->_fd] = newServer;
-		}
-		catch (std::exception &e)
-		{
-			std::cerr<< e.what()<< std::endl;
-			continue;
-		}
+		else
+			delete newServer;
 	}
 	for(size_t i = 0; i < Config.size(); i++)
 	{
@@ -94,7 +89,11 @@ void	Webserv::runWebserv()
 				continue;
 			std::cout << "Ready for I/O operation" << '\n';
 			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
+			{
+				std::cout << "pfds de j " << _pfds[j].fd << std::endl;
+				std::cout << "fd du serveur " << _servers[_pfds[j].fd]->_fd << std::endl;
 				_servers[_pfds[j].fd]->add_client_to_pollfds();
+			}
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
 				_clients[_pfds[j].fd]->handle_request();
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
@@ -112,7 +111,7 @@ void	Webserv::setIndex()
 		{
 			if (itServer->first == _pfds[i].fd)
 			{
-				itServer->second->_fd = i;
+				itServer->second->_index = i;
 				break;
 			}			
 		}
@@ -125,12 +124,26 @@ void	Webserv::setIndex()
 		{
 			if (itClient->first == _pfds[i].fd)
 			{
-				itClient->second->_fd = i;
+				itClient->second->_index = i;
 				break;
 			}			
 		}
 		itClient++;
 	}
+}
+
+void	Webserv::erase_client()
+{
+	std::cout << "Fd de erase client : " << this->_fd << std::endl;
+	std::cout << "Index de erase client : " << this->_index << std::endl;
+	if (close(_pfds[this->_index].fd) < 0)
+		throw_error("close");
+	std::cout << "Fd de poll fd a l index souhaite " << _pfds[this->_index].fd << std::endl;
+	_pfds.erase(_pfds.begin() + this->_index);
+	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
+	delete it->second;
+	_clients.erase(it);
+	setIndex();
 }
 
 void	Webserv::throw_error(const char* msg)

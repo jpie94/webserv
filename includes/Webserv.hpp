@@ -45,4 +45,6 @@ class Webserv
 		void					setIndex();
 		std::vector<struct pollfd>&		getPfds();
 		void 					cleanAll();
+	    void				erase_client();
+
 };

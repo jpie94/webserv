@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/20 17:00:20 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/21 13:55:19 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,5 @@ class Client : public Webserv
 
 		  void		send_answer();
       void		handle_request();
-      void		erase_client();
 } ;
 #endif
