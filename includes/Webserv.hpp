@@ -14,6 +14,7 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <sstream>
 
 #define IP "127.0.0.1"
 #define PORT "8081"
@@ -39,6 +40,7 @@ class Webserv
 		virtual					~Webserv();
 			/* Member Functions */
 								Webserv(char *FileName);
+		void					ServerMaker(std::string & Config);
 		std::string				ExtractConfig(char *FileName);
 		void					throw_error(const char*);
 		void					runWebserv();

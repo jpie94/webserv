@@ -34,18 +34,46 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 }
 
 /*****************	MEMBER		*******************/
+void 	Webserv::ServerMaker(std::string & Config)
+{
+	std::vector<std::string> ports;
+	std::vector<Server*> servs;
+	Server *newServer = new Server(Config);
+	std::map<std::string, std::string> conf = newServer->getConfig();
+	std::map<std::string, std::string>::iterator it = conf.find("listen");
+	if(it == conf.end())
+	{
+		delete newServer;
+		throw std::invalid_argument("No listen directive in server bloc !");
+	}
+	std::istringstream iss(it->second);
+	std::string temp;  
+	while (iss >> temp)
+		ports.push_back(temp);
+	newServer->setPort(*ports.rbegin());
+	ports.pop_back();
+	servs.push_back(newServer);
+	while(ports.size() > 0)
+	{
+		Server *tempServ = new Server(*newServer);
+		tempServ->setPort(*ports.rbegin());
+		ports.pop_back();
+		servs.push_back(tempServ);
+	}
+	for(size_t i = 0; i < servs.size(); i++)
+	{
+		if (servs[i]->make_listening_socket())
+			_servers[servs[i]->_fd] = servs[i];
+		else
+			delete servs[i];
+	}
+}
 
 Webserv::Webserv(char *FileName)
 {
 	std::string Config = ExtractConfig(FileName);
 	while(Config.find("server") != std::string::npos)
-	{
-		Server *newServer = new Server(Config);
-		if (newServer->make_listening_socket())
-			_servers[newServer->_fd] = newServer;
-		else
-			delete newServer;
-	}
+		ServerMaker(Config);
 	for(size_t i = 0; i < Config.size(); i++)
 	{
 		if(!isspace(Config[i]))

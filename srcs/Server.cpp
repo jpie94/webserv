@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 15:19:56 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/21 17:51:58 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,4 +224,14 @@ void Server::printconfig()
 		for (std::map<std::string, std::string>::iterator locconf = ploc->second.begin(); locconf != ploc->second.end(); locconf++)
 		std::cout << locconf->first << " " << locconf->second <<std::endl;	
 	}
+}
+
+std::map<std::string, std::string>	Server::getConfig()
+{
+	return(this->config);
+}
+
+void	Server::setPort(std::string port)
+{
+	this->config["listen"] = port;
 }

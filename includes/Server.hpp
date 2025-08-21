@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 15:02:45 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/21 17:52:18 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ class Server : public Webserv
         int	        make_listening_socket();
         void		add_client_to_pollfds();
         void        printconfig();
+        std::map<std::string, std::string>  getConfig();
+        void	    setPort(std::string port);
 };
 
 #endif
