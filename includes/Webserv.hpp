@@ -45,8 +45,7 @@ class Webserv
 		void					throw_error(const char*);
 		void					runWebserv();
 		void					setIndex();
-		std::vector<struct pollfd>&		getPfds();
 		void 					clean_close();
-	    void				erase_client();
+	    void					erase_client();
 
 };
