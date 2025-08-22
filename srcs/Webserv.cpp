@@ -195,7 +195,7 @@ std::vector<struct pollfd> &	Webserv::getPfds()
 	return (_pfds);
 }
 
-void 	Webserv::cleanAll()
+void 	Webserv::clean_close()
 {
 	for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
 	{
@@ -209,4 +209,14 @@ void 	Webserv::cleanAll()
 			delete it->second;
 	}
 	_clients.clear();
+	for (unsigned int i = 0; i < _pfds.size(); ++i)
+	{
+		if (_pfds[i].fd > 0)
+		{
+			if (close(_pfds[i].fd) < 0)
+				throw_error("close");
+			else
+				_pfds[i].fd = -1;
+		}
+	}
 }
