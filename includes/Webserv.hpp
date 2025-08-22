@@ -16,9 +16,6 @@
 #include <map>
 #include <sstream>
 
-#define IP "127.0.0.1"
-#define PORT "8081"
-
 class Client;
 class Server;
 
