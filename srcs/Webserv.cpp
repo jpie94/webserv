@@ -111,7 +111,7 @@ void	Webserv::runWebserv()
 	{
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
-			throw_error("poll");
+			throw_error("Error : polling failed !");
 		if (status == 0)
 		{
 			std::cout << "Waiting for connection..." << std::endl; 
