@@ -1,0 +1,69 @@
+server
+{
+	listen		    8095;
+	server_name    	127.0.0.1;
+	index			chatgpt.html;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+	autoindex		on;
+}
+
+server
+{
+	listen		    8095;
+	server_name    	127.0.0.1;
+	index			chatgpt.html;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+	autoindex		on;
+}
+
+server
+{
+	listen		    8095;
+	server_name    	127.0.0.124;
+	index			chatgpt.html;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+	autoindex		on;
+}
+
+server
+{
+	listen		    8096;
+	server_name    localhost;
+	index			index.html;
+
+	root URIs;
+	allowed_methods	 GET POST DELETE;
+	autoindex		on;
+}
+
+
+server
+{
+	listen		    8097;
+	server_name    localhost;
+	index			index.html;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+	autoindex		on;
+
+}
+
+
+server
+{
+	listen		    8098;
+	server_name    localhost;
+	autoindex		on;
+	index			index.html;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+
+}

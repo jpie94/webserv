@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 17:32:44 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 18:49:47 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,18 @@ Server::Server(std::string & Config) : Webserv(), locations()
 	Config.erase(0, it + 6);
 }
 
-void	Server::CheckDirective(std::string key, bool recursion, std::string location_name)
+void	Server::CheckDirective(std::string & key, bool recursion, std::string location_name)
 {
-	std::string directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi upload_folder";
-	if (directives.find(key) == std::string::npos)
+	std::string directives;
+	if (recursion == false)
+		directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi upload_folder";
+	if (recursion == true)
+		directives = "error_page client_max_body_size return root autoindex allowed_methods cgi upload_folder";
+	if (directives.find(key) == std::string::npos && location_name != key)
 		throw_error(std::string("Error in configuration file: directive is not allowed : " + key).c_str());	
 	if(recursion == false && config.find(key) != config.end() && key != "cgi")
 		throw_error(std::string("Error in configuration file: directive is a duplicate : " + key).c_str());	
-	if(recursion == true && locations.find(key) != locations.end())
+	if(recursion == true && locations.find(key) != locations.end() && key == location_name)
 		throw_error(std::string("Error in configuration file: location is a duplicate : " + key).c_str());			
 	if(recursion == true && locations[location_name].find(key) != locations[location_name].end() && key != "cgi")
 		throw_error(std::string("Error in configuration file: directive is a duplicate : " + key).c_str());			
@@ -77,10 +81,12 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		CheckDirective(key, recursion, location_name);
 		if (key == "location" )
 		{
+			recursion = true;
 			location_name = GetConfigKey(Config, i);
+			CheckDirective(location_name, recursion, location_name);
 			if(location_name.empty())
 				break;
-			ExtractLocation(Config, i, recursion);
+			ExtractBloc(Config, i);			
 			continue;
 		}
 		value = GetConfigValue(Config, i);
@@ -91,6 +97,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		else
 			this->locations[location_name][key]=value;
 	}
+
 	if (Config[i] && Config[i] == '}')
 	{
 		Config.erase(it, (i - it + 1));
@@ -153,13 +160,10 @@ std::string		Server::GetConfigValue(std::string Config, size_t & i)
 	return(Config.substr(j, (i-j) -1));
 }
 
-void	Server::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
-{
-	if (recursion == true)
-			throw_error("Error in configuration file: location directive is not allowed inside location bloc !");
-	recursion = true;
-	ExtractBloc(Config, i);
-}
+// void	Server::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
+// {
+	
+// }
 
 int	Server::make_listening_socket()
 {

@@ -15,6 +15,7 @@ server
 	location /tests
 	{
 		autoindex on;
+		autoindex on;
 		cgi .py /usr/bin/python3;
 		cgi .sh /bin/bash;
 		cgi .php /bin/php8.1;
