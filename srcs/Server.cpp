@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 17:51:58 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 11:10:42 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ std::string		Server::GetConfigKey(std::string Config, size_t & i)
 std::string		Server::GetConfigValue(std::string Config, size_t & i)
 {
 	size_t j;
-
+	
 	while (std::isspace(Config[i]) && Config[i])
 		i++;
 	j = i;
@@ -133,6 +133,11 @@ std::string		Server::GetConfigValue(std::string Config, size_t & i)
 		i++;
 	}
 	i++;
+	for(size_t k = i; Config[k] != '\n' && Config[k] != '}'; k++)
+	{
+		if(!isspace(Config[k]))
+			throw std::invalid_argument("Pattern error : ';' found before end of value field !");
+	}
 	return(Config.substr(j, (i-j) -1));
 }
 
