@@ -15,8 +15,6 @@ int	main(int argc, char *argv[])
 	}
 	catch(const std::exception& e)
 	{
-		Webserv ws;
-		ws.clean_close();
 		std::cerr << e.what() << '\n';
 	}
 	return (0);

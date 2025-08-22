@@ -181,16 +181,7 @@ void	Webserv::erase_client()
 void	Webserv::throw_error(const char* msg)
 {
 	std::perror(msg);
-	for (unsigned int i = 0; i < _pfds.size(); ++i)
-	{
-		if (_pfds[i].fd > 0)
-		{
-			if (close(_pfds[i].fd) < 0)
-				throw_error("close");
-			else
-				_pfds[i].fd = -1;
-		}
-	}
+	clean_close();
 	throw std::runtime_error(msg);
 }
 
