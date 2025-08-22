@@ -8,7 +8,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Webserv::Webserv()
+Webserv::Webserv() :_fd(), _index()
 {
 }
 
@@ -69,9 +69,13 @@ void 	Webserv::ServerMaker(std::string & Config)
 	}
 }
 
-Webserv::Webserv(char *FileName)
+Webserv::Webserv(char *FileName): _fd(), _index()
 {
-	std::string Config = ExtractConfig(FileName);
+	std::string Config;
+	if (FileName)
+		Config = ExtractConfig(FileName);
+	else
+		throw std::invalid_argument(std::string("Error : No default configuration path set yet !"));
 	while(Config.find("server") != std::string::npos)
 		ServerMaker(Config);
 	for(size_t i = 0; i < Config.size(); i++)

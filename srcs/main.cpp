@@ -6,23 +6,17 @@ int	main(int argc, char *argv[])
 {
 	try
 	{
+		if(argc > 2)
+			throw std::invalid_argument("Wrong number of arguments, must be 1 or 0");
 		std::signal(SIGINT, sigIntHandler);
 		std::signal(SIGQUIT, sigQuitHandler);
-		if (argc == 1)
-		{
-			Webserv ws;
-			ws.runWebserv();
-		}
-		else if (argc == 2)
-		{
-			Webserv ws(argv[1]);
-			ws.runWebserv();	
-		}
-		else
-			throw std::invalid_argument("Wrong number of arguments, must be 1 or 0");
+		Webserv ws(argv[1]);
+		ws.runWebserv();
 	}
 	catch(const std::exception& e)
 	{
+		Webserv ws;
+		ws.clean_close();
 		std::cerr << e.what() << '\n';
 	}
 	return (0);
