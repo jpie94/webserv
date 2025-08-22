@@ -143,7 +143,7 @@ server
 server
 {
 	listen		    8082;
-	server_names    dieriba.fr;
+	server_name    dieriba.fr;
 	index			chatgpt.html;
 
 	root URIs;
@@ -157,7 +157,7 @@ server
 server
 {
 	listen		    8083;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 
 	root URIs;
@@ -169,7 +169,7 @@ server
 server
 {
 	listen		    8084;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 
 	root URIs;
@@ -182,7 +182,7 @@ server
 server
 {
 	listen		    8085;
-	server_names    localhost;
+	server_name    localhost;
 	auto_index		on;
 	index			index.html;
 
@@ -195,7 +195,7 @@ server
 server
 {
 	listen		    8086;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 	
 	auto_index		on;
@@ -209,7 +209,7 @@ server
 server
 {
 	listen		    8087;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 	
 	auto_index		on;
@@ -222,7 +222,7 @@ server
 server
 {
 	listen		    8088;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 	
 	auto_index		on;
@@ -235,7 +235,7 @@ server
 server
 {
 	listen		    8089 2585;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 	
 	auto_index		on;
@@ -249,7 +249,7 @@ server
 server
 {
 	listen		    8090;
-	server_names    localhost;
+	server_name    localhost;
 	index			index.html;
 	
 	auto_index		on;

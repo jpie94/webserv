@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 13:30:28 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 16:50:10 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ int	Server::make_listening_socket()
 	hint.ai_family = AF_INET;
 	hint.ai_socktype = SOCK_STREAM;
 	const char * IP;
-	std::map<std::string, std::string>::iterator it = config.find("server_names");
+	std::map<std::string, std::string>::iterator it = config.find("server_name");
 	if (it != config.end())
 		IP = it->second.c_str();
 	else
