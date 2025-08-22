@@ -5,7 +5,7 @@ server
 	root URIs;
 	index index.html;
 	allowed_methods GET DELETE POST;
-	auto_index on;
+	autoindex on;
 	cgi .py /usr/bin/python3;
 	cgi .sh /bin/bash;
 	cgi .php /bin/php8.1;
@@ -14,7 +14,7 @@ server
 
 	location /tests
 	{
-		auto_index on;
+		autoindex on;
 		cgi .py /usr/bin/python3;
 		cgi .sh /bin/bash;
 		cgi .php /bin/php8.1;
@@ -23,13 +23,13 @@ server
 
 	location /uploads
 	{
-		auto_index on;
+		autoindex on;
 		allowed_methods  GET DELETE POST;
 	}
 
 	location /ouinon
 	{
-		auto_index on;
+		autoindex on;
 		index chatgpt.html;
 		root URIs2;
 		upload_folder uploads;
@@ -38,7 +38,7 @@ server
 
 	location /oui
 	{
-		auto_index on;
+		autoindex on;
 		index chatgpt.html;
 		root URIs2;
 		upload_folder uploads;
@@ -47,7 +47,7 @@ server
 
 	location /oui/non
 	{
-		auto_index on;
+		autoindex on;
 		index chatgpt.html;
 		root URIs2;
 		upload_folder uploads;
@@ -148,7 +148,7 @@ server
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
-	auto_index		on;
+	autoindex		on;
 
 
 }
@@ -162,7 +162,7 @@ server
 
 	root URIs;
 	allowed_methods	 GET POST DELETE;
-	auto_index		on;
+	autoindex		on;
 }
 
 
@@ -174,7 +174,7 @@ server
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
-	auto_index		on;
+	autoindex		on;
 
 }
 
@@ -183,7 +183,7 @@ server
 {
 	listen		    8085;
 	server_name    localhost;
-	auto_index		on;
+	autoindex		on;
 	index			index.html;
 
 	root URIs;
@@ -198,7 +198,7 @@ server
 	server_name    localhost;
 	index			index.html;
 	
-	auto_index		on;
+	autoindex		on;
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
@@ -212,7 +212,7 @@ server
 	server_name    localhost;
 	index			index.html;
 	
-	auto_index		on;
+	autoindex		on;
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
@@ -225,7 +225,7 @@ server
 	server_name    localhost;
 	index			index.html;
 	
-	auto_index		on;
+	autoindex		on;
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
@@ -238,7 +238,7 @@ server
 	server_name    localhost;
 	index			index.html;
 	
-	auto_index		on;
+	autoindex		on;
 
 	root			URIs;
 	allowed_methods	GET POST DELETE;
@@ -252,7 +252,7 @@ server
 	server_name    localhost;
 	index			index.html;
 	
-	auto_index		on;
+	autoindex		on;
 
 	root			URIs;
 	allowed_methods	GET POST DELETE;

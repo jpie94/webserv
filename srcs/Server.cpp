@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 17:05:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 17:32:44 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,17 @@ Server::Server(std::string & Config) : Webserv(), locations()
 	Config.erase(0, it + 6);
 }
 
-void	Server::CheckDirective(std::string key)
+void	Server::CheckDirective(std::string key, bool recursion, std::string location_name)
 {
-	std::string directives = "listen server_name error_page client_max_body_size location allowed_methods return root auto_index cgi upload_folder";
+	std::string directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi upload_folder";
 	if (directives.find(key) == std::string::npos)
 		throw_error(std::string("Error in configuration file: directive is not allowed : " + key).c_str());	
+	if(recursion == false && config.find(key) != config.end() && key != "cgi")
+		throw_error(std::string("Error in configuration file: directive is a duplicate : " + key).c_str());	
+	if(recursion == true && locations.find(key) != locations.end())
+		throw_error(std::string("Error in configuration file: location is a duplicate : " + key).c_str());			
+	if(recursion == true && locations[location_name].find(key) != locations[location_name].end() && key != "cgi")
+		throw_error(std::string("Error in configuration file: directive is a duplicate : " + key).c_str());			
 }
 void	Server::ExtractBloc(std::string & Config, size_t it)
 {
@@ -68,7 +74,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		key = GetConfigKey(Config, i);
 		if (key.empty())
 			break;	
-		CheckDirective(key);
+		CheckDirective(key, recursion, location_name);
 		if (key == "location" )
 		{
 			location_name = GetConfigKey(Config, i);
