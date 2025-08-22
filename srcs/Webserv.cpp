@@ -207,7 +207,7 @@ void 	Webserv::clean_close()
 		if (_pfds[i].fd > 0)
 		{
 			if (close(_pfds[i].fd) < 0)
-				throw_error("close");
+				throw std::runtime_error(strerror(errno));
 			else
 				_pfds[i].fd = -1;
 		}
