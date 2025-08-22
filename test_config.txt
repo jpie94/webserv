@@ -59,82 +59,82 @@ server
 		allowed_methods GET POST;
 		client_max_body_size 1024;
 		index dieriba.html;
-		redirect https://www.youtube.com/watch?v=7ij8Qj4JLjI;
+		return https://www.youtube.com/watch?v=7ij8Qj4JLjI;
 	}
 
 	location /rayan
 	{
-		redirect https://www.youtube.com/watch?v=5Fj-VIslrFc;
+		return https://www.youtube.com/watch?v=5Fj-VIslrFc;
 	}
 
 	location /ouais
 	{
-		redirect /;
+		return /;
 	}
 
 	location /skibidi
 	{
-		redirect https://www.youtube.com/watch?v=WePNs-G7puA;
+		return https://www.youtube.com/watch?v=WePNs-G7puA;
 	}
 
 	location /soundous
 	{
-		redirect https://www.youtube.com/watch?v=rzeZcdW4Pbo;
+		return https://www.youtube.com/watch?v=rzeZcdW4Pbo;
 	}
 	
 	location /mouslim
 	{
-		redirect https://www.youtube.com/shorts/SqXXwcs8iyQ;
+		return https://www.youtube.com/shorts/SqXXwcs8iyQ;
 	}
 
 	location /rico
 	{
-		redirect https://www.youtube.com/watch?v=akU7HXvYft8;
+		return https://www.youtube.com/watch?v=akU7HXvYft8;
 	}
 
 	location /olivia
 	{
-		redirect https://www.youtube.com/watch?v=cordADXcng0;
+		return https://www.youtube.com/watch?v=cordADXcng0;
 	}
 
 	location /anastasia
 	{
-		redirect https://www.youtube.com/watch?v=7ij8Qj4JLjI;
+		return https://www.youtube.com/watch?v=7ij8Qj4JLjI;
 	}
 
 	location /moussa
 	{
-		redirect https://www.youtube.com/shorts/hfaGQeX-bE4;
+		return https://www.youtube.com/shorts/hfaGQeX-bE4;
 	}
 
 	location /mohamed
 	{
-		redirect https://www.youtube.com/watch?v=0cJjmXEhG-Y;
+		return https://www.youtube.com/watch?v=0cJjmXEhG-Y;
 	}
 
 	location /dasha
 	{
-		redirect https://www.youtube.com/watch?v=LjxulQ1bEWg;
+		return https://www.youtube.com/watch?v=LjxulQ1bEWg;
 	}
 
 	location /alix
 	{
-		redirect https://www.youtube.com/watch?v=MaFEHf34fCQ;
+		return https://www.youtube.com/watch?v=MaFEHf34fCQ;
 	}
 
 	location /ana
 	{
-		redirect https://www.youtube.com/shorts/Nx9epM1I_Q8;
+		return https://www.youtube.com/shorts/Nx9epM1I_Q8;
 	}
 
 	location /lomaubob
 	{
-		redirect https://www.youtube.com/watch?v=2XOz8ZhOoWo;
+		return https://www.youtube.com/watch?v=2XOz8ZhOoWo;
 	}
 
 	location /naomie
 	{
-		redirect https://www.youtube.com/watch?v=2EwViQxSJJQ;
+		return https://www.youtube.com/watch?v=2EwViQxSJJQ;
 	}
 }
 

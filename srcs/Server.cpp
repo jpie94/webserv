@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 16:50:10 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 17:05:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,12 @@ Server::Server(std::string & Config) : Webserv(), locations()
 	Config.erase(0, it + 6);
 }
 
+void	Server::CheckDirective(std::string key)
+{
+	std::string directives = "listen server_name error_page client_max_body_size location allowed_methods return root auto_index cgi upload_folder";
+	if (directives.find(key) == std::string::npos)
+		throw_error(std::string("Error in configuration file: directive is not allowed : " + key).c_str());	
+}
 void	Server::ExtractBloc(std::string & Config, size_t it)
 {
 	static bool recursion;
@@ -62,6 +68,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		key = GetConfigKey(Config, i);
 		if (key.empty())
 			break;	
+		CheckDirective(key);
 		if (key == "location" )
 		{
 			location_name = GetConfigKey(Config, i);
@@ -70,8 +77,6 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 			ExtractLocation(Config, i, recursion);
 			continue;
 		}
-		if (key == "server")
-			throw_error("Error in configuration file: server directive is not allowed inside server bloc !");
 		value = GetConfigValue(Config, i);
 		if (value.empty())
 			break;

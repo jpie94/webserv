@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 17:52:18 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 16:53:43 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Server : public Webserv
         Server(std::string & Config);
 		void					ExtractBloc(std::string & Config, size_t it);
 		void					CheckBeforeBracket(std::string Config, size_t & i);
+        void	                CheckDirective(std::string key);
 		std::string 			GetConfigKey(std::string Config, size_t & i);
 		std::string 			GetConfigValue(std::string Config, size_t & i);
 		void     			    ExtractLocation(std::string & Config, size_t & i, bool & recursion);
