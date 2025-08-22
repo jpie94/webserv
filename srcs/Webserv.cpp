@@ -34,20 +34,53 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 }
 
 /*****************	MEMBER		*******************/
+
+
+Webserv::Webserv(char *FileName): _fd(), _index()
+{
+	std::string Config;
+	if (FileName)
+		Config = ExtractConfig(FileName);
+	else
+		throw_error("Error : No default configuration path set yet !");
+	while(Config.find("server") != std::string::npos)
+		ServerMaker(Config);
+	for(size_t i = 0; i < Config.size(); i++)
+	{
+		if(!isspace(Config[i]))
+			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
+	}
+}
+
+std::string		Webserv::ExtractConfig(char *FileName)
+{
+	std::string Config, line;
+	std::ifstream	ConfigFile(FileName);
+	if (!ConfigFile.is_open())
+			throw_error("");
+	while (!ConfigFile.eof())
+	{
+		std::getline(ConfigFile, line);
+		Config += line + "\n";
+	}
+	ConfigFile.close();
+	return(Config);
+}
+
 void 	Webserv::ServerMaker(std::string & Config)
 {
 	std::vector<std::string> ports;
 	std::vector<Server*> servs;
 	Server *newServer = new Server(Config);
+	std::string temp;  
 	std::map<std::string, std::string> conf = newServer->getConfig();
 	std::map<std::string, std::string>::iterator it = conf.find("listen");
 	if(it == conf.end())
-	{
-		delete newServer;
-		throw_error("No listen directive in server bloc !");
-	}
-	std::istringstream iss(it->second);
-	std::string temp;  
+		temp = "8080";
+	else
+		temp = it->second;
+	std::istringstream iss(temp);
+	temp.empty();
 	while (iss >> temp)
 		ports.push_back(temp);
 	newServer->setPort(*ports.rbegin());
@@ -67,37 +100,6 @@ void 	Webserv::ServerMaker(std::string & Config)
 		else
 			delete servs[i];
 	}
-}
-
-Webserv::Webserv(char *FileName): _fd(), _index()
-{
-	std::string Config;
-	if (FileName)
-		Config = ExtractConfig(FileName);
-	else
-		throw_error("Error : No default configuration path set yet !");
-	while(Config.find("server") != std::string::npos)
-		ServerMaker(Config);
-	for(size_t i = 0; i < Config.size(); i++)
-	{
-		if(!isspace(Config[i]))
-			throw_error("Error : Something left at end of file");
-	}
-}
-
-std::string		Webserv::ExtractConfig(char *FileName)
-{
-	std::string Config, line;
-	std::ifstream	ConfigFile(FileName);
-	if (!ConfigFile.is_open())
-			throw_error("");
-	while (!ConfigFile.eof())
-	{
-		std::getline(ConfigFile, line);
-		Config += line + "\n";
-	}
-	ConfigFile.close();
-	return(Config);
 }
 
 void	Webserv::runWebserv()
@@ -134,6 +136,20 @@ void	Webserv::runWebserv()
 	}
 }
 
+void	Webserv::erase_client()
+{
+	std::cout << "Fd de erase client : " << this->_fd << std::endl;
+	std::cout << "Index de erase client : " << this->_index << std::endl;
+	if (close(_pfds[this->_index].fd) < 0)
+		throw_error("");
+	std::cout << "Fd de poll fd a l index souhaite " << _pfds[this->_index].fd << std::endl;
+	_pfds.erase(_pfds.begin() + this->_index);
+	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
+	delete it->second;
+	_clients.erase(it);
+	setIndex();
+}
+
 void	Webserv::setIndex()
 {
 	std::map<int, Server*>::iterator itServer = _servers.begin();
@@ -162,20 +178,6 @@ void	Webserv::setIndex()
 		}
 		itClient++;
 	}
-}
-
-void	Webserv::erase_client()
-{
-	std::cout << "Fd de erase client : " << this->_fd << std::endl;
-	std::cout << "Index de erase client : " << this->_index << std::endl;
-	if (close(_pfds[this->_index].fd) < 0)
-		throw_error("close");
-	std::cout << "Fd de poll fd a l index souhaite " << _pfds[this->_index].fd << std::endl;
-	_pfds.erase(_pfds.begin() + this->_index);
-	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
-	delete it->second;
-	_clients.erase(it);
-	setIndex();
 }
 
 void	Webserv::throw_error(const char* msg)
