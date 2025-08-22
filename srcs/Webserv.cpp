@@ -44,7 +44,7 @@ void 	Webserv::ServerMaker(std::string & Config)
 	if(it == conf.end())
 	{
 		delete newServer;
-		throw std::invalid_argument("No listen directive in server bloc !");
+		throw_error("No listen directive in server bloc !");
 	}
 	std::istringstream iss(it->second);
 	std::string temp;  
@@ -75,13 +75,13 @@ Webserv::Webserv(char *FileName): _fd(), _index()
 	if (FileName)
 		Config = ExtractConfig(FileName);
 	else
-		throw std::invalid_argument(std::string("Error : No default configuration path set yet !"));
+		throw_error("Error : No default configuration path set yet !");
 	while(Config.find("server") != std::string::npos)
 		ServerMaker(Config);
 	for(size_t i = 0; i < Config.size(); i++)
 	{
 		if(!isspace(Config[i]))
-			throw std::invalid_argument(std::string("Error : Something left at end of file"));
+			throw_error("Error : Something left at end of file");
 	}
 }
 
@@ -90,7 +90,7 @@ std::string		Webserv::ExtractConfig(char *FileName)
 	std::string Config, line;
 	std::ifstream	ConfigFile(FileName);
 	if (!ConfigFile.is_open())
-		throw std::runtime_error(std::string("Could not open file : " + std::string(FileName)));
+			throw_error("");
 	while (!ConfigFile.eof())
 	{
 		std::getline(ConfigFile, line);
@@ -180,8 +180,11 @@ void	Webserv::erase_client()
 
 void	Webserv::throw_error(const char* msg)
 {
-	std::perror(msg);
 	clean_close();
+	if(msg[0] == '\0')
+	{
+		msg = std::strerror(errno);
+	}
 	throw std::runtime_error(msg);
 }
 

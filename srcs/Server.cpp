@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 11:50:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/22 12:06:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Server::Server(std::string & Config) : Webserv(), locations()
 	for(size_t i = 0; i < it; i++)
 	{
 		if(!isspace(Config[i]))
-			throw std::invalid_argument(std::string("Error : Something before server bloc"));
+			throw_error("Error : Something before server bloc");
 	}
 	ExtractBloc(Config, it + 6);
 	Config.erase(0, it + 6);
@@ -71,7 +71,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 			continue;
 		}
 		if (key == "server")
-			throw std::invalid_argument(std::string("Patern error in configuration bloc : server inside server !"));
+			throw_error("Patern error in configuration bloc : server inside server !");
 		value = GetConfigValue(Config, i);
 		if (value.empty())
 			break;
@@ -90,7 +90,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		}
 	}
 	else
-		throw std::invalid_argument(std::string("Patern error in configuration bloc : didn't reach and of bloc with '}'"));
+			throw_error("Patern error in configuration bloc : didn't reach and of bloc with '}'");
 }
 
 
@@ -99,7 +99,7 @@ void	Server::CheckBeforeBracket(std::string Config, size_t & i)
 	while (std::isspace(Config[i]) && Config[i])
 		i++;
 	if (Config[i] != '{')
-		throw std::invalid_argument(std::string("Patern error in configuration bloc before '{'"));
+			throw_error("Patern error in configuration bloc before '{'");
 	i++;	
 }
 
@@ -136,7 +136,7 @@ std::string		Server::GetConfigValue(std::string Config, size_t & i)
 	for(size_t k = i; Config[k] != '\n' && Config[k] != '}'; k++)
 	{
 		if(!isspace(Config[k]))
-			throw std::invalid_argument("Pattern error : ';' found before end of value field !");
+			throw_error("Pattern error : ';' found before end of value field !");
 	}
 	return(Config.substr(j, (i-j) -1));
 }
@@ -144,7 +144,7 @@ std::string		Server::GetConfigValue(std::string Config, size_t & i)
 void	Server::ExtractLocation(std::string & Config, size_t & i, bool & recursion)
 {
 	if (recursion == true)
-		throw std::invalid_argument(std::string("Patern error in configuration bloc : location inside location !"));
+			throw_error("Patern error in configuration bloc : location inside location !");
 	recursion = true;
 	ExtractBloc(Config, i);
 }
