@@ -1,18 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Signals.hpp                                        :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/23 14:16:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:16:54 by qsomarri         ###   ########.fr       */
+/*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
+/*   Updated: 2025/08/23 14:30:48 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include "Webserv.hpp"
-#include <csignal>
+#include "utils.hpp"
 
-void	sigQuitHandler(int signal);
-void	sigIntHandler(int signal);
+std::string	i_to_string(int value)
+{
+	std::ostringstream	oss;
+	oss << value;
+	return (oss.str());
+}

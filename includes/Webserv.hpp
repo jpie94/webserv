@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Webserv.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
+/*   Updated: 2025/08/23 14:31:04 by qsomarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include <csignal>
@@ -12,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <vector>
+#include "utils.hpp"
 
 #define IP "127.0.0.1"
 #define PORT "8081"

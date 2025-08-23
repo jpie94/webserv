@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
+/*   Updated: 2025/08/23 14:17:11 by qsomarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include "Webserv.hpp"
@@ -12,10 +24,13 @@
 #include <sys/stat.h>
 
 #define CRLFCRLF "\n\n"
+#define CRLF "\n"
+
+class Answer;
 
 class Request : public Webserv
 {
-	private:
+	protected:
 		const std::string			_request_msg;//can be a pb if there is a '\0' in the body-> try with char*
 		std::map<std::string, std::string>	_headers;//name:value until empty line
 		std::string				_body;//if there is a content-length header
@@ -26,9 +41,6 @@ class Request : public Webserv
 		size_t					_reqline_len;
 		size_t					_headers_len;
 		size_t					_body_len;
-		void					_get() const;
-		void					_post() const;
-		void					_delete() const;
 	public:
 		/* Canonical Form + Paramtric constructor */
 							~Request();
@@ -37,14 +49,16 @@ class Request : public Webserv
 		Request&				operator=(const Request&);
 							Request(std::string str);
 		/* Getters */
-		std::string				getMethode() const;
 		std::string				getPath() const;
 		std::string				getProtocol() const;
 		/* Member Functions */
+		void					getMethode() const;
+		void					postMethode() const;
+		void					deleteMethode() const;
 		void					parsRequest();
 		void					parsRequestLine(std::string&);
 		void					parsHeaders(std::string&);
 		void					parsBody(std::string&);
 		void					checkRequest();
-		void					callMethode();
+		void					makeResponse();
 };

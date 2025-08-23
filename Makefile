@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/14 18:44:51 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/08/23 14:31:20 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,9 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Webserv.cpp \
 	$(SRCS_DIR)/WebSocket.cpp \
 	$(SRCS_DIR)/Request.cpp \
-	$(SRCS_DIR)/Signals.cpp
+	$(SRCS_DIR)/Response.cpp \
+	$(SRCS_DIR)/Signals.cpp \
+	$(SRCS_DIR)/utils.cpp
 
 OBJ_DIR = obj
 

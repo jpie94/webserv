@@ -1,4 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
+/*   Updated: 2025/08/23 14:53:57 by qsomarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
+#include "Response.hpp"
 
 /*****************	CANONICAL	*******************/
 
@@ -30,7 +43,8 @@ Request::Request(std::string str) : _request_msg(str) {}
 Request::~Request() {}
 
 
-/*****************	MEMBER		*******************/
+/*****************	CLASS UTILS	*******************/
+
 
 static void	strCapitalizer(std::string &str)
 {
@@ -53,6 +67,8 @@ static std::string	trim_white_spaces(std::string str)//end = end - start??
 		return (str.substr(start, end - start));
 	return ("");
 }
+
+/*****************	MEMBER		*******************/
 
 void	Request::parsRequestLine(std::string& msg)
 {
@@ -98,8 +114,8 @@ void	Request::parsHeaders(std::string& msg)
 		}
 		else
 			this->_headers[key] = value;
-		std::cout << "key = " << key << '\n';
-		std::cout << "value= " << value << '\n';
+		// std::cout << "key = " << key << '\n';
+		// std::cout << "value= " << value << '\n';
 		std::getline(ss, line, '\n');
 	}
 	// for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
@@ -135,11 +151,11 @@ void	Request::checkRequest()
 	}
 	// if (this->_path[0] == '/')
 	// 	this->_path = this->_path.substr(1);
-	DIR* dir = opendir(this->_path.c_str());//certainement qu'il faut quand meme essaye de faire la requete
-	if (!dir)
-		throw_error("Error: invalid request Path");
-	if (closedir(dir) < 0)
-		throw_error("Error: closedir");
+	// DIR* dir = opendir(this->_path.c_str());//certainement qu'il faut quand meme essaye de faire la requete
+	// if (!dir)
+	// 	throw_error("Error: invalid request Path");
+	// if (closedir(dir) < 0)
+	// 	throw_error("Error: closedir");
 	if (this->_protocol.compare("HTTP/1.1") && this->_protocol.compare("HTTP/0.9") && this->_protocol.compare("HTTP/1.0"))
 		Webserv::throw_error("Error: Wrong HTTP request Protocol");
 	if (this->_headers.find("HOST") == this->_headers.end())
@@ -162,49 +178,8 @@ void	Request::parsRequest()
 	// std::cout << ", headerslen= " << this->_headers_len << ", bodylen= " << this->_body_len << std::endl;
 }
 
-void	Request::_get() const
+void	Request::makeResponse()
 {
-	// std::string	answer, body, line;
-	// std::ifstream	ifs(this->_path, std::ifstream::in);
-	// struct stat	path_stat;
-
-	// std::cout << "GET methode called\n";
-	// if (ifs.fail() || !ifs.is_open())
-	// 	std::cerr << "Error: opening file: " << this->_path << std::endl;
-	// if (stat(this->_path.c_str(), &path_stat) != 0)
-	// 	std::cerr << "Error: cannot access " << this->_path << std::endl;
-	// if (S_ISDIR(path_stat.st_mode))
-	// 	std::cerr << "Error: " << this->_path << " is a directory, not a file." << std::endl;
-	// std::getline(ifs, line);
-	// while (!ifs.eof())
-	// {
-	// 	if (ifs.fail())
-	// 		return (ifs.clear(), ifs.close(), (void)(std::cerr << "Error: reading file: " << this->_path <<std::endl));
-	// 	body += line + "\n";
-	// 	std::getline(ifs, line);
-
-	// }
-	// answer += "HTTP/1.1 200 OK\nServer: Webserv\nContent-Length: ";
-
-}
-
-void	Request::_post() const
-{
-	std::cout << "POST methode called\n";
-}
-
-void	Request::_delete() const
-{
-	std::cout << "DELETE methode called\n";
-}
-
-void	Request::callMethode()
-{
-	std::string	methodes[3] = {"GET", "POST", "DELETE"};
-	void	(Request::*f[])(void) const = {&Request::_get, &Request::_post, &Request::_delete};
-
-	for (int i = 0; i < 3; ++i)
-		if (!methodes[i].compare(this->_methode))
-			return ((this->*f[i])());
-	Webserv::throw_error("Error: Unknow Methode");
+	Response	a(*this);
+	a.callMethode();
 }
