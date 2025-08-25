@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 16:54:54 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 18:30:39 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,9 @@ void	Server::CheckDirective(std::string & key, bool recursion, std::string locat
 {
 	std::string directives;
 	if (recursion == false)
-		directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi upload_folder";
+		directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi_ext cgi_bins upload_folder";
 	if (recursion == true)
-		directives = "error_page client_max_body_size return root autoindex allowed_methods cgi upload_folder";
+		directives = "error_page client_max_body_size return root autoindex allowed_methods cgi_ext cgi_bins upload_folder";
 	if (directives.find(key) == std::string::npos && location_name != key)
 		throw_error(std::string("Error in configuration file: directive is not allowed : " + key).c_str());	
 	if(recursion == false && config.find(key) != config.end() && key != "cgi")

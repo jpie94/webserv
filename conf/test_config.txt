@@ -1,39 +1,160 @@
+
 server
 {
-	listen		    8095;
-	server_name    	127.0.0.1 127.0.1.1;
+	listen 8082;
+	root URIs;
+	index index.html;
+	allowed_methods GET DELETE POST;
+	autoindex on;
+	cgi_ext .sh .py .php;
+	cgi_bins /bin/bash /usr/bin/python3 /bin/php8.1;
+	error_page 504 /uploads/post.html;
+	upload_folder /uploads;
+
+	location /tests
+	{
+		autoindex on;
+		cgi_ext .sh .py .php;
+		cgi_bins /bin/bash /usr/bin/python3 /bin/php8.1;
+		allowed_methods  GET POST;
+	}
+
+	location /uploads
+	{
+		autoindex on;
+		allowed_methods  GET DELETE POST;
+	}
+
+	location /ouinon
+	{
+		autoindex on;
+		index chatgpt.html;
+		root URIs2;
+		upload_folder uploads;
+		allowed_methods  GET DELETE POST;
+	}
+
+	location /oui
+	{
+		autoindex on;
+		index chatgpt.html;
+		root URIs2;
+		upload_folder uploads;
+		allowed_methods  GET DELETE POST;
+	}
+
+	location /oui/non
+	{
+		autoindex on;
+		index chatgpt.html;
+		root URIs2;
+		upload_folder uploads;
+		allowed_methods  GET DELETE POST;
+	}
+
+	location /dieri 
+	{
+		allowed_methods GET POST;
+		client_max_body_size 1024;
+		index dieriba.html;
+		return https://www.youtube.com/watch?v=7ij8Qj4JLjI;
+	}
+
+	location /rayan
+	{
+		return https://www.youtube.com/watch?v=5Fj-VIslrFc;
+	}
+
+	location /ouais
+	{
+		return /;
+	}
+
+	location /skibidi
+	{
+		return https://www.youtube.com/watch?v=WePNs-G7puA;
+	}
+
+	location /soundous
+	{
+		return https://www.youtube.com/watch?v=rzeZcdW4Pbo;
+	}
+	
+	location /mouslim
+	{
+		return https://www.youtube.com/shorts/SqXXwcs8iyQ;
+	}
+
+	location /rico
+	{
+		return https://www.youtube.com/watch?v=akU7HXvYft8;
+	}
+
+	location /olivia
+	{
+		return https://www.youtube.com/watch?v=cordADXcng0;
+	}
+
+	location /anastasia
+	{
+		return https://www.youtube.com/watch?v=7ij8Qj4JLjI;
+	}
+
+	location /moussa
+	{
+		return https://www.youtube.com/shorts/hfaGQeX-bE4;
+	}
+
+	location /mohamed
+	{
+		return https://www.youtube.com/watch?v=0cJjmXEhG-Y;
+	}
+
+	location /dasha
+	{
+		return https://www.youtube.com/watch?v=LjxulQ1bEWg;
+	}
+
+	location /alix
+	{
+		return https://www.youtube.com/watch?v=MaFEHf34fCQ;
+	}
+
+	location /ana
+	{
+		return https://www.youtube.com/shorts/Nx9epM1I_Q8;
+	}
+
+	location /lomaubob
+	{
+		return https://www.youtube.com/watch?v=2XOz8ZhOoWo;
+	}
+
+	location /naomie
+	{
+		return https://www.youtube.com/watch?v=2EwViQxSJJQ;
+	}
+}
+
+
+
+server
+{
+	listen		    8082;
+	server_name    dieriba.fr;
 	index			chatgpt.html;
 
 	root URIs;
 	allowed_methods	GET POST DELETE;
 	autoindex		on;
+
+
 }
+
 
 server
 {
-	listen		    8095;
-	server_name    	127.0.0.1;
-	index			chatgpt.html;
-
-	root URIs;
-	allowed_methods	GET POST DELETE;
-	autoindex		on;
-}
-
-server
-{
-	listen		    8095;
-	server_name    	127.0.0.124;
-	index			chatgpt.html;
-
-	root URIs;
-	allowed_methods	GET POST DELETE;
-	autoindex		on;
-}
-
-server
-{
-	listen		    8096;
+	listen		    8083;
 	server_name    localhost;
 	index			index.html;
 
@@ -45,7 +166,7 @@ server
 
 server
 {
-	listen		    8097;
+	listen		    8084;
 	server_name    localhost;
 	index			index.html;
 
@@ -58,12 +179,80 @@ server
 
 server
 {
-	listen		    8098;
+	listen		    8085;
 	server_name    localhost;
 	autoindex		on;
 	index			index.html;
 
 	root URIs;
+	allowed_methods	GET POST DELETE;
+
+}
+
+
+server
+{
+	listen		    8086;
+	server_name    localhost;
+	index			index.html;
+	
+	autoindex		on;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+
+}
+
+
+server
+{
+	listen		    8087;
+	server_name    localhost;
+	index			index.html;
+	
+	autoindex		on;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+}
+
+
+server
+{
+	listen		    8088;
+	server_name    localhost;
+	index			index.html;
+	
+	autoindex		on;
+
+	root URIs;
+	allowed_methods	GET POST DELETE;
+}
+
+
+server
+{
+	listen		    8089 2585;
+	server_name    localhost;
+	index			index.html;
+	
+	autoindex		on;
+
+	root			URIs;
+	allowed_methods	GET POST DELETE;
+
+}
+
+
+server
+{
+	listen		    8090;
+	server_name    localhost;
+	index			index.html;
+	
+	autoindex		on;
+
+	root			URIs;
 	allowed_methods	GET POST DELETE;
 
 }
