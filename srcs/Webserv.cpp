@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:16:31 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:24:07 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,29 +81,48 @@ std::string		Webserv::ExtractConfig(char *FileName)
 
 void 	Webserv::ServerMaker(std::string & Config)
 {
-	std::vector<std::string> ports;
 	std::vector<Server*> servs;
 	Server *newServer = new Server(Config);
 	std::string temp;  
 	std::map<std::string, std::string> conf = newServer->getConfig();
-	std::map<std::string, std::string>::iterator it = conf.find("listen");
-	if(it == conf.end())
+	//Ajout de tous les listens dans un strings, puis decoupage de la string pour les push back dans un vecteur de ports
+	std::map<std::string, std::string>::iterator itPort = conf.find("listen");
+	std::vector<std::string> ports;
+	if(itPort == conf.end())
 		temp = "8080";
 	else
-		temp = it->second;
+		temp = itPort->second;
 	std::istringstream iss(temp);
 	temp.empty();
 	while (iss >> temp)
 		ports.push_back(temp);
 	newServer->setPort(*ports.rbegin());
 	ports.pop_back();
+	//Ajout de tous les servername dans une string, puis decoupage de la string pour les push bac dans un vecteur d ip
+	std::map<std::string, std::string>::iterator itIP = conf.find("server_name");
+	std::vector<std::string> IPs;
+	if(itIP == conf.end())
+		temp = "localhost";
+	else
+		temp = itIP->second;
+	std::istringstream iss2(temp);
+	temp.empty();
+	while (iss2 >> temp)
+		IPs.push_back(temp);
+	newServer->setIP(*IPs.rbegin());
+	IPs.pop_back();		
 	servs.push_back(newServer);
-	while(ports.size() > 0)
+	while (IPs.size() > 0)
 	{
-		Server *tempServ = new Server(*newServer);
-		tempServ->setPort(*ports.rbegin());
-		ports.pop_back();
-		servs.push_back(tempServ);
+		while(ports.size() > 0)
+		{
+			Server *tempServ = new Server(*newServer);
+			tempServ->setPort(*ports.rbegin());
+			tempServ->setIP(*IPs.rbegin());
+			ports.pop_back();
+			servs.push_back(tempServ);
+		}
+		IPs.pop_back();
 	}
 	for(size_t i = 0; i < servs.size(); i++)
 	{

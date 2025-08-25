@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 18:49:47 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 15:19:43 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,4 +260,9 @@ std::map<std::string, std::string>	Server::getConfig()
 void	Server::setPort(std::string port)
 {
 	this->config["listen"] = port;
+}
+
+void	Server::setIP(std::string IP)
+{
+	this->config["server_name"] = IP;
 }
