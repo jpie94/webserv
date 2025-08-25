@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 16:15:57 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 17:20:42 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ void 	Webserv::ServerMaker(std::string & Config)
 	while (IPs.size() > 0)
 	{
 		std::vector<std::string> tempPorts = ports;
+		CheckAvailablePorts(*IPs.rbegin(), tempPorts);
 		while(tempPorts.size() > 0)
 		{
 			Server *newServer = new Server(*tempServer);
@@ -125,6 +126,21 @@ void 	Webserv::ServerMaker(std::string & Config)
 			_servers[servs[i]->_fd] = servs[i];
 		else
 			delete servs[i];
+	}
+}
+
+void	Webserv::CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts)
+{
+	for(std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	{
+		if (it->second->getConfig()["server_name"]== currentIP)
+		{
+				if (it->second->getConfig()["listen"] == *tempPorts.rbegin())
+				{
+					std::cerr << "Error in configuration file : conflicting server name \""<< currentIP << "\" on port " << *tempPorts.rbegin() << ", ignored" << std::endl;
+					tempPorts.pop_back();						
+				}
+		}
 	}
 }
 
