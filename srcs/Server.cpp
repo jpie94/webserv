@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 15:19:43 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 16:54:54 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,13 +174,7 @@ int	Server::make_listening_socket()
 	hint.ai_flags = AI_PASSIVE;
 	hint.ai_family = AF_INET;
 	hint.ai_socktype = SOCK_STREAM;
-	const char * IP;
-	std::map<std::string, std::string>::iterator it = config.find("server_name");
-	if (it != config.end())
-		IP = it->second.c_str();
-	else
-		IP = "localhost";
-	if (getaddrinfo(IP, config["listen"].c_str(), &hint, &addr) != 0)
+	if (getaddrinfo(config["server_name"].c_str(), config["listen"].c_str(), &hint, &addr) != 0)
 	{
 		// throw_error("getaddrinfo");
 		std::cout << "getaddrinfo" << std::endl;
