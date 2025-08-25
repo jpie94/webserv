@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:53:57 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:00:24 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : _request_msg()
+Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol()
 {
 }
 
@@ -33,12 +33,13 @@ Request&	Request::operator=(const Request& rhs)
 		this->_methode = rhs._methode;
 		this->_path = rhs._path;
 		this->_protocol = rhs._protocol;
-		this->_request_len = rhs._request_len;
 	}
 	return (*this);
 }
 
-Request::Request(std::string str) : _request_msg(str) {}
+Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol()
+{
+}
 
 Request::~Request() {}
 
@@ -76,7 +77,6 @@ void	Request::parsRequestLine(std::string& msg)
 	std::string line, tmp;
 
 	std::getline(ss, line, '\n');
-	this->_reqline_len = line.size() + 1;
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
@@ -123,12 +123,10 @@ void	Request::parsHeaders(std::string& msg)
 	msg = ss.str();
 	if (count + 1 <= msg.size())
 		msg = msg.substr(count + 1);
-	this->_headers_len = count + 1;
 }
 
 void	Request::parsBody(std::string& msg)
 {
-	this->_body_len = msg.size();
 	if (msg.size() - 1 != static_cast<unsigned int>(std::atoi(this->_headers["Content-Length"].c_str())))
 		Webserv::throw_error("Bad Request: content lenght");
 	if (msg[msg.size() - 1] == '\n')
@@ -166,7 +164,6 @@ void	Request::parsRequest()
 {
 	std::string	key, value, line, msg(this->_request_msg);
 
-	this->_request_len = this->_request_msg.size();
 	parsRequestLine(msg);
 	parsHeaders(msg);
 	checkRequest();
@@ -174,8 +171,6 @@ void	Request::parsRequest()
 		parsBody(msg);
 	else if (msg.size() > 0)
 		Webserv::throw_error("Bad request: invalid header");
-	// std::cout << "\nrequest_len= " << this->_request_len << '\n' << "reqline= " << this->_reqline_len;
-	// std::cout << ", headerslen= " << this->_headers_len << ", bodylen= " << this->_body_len << std::endl;
 }
 
 void	Request::makeResponse()
