@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:16:31 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:20:42 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,36 +81,66 @@ std::string		Webserv::ExtractConfig(char *FileName)
 
 void 	Webserv::ServerMaker(std::string & Config)
 {
-	std::vector<std::string> ports;
 	std::vector<Server*> servs;
-	Server *newServer = new Server(Config);
+	Server *tempServer = new Server(Config);
 	std::string temp;  
-	std::map<std::string, std::string> conf = newServer->getConfig();
-	std::map<std::string, std::string>::iterator it = conf.find("listen");
-	if(it == conf.end())
+	std::map<std::string, std::string> conf = tempServer->getConfig();
+	std::map<std::string, std::string>::iterator itPort = conf.find("listen");
+	std::vector<std::string> ports;
+	if(itPort == conf.end())
 		temp = "8080";
 	else
-		temp = it->second;
+		temp = itPort->second;
 	std::istringstream iss(temp);
 	temp.empty();
 	while (iss >> temp)
 		ports.push_back(temp);
-	newServer->setPort(*ports.rbegin());
-	ports.pop_back();
-	servs.push_back(newServer);
-	while(ports.size() > 0)
+	std::map<std::string, std::string>::iterator itIP = conf.find("server_name");
+	std::vector<std::string> IPs;
+	if(itIP == conf.end())
+		temp = "localhost";
+	else
+		temp = itIP->second;
+	std::istringstream iss2(temp);
+	temp.empty();
+	while (iss2 >> temp)
+		IPs.push_back(temp);
+	while (IPs.size() > 0)
 	{
-		Server *tempServ = new Server(*newServer);
-		tempServ->setPort(*ports.rbegin());
-		ports.pop_back();
-		servs.push_back(tempServ);
+		std::vector<std::string> tempPorts = ports;
+		CheckAvailablePorts(*IPs.rbegin(), tempPorts);
+		while(tempPorts.size() > 0)
+		{
+			Server *newServer = new Server(*tempServer);
+			newServer->setPort(*tempPorts.rbegin());
+			newServer->setIP(*IPs.rbegin());
+			tempPorts.pop_back();
+			servs.push_back(newServer);
+		}
+		IPs.pop_back();
 	}
+	delete tempServer;
 	for(size_t i = 0; i < servs.size(); i++)
 	{
 		if (servs[i]->make_listening_socket())
 			_servers[servs[i]->_fd] = servs[i];
 		else
 			delete servs[i];
+	}
+}
+
+void	Webserv::CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts)
+{
+	for(std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	{
+		if (it->second->getConfig()["server_name"]== currentIP)
+		{
+				if (it->second->getConfig()["listen"] == *tempPorts.rbegin())
+				{
+					std::cerr << "Error in configuration file : conflicting server name \""<< currentIP << "\" on port " << *tempPorts.rbegin() << ", ignored" << std::endl;
+					tempPorts.pop_back();						
+				}
+		}
 	}
 }
 

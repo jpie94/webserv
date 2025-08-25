@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 17:48:07 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 15:20:12 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Server : public Webserv
         void        printconfig();
         std::map<std::string, std::string>  getConfig();
         void	    setPort(std::string port);
+        void        setIP(std::string IP);
 };
 
 #endif

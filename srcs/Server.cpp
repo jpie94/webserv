@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/22 18:49:47 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 18:30:39 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,9 @@ void	Server::CheckDirective(std::string & key, bool recursion, std::string locat
 {
 	std::string directives;
 	if (recursion == false)
-		directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi upload_folder";
+		directives = "listen server_name error_page client_max_body_size location return root autoindex allowed_methods cgi_ext cgi_bins upload_folder";
 	if (recursion == true)
-		directives = "error_page client_max_body_size return root autoindex allowed_methods cgi upload_folder";
+		directives = "error_page client_max_body_size return root autoindex allowed_methods cgi_ext cgi_bins upload_folder";
 	if (directives.find(key) == std::string::npos && location_name != key)
 		throw_error(std::string("Error in configuration file: directive is not allowed : " + key).c_str());	
 	if(recursion == false && config.find(key) != config.end() && key != "cgi")
@@ -174,13 +174,7 @@ int	Server::make_listening_socket()
 	hint.ai_flags = AI_PASSIVE;
 	hint.ai_family = AF_INET;
 	hint.ai_socktype = SOCK_STREAM;
-	const char * IP;
-	std::map<std::string, std::string>::iterator it = config.find("server_name");
-	if (it != config.end())
-		IP = it->second.c_str();
-	else
-		IP = "localhost";
-	if (getaddrinfo(IP, config["listen"].c_str(), &hint, &addr) != 0)
+	if (getaddrinfo(config["server_name"].c_str(), config["listen"].c_str(), &hint, &addr) != 0)
 	{
 		// throw_error("getaddrinfo");
 		std::cout << "getaddrinfo" << std::endl;
@@ -260,4 +254,9 @@ std::map<std::string, std::string>	Server::getConfig()
 void	Server::setPort(std::string port)
 {
 	this->config["listen"] = port;
+}
+
+void	Server::setIP(std::string IP)
+{
+	this->config["server_name"] = IP;
 }
