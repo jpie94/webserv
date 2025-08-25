@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 15:24:07 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 16:15:57 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,10 +82,9 @@ std::string		Webserv::ExtractConfig(char *FileName)
 void 	Webserv::ServerMaker(std::string & Config)
 {
 	std::vector<Server*> servs;
-	Server *newServer = new Server(Config);
+	Server *tempServer = new Server(Config);
 	std::string temp;  
-	std::map<std::string, std::string> conf = newServer->getConfig();
-	//Ajout de tous les listens dans un strings, puis decoupage de la string pour les push back dans un vecteur de ports
+	std::map<std::string, std::string> conf = tempServer->getConfig();
 	std::map<std::string, std::string>::iterator itPort = conf.find("listen");
 	std::vector<std::string> ports;
 	if(itPort == conf.end())
@@ -96,9 +95,6 @@ void 	Webserv::ServerMaker(std::string & Config)
 	temp.empty();
 	while (iss >> temp)
 		ports.push_back(temp);
-	newServer->setPort(*ports.rbegin());
-	ports.pop_back();
-	//Ajout de tous les servername dans une string, puis decoupage de la string pour les push bac dans un vecteur d ip
 	std::map<std::string, std::string>::iterator itIP = conf.find("server_name");
 	std::vector<std::string> IPs;
 	if(itIP == conf.end())
@@ -109,21 +105,20 @@ void 	Webserv::ServerMaker(std::string & Config)
 	temp.empty();
 	while (iss2 >> temp)
 		IPs.push_back(temp);
-	newServer->setIP(*IPs.rbegin());
-	IPs.pop_back();		
-	servs.push_back(newServer);
 	while (IPs.size() > 0)
 	{
-		while(ports.size() > 0)
+		std::vector<std::string> tempPorts = ports;
+		while(tempPorts.size() > 0)
 		{
-			Server *tempServ = new Server(*newServer);
-			tempServ->setPort(*ports.rbegin());
-			tempServ->setIP(*IPs.rbegin());
-			ports.pop_back();
-			servs.push_back(tempServ);
+			Server *newServer = new Server(*tempServer);
+			newServer->setPort(*tempPorts.rbegin());
+			newServer->setIP(*IPs.rbegin());
+			tempPorts.pop_back();
+			servs.push_back(newServer);
 		}
 		IPs.pop_back();
 	}
+	delete tempServer;
 	for(size_t i = 0; i < servs.size(); i++)
 	{
 		if (servs[i]->make_listening_socket())
