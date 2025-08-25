@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 16:56:05 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 18:16:15 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "Webserv.hpp"
+#include "Client.hpp"
 #include <cstdlib>
 #include <cctype>
 #include <fstream>
@@ -28,7 +28,7 @@
 
 class Answer;
 
-class Request : public Webserv
+class Request : public Client
 {
 	protected:
 		const std::string			_request_msg;//can be a pb if there is a '\0' in the body-> try with char*

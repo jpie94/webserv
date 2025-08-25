@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/21 13:55:19 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/25 18:21:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
-#include "Webserv.hpp"
+#include "Server.hpp"
 
 #define HEADERLEN 10
 #define BODYLEN 0
 
-class Client : public Webserv
+class Client : public Server
 {
     private :
 

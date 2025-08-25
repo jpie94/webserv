@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 12:33:45 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 18:22:24 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Client::Client() : Webserv(), _count(), _recieved()
+Client::Client() : Server(), _count(), _recieved()
 {
 }
 
@@ -40,7 +40,7 @@ Client&	Client::operator=(Client const & rhs)
 
 /*****************	MEMBER		*******************/
 
-Client::Client(int fd, nfds_t index) : Webserv() , _count(), _recieved()
+Client::Client(int fd, nfds_t index) : Server() , _count(), _recieved()
 {
 	this->_fd = fd;
 	this->_index = index;

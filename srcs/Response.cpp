@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 17:01:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 18:17:18 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ void	Response::HandlePath()
 		absolut_path += this->_path;
 		// std::cout << "2- absolute_path= " << absolut_path << '\n';
 		if (stat(absolut_path.c_str(), &path_stat) != 0)
-			return((void)(std::cerr << "Error: cannot access " << absolut_path << std::endl));
+			return((void)(std::cerr << "404: Not found: " << absolut_path << std::endl));
 		this->_path = absolut_path;
 	}
 	if (S_ISDIR(path_stat.st_mode))
@@ -181,10 +181,10 @@ void	Response::HandlePath()
 			std::string	str(this->_path + "index.html");
 			int	status = open(str.c_str(), O_RDONLY);
 			if (status < 0)
-				throw_error("Error: path is dir but no file specifided");
+				throw_error("403: forbidden");
 			this->_path += "index.html";
 			if (close(status) < 0)
-				throw_error("close");
+				throw_error("500: Internal server error - close");
 		}
 		if (this->_methode == "POST")
 		{
@@ -210,7 +210,7 @@ void	Response::readFile()
 	std::ifstream	file(this->_path.c_str(), std::ios::in|std::ios::binary);
 
 	if (file.fail())
-		Webserv::throw_error("ifstream.fail()");
+		Webserv::throw_error("500: Internal server error - ifstream.fail()");
 	os << file.rdbuf();
 	this->_responseBody = os.str() + CRLF;
 }
@@ -239,7 +239,7 @@ std::string	Response::getContent_type()
 {
 	if (_types.find(this->getFileType()) != _types.end())
 		return (_types[this->getFileType()]);
-	return ("application/octet-stream");//search
+	return ("application/octet-stream");
 }
 
 
@@ -257,7 +257,7 @@ void	Response::postMethode()
 		status = "200 OK";
 		this->_responseBody = "Resource successfully updated";
 		if (close(fd) < 0)
-			throw_error("close");
+			throw_error("500: Internal server error - close");
 	}
 	else
 	{
@@ -321,7 +321,7 @@ void	Response::autoIndex()
 		closedir (dir);
 	}
 	else
-		std::perror ("");
+		Webserv::throw_error("403: forbidden");
 }
 
 void	Response::callMethode()
@@ -333,7 +333,7 @@ void	Response::callMethode()
 	for (int i = 0; i < 3; ++i)
 		if (!methodes[i].compare(this->_methode))
 			return ((void)((this->*f[i])()));
-	Webserv::throw_error("Error: Unknow Methode");
+	Webserv::throw_error("501: Not implemented");
 	printResponse();
 }
 
