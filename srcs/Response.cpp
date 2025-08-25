@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 19:31:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:01:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,8 +269,7 @@ void	Response::postMethode()
 		Webserv::throw_error("Internal Server Error: cannot create file");
 	ofs << this->_body;
 	ofs.close();
-	this->_response += "HTTP/1.1 " + status;
-	this->_response += CRLF;
+	this->_response += "HTTP/1.1 " + status + CRLF;
 	this->_response += "Server: Webserv";
 	this->_response += CRLF;
 	this->_response += "Date: " + getTime() + CRLF;

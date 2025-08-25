@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:17:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/25 16:56:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,6 @@ class Request : public Webserv
 		std::string				_methode;
 		std::string				_path;
 		std::string				_protocol;
-		size_t					_request_len;
-		size_t					_reqline_len;
-		size_t					_headers_len;
-		size_t					_body_len;
 	public:
 		/* Canonical Form + Paramtric constructor */
 							~Request();
