@@ -11,14 +11,16 @@
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
-#include "WebSocket.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
 
-std::vector<struct pollfd>	Webserv::_pfds;
-std::vector<WebSocket>		Webserv::_web_sockets;
+ std::vector<struct pollfd>	Webserv::_pfds;
+ std::map<int, Client*> Webserv::_clients;
+ std::map<int, Server*> Webserv::_servers;
 
 /*****************	CANONICAL	*******************/
 
-Webserv::Webserv()
+Webserv::Webserv() :_fd(), _index()
 {
 }
 
@@ -29,19 +31,7 @@ Webserv::Webserv(const Webserv& srcs)
 
 Webserv::~Webserv()
 {
-	// std::cout << "pfsd.size= " << _pfds.size() << '\n';
-	// for (unsigned int i = 0; i < _pfds.size(); ++i)
-	//     std::cout << "i= " << i << ", fd= " << _pfds[i].fd << std::endl;
-	// for (unsigned int i = 0; i < _pfds.size(); ++i)
-	// {
-	//     if (_pfds[i].fd > 0)
-	//     {
-	//         if (close(_pfds[i].fd) < 0)
-	//             throw_error("close");
-	//         else
-	//             _pfds[i].fd = -1;
-	//     }
-	// }
+
 }
 
 Webserv	&Webserv::operator=(Webserv const& rhs)
@@ -57,70 +47,83 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 
 /*****************	MEMBER		*******************/
 
-void	Webserv::throw_error(const char* msg)
+
+Webserv::Webserv(char *FileName): _fd(), _index()
 {
-	std::perror(msg);
-	for (unsigned int i = 0; i < _pfds.size(); ++i)
+	std::string Config;
+	if (FileName)
+		Config = ExtractConfig(FileName);
+	else
+		throw_error("Error : No default configuration path set yet !");
+	while(Config.find("server") != std::string::npos)
+		ServerMaker(Config);
+	for(size_t i = 0; i < Config.size(); i++)
 	{
-	if (_pfds[i].fd > 0)
+		if(!isspace(Config[i]))
+			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
+	}
+}
+
+std::string		Webserv::ExtractConfig(char *FileName)
+{
+	std::string Config, line;
+	std::ifstream	ConfigFile(FileName);
+	if (!ConfigFile.is_open())
+			throw_error("");
+	while (!ConfigFile.eof())
 	{
-		if (close(_pfds[i].fd) < 0)
-			throw_error("close");
+		std::getline(ConfigFile, line);
+		Config += line + "\n";
+	}
+	ConfigFile.close();
+	return(Config);
+}
+
+void 	Webserv::ServerMaker(std::string & Config)
+{
+	std::vector<std::string> ports;
+	std::vector<Server*> servs;
+	Server *newServer = new Server(Config);
+	std::string temp;  
+	std::map<std::string, std::string> conf = newServer->getConfig();
+	std::map<std::string, std::string>::iterator it = conf.find("listen");
+	if(it == conf.end())
+		temp = "8080";
+	else
+		temp = it->second;
+	std::istringstream iss(temp);
+	temp.empty();
+	while (iss >> temp)
+		ports.push_back(temp);
+	newServer->setPort(*ports.rbegin());
+	ports.pop_back();
+	servs.push_back(newServer);
+	while(ports.size() > 0)
+	{
+		Server *tempServ = new Server(*newServer);
+		tempServ->setPort(*ports.rbegin());
+		ports.pop_back();
+		servs.push_back(tempServ);
+	}
+	for(size_t i = 0; i < servs.size(); i++)
+	{
+		if (servs[i]->make_listening_socket())
+			_servers[servs[i]->_fd] = servs[i];
 		else
-			_pfds[i].fd = -1;
+			delete servs[i];
 	}
-	}
-	throw std::runtime_error(msg);
-}
-
-std::vector<struct pollfd>&	Webserv::getPfds()
-{
-	return (_pfds);
-}
-
-void	Webserv::make_listening_socket()
-{
-	struct addrinfo	hint;
-	struct addrinfo	*addr;
-
-	std::memset(&hint, 0, sizeof(hint));
-	hint.ai_flags = AI_PASSIVE;
-	hint.ai_family = AF_INET;
-	hint.ai_socktype = SOCK_STREAM;
-	if (getaddrinfo(IP, PORT, &hint, &addr) != 0)
-		throw_error("getaddrinfo");
-	int socket_fd = socket(addr->ai_family, addr->ai_socktype, 0);
-	if (socket_fd < 0)
-	{
-		freeaddrinfo(addr);
-		throw_error("socket");
-	}
-	if (bind(socket_fd, addr->ai_addr, addr->ai_addrlen) != 0)
-	{
-		freeaddrinfo(addr);
-		throw_error("bind");
-	}
-	freeaddrinfo(addr);
-	if (listen(socket_fd, 1001) < 0)
-		throw_error("listen");
-	struct pollfd temp = {socket_fd, POLLIN, 0};
-	_pfds.push_back(temp);
-	WebSocket temp1(socket_fd, (_pfds.size() -1), SERVER);
-	_web_sockets.push_back(temp1);
-	std::cout << "socket accept!" << '\n';
-	//std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
 }
 
 void	Webserv::runWebserv()
 {
 	int status;
-
-	make_listening_socket();
+	for(std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+		it->second->printconfig();
 	while(1)
 	{
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
-			throw_error("poll");
+			throw_error("Error : polling failed !");
 		if (status == 0)
 		{
 			std::cout << "Waiting for connection..." << std::endl; 
@@ -131,12 +134,96 @@ void	Webserv::runWebserv()
 			if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
 				continue;
 			std::cout << "Ready for I/O operation" << '\n';
-			if (_web_sockets[j].getType() == SERVER && (_pfds[j].revents & POLLIN))
-				this->_web_sockets[j].add_client_to_pollfds();
-			else if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLIN))
-				this->_web_sockets[j].handle_request();
-			if (this->_web_sockets[j].getType() == CLIENT && (_pfds[j].revents & POLLOUT))
-				this->_web_sockets[j].send_answer();
+			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
+			{
+				std::cout << "pfds de j " << _pfds[j].fd << std::endl;
+				std::cout << "fd du serveur " << _servers[_pfds[j].fd]->_fd << std::endl;
+				_servers[_pfds[j].fd]->add_client_to_pollfds();
+			}
+			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
+				_clients[_pfds[j].fd]->handle_request();
+			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
+				_clients[_pfds[j].fd]->send_answer();
+		}
+	}
+}
+
+void	Webserv::erase_client()
+{
+	std::cout << "Fd de erase client : " << this->_fd << std::endl;
+	std::cout << "Index de erase client : " << this->_index << std::endl;
+	if (close(_pfds[this->_index].fd) < 0)
+		throw_error("");
+	std::cout << "Fd de poll fd a l index souhaite " << _pfds[this->_index].fd << std::endl;
+	_pfds.erase(_pfds.begin() + this->_index);
+	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
+	delete it->second;
+	_clients.erase(it);
+	setIndex();
+}
+
+void	Webserv::setIndex()
+{
+	std::map<int, Server*>::iterator itServer = _servers.begin();
+	while(itServer != _servers.end())
+	{
+		for (size_t i = 0; i < _pfds.size(); i++)
+		{
+			if (itServer->first == _pfds[i].fd)
+			{
+				itServer->second->_index = i;
+				break;
+			}			
+		}
+		itServer++;
+	}
+	std::map<int, Client*>::iterator itClient = _clients.begin();
+	while(itClient != _clients.end())
+	{
+		for (size_t i = 0; i < _pfds.size(); i++)
+		{
+			if (itClient->first == _pfds[i].fd)
+			{
+				itClient->second->_index = i;
+				break;
+			}			
+		}
+		itClient++;
+	}
+}
+
+void	Webserv::throw_error(const char* msg)
+{
+	clean_close();
+	if(msg[0] == '\0')
+	{
+		msg = std::strerror(errno);
+	}
+	throw std::runtime_error(msg);
+}
+
+void 	Webserv::clean_close()
+{
+	for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	{
+		if(it->second)
+			delete it->second;
+	}
+	_servers.clear();
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if(it->second)
+			delete it->second;
+	}
+	_clients.clear();
+	for (unsigned int i = 0; i < _pfds.size(); ++i)
+	{
+		if (_pfds[i].fd > 0)
+		{
+			if (close(_pfds[i].fd) < 0)
+				throw std::runtime_error(strerror(errno));
+			else
+				_pfds[i].fd = -1;
 		}
 	}
 }

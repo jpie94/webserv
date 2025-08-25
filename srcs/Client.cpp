@@ -1,39 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   WebSocket.cpp                                      :+:      :+:    :+:   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/23 14:16:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 14:16:37 by qsomarri         ###   ########.fr       */
+/*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
+/*   Updated: 2025/08/25 12:33:45 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "WebSocket.hpp"
+#include "Client.hpp"
 
 /*****************	CANONICAL	*******************/
 
-WebSocket::WebSocket() : _fd(), _index(), _type(), _count(), _recieved()
+Client::Client() : Webserv(), _count(), _recieved()
 {
 }
 
-WebSocket::WebSocket(const WebSocket& srcs)
+Client::Client(const Client& srcs)
 {
 	*this = srcs;
 }
 
-WebSocket::~WebSocket()
+Client::~Client()
 {
 }
 
-WebSocket&	WebSocket::operator=(WebSocket const & rhs)
+Client&	Client::operator=(Client const & rhs)
 {
 	if (this != &rhs)
 	{
 		this->_fd = rhs._fd;
-		this->_index = rhs._index;
-		this->_type = rhs._type;
 		this->_count = rhs._count;
 		this->_recieved = rhs._recieved;
 	}
@@ -42,61 +40,29 @@ WebSocket&	WebSocket::operator=(WebSocket const & rhs)
 
 /*****************	MEMBER		*******************/
 
-WebSocket::WebSocket(int i, nfds_t j, t_socket type) : _count(), _recieved()
+Client::Client(int fd, nfds_t index) : Webserv() , _count(), _recieved()
 {
-	this->_fd = i;
-	this->_index = j;
-	this->_type = type;
+	this->_fd = fd;
+	this->_index = index;
 }
 
-void	WebSocket::add_client_to_pollfds()
-{
-	int	socket_fd;
-
-	socket_fd = accept(this->_fd, NULL, 0);
-	if (socket_fd < 0)
-		Webserv::throw_error("accept");
-	struct pollfd temp = {socket_fd, POLLIN, 0};
-	_pfds.push_back(temp);
-	WebSocket temp1(socket_fd, (_pfds.size() -1), CLIENT);
-	_web_sockets.push_back(temp1);
-	std::cout << "Connection accepted for new client "<< socket_fd << std::endl;
-	// std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';
-
-}
-
-void	WebSocket::erase_client(nfds_t &j)
-{
-	if (close(_pfds[j].fd) < 0)
-		throw_error("close");
-	_pfds.erase(_pfds.begin() + j);
-	_web_sockets.erase(_web_sockets.begin() + j);
-	for(unsigned int i = j; i < _web_sockets.size(); ++i)
-		_web_sockets[i]._index--;
-}
-
-int	WebSocket::getType() const
-{
-	return (this->_type);
-}
-
-
-void	WebSocket::handle_request()
+void	Client::handle_request()
 {
 	char	buffer[4096];
 
 	std::memset(buffer, 0, sizeof(buffer));
-	int bytes_read = recv(_pfds[this->_index].fd, &buffer,BUFSIZ, 0);
+	std::cout << _pfds[this->_index].fd <<std::endl;
+	int bytes_read = recv(_pfds[this->_index].fd, &buffer,4096, 0);
 	if (bytes_read < 0)
 	{
 		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
-		erase_client(this->_index);
+		this->erase_client();
 		return;
 	}
 	if (bytes_read == 0)
 	{
 		std::cout << "[" << this->_fd << "] Client socket closed connection." << '\n';
-		erase_client(this->_index);
+		this->erase_client();
 		return;
 	}
 	std::cout << "index= " << this->_index << std::endl;
@@ -114,7 +80,7 @@ void	WebSocket::handle_request()
 	}
 }
 
-void	WebSocket::send_answer()
+void	Client::send_answer()
 {
 	const char	message[] = "hello client, I want to answer you but I'm to dumb to make a real HTTP/1.1 answer O_o\n";
 	ssize_t		msg_len = std::strlen(message);
@@ -125,7 +91,7 @@ void	WebSocket::send_answer()
 	if (sent < 0)
 	{
 		std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
-		erase_client(this->_index);
+		this->erase_client();
 	}
 	this->_count += sent;
 	std::cout << "\ntaille message envoye: " << this->_count << '\n';
@@ -135,3 +101,4 @@ void	WebSocket::send_answer()
 		this->_count = 0;
 	}
 }
+

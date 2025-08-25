@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/23 14:31:20 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/08/25 12:32:56 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ SRCS_DIR = srcs
 
 SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Webserv.cpp \
-	$(SRCS_DIR)/WebSocket.cpp \
+	$(SRCS_DIR)/Server.cpp \
+	$(SRCS_DIR)/Client.cpp \
 	$(SRCS_DIR)/Request.cpp \
 	$(SRCS_DIR)/Response.cpp \
 	$(SRCS_DIR)/Signals.cpp \
@@ -52,4 +53,6 @@ fclean: clean
 
 re: fclean all
 
+test : 
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./$(NAME) ./conf/test_config.txt
 .PHONY: all clean fclean re
