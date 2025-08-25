@@ -1,0 +1,7 @@
+hello
+hola
+1
+2
+3
+4
+fin du test -- ciao

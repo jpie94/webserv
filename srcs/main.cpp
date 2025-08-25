@@ -1,6 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
+/*   Updated: 2025/08/25 12:32:41 by qsomarri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Webserv.hpp"
 #include "Request.hpp"
 #include "Signals.hpp"
+#include "Response.hpp"
 
 int	main(int argc, char *argv[])
 {

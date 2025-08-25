@@ -1,0 +1,4 @@
+GET /root/index.html HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+

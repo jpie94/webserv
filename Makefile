@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
+#    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/22 18:51:49 by jpiech           ###   ########.fr        #
+#    Updated: 2025/08/25 12:32:56 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,9 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Server.cpp \
 	$(SRCS_DIR)/Client.cpp \
 	$(SRCS_DIR)/Request.cpp \
-	$(SRCS_DIR)/Signals.cpp
+	$(SRCS_DIR)/Response.cpp \
+	$(SRCS_DIR)/Signals.cpp \
+	$(SRCS_DIR)/utils.cpp
 
 OBJ_DIR = obj
 
