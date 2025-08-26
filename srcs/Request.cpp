@@ -3,21 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 17:00:24 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:13:09 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Response.hpp"
 
-/*****************	CANONICAL	*******************/
-
-Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol()
-{
-}
+/*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
+Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol(){}
 
 Request::Request(const Request& src)
 {
@@ -37,16 +34,11 @@ Request&	Request::operator=(const Request& rhs)
 	return (*this);
 }
 
-Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol()
-{
-}
+Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol(){}
 
 Request::~Request() {}
 
-
 /*****************	CLASS UTILS	*******************/
-
-
 static void	strCapitalizer(std::string &str)
 {
 	size_t	i = -1;
@@ -70,7 +62,6 @@ static std::string	trim_white_spaces(std::string str)//end = end - start??
 }
 
 /*****************	MEMBER		*******************/
-
 void	Request::parsRequestLine(std::string& msg)
 {
 	std::istringstream ss(msg);

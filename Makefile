@@ -6,7 +6,7 @@
 #    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/25 14:58:04 by jpiech           ###   ########.fr        #
+#    Updated: 2025/08/26 15:12:35 by jpiech           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,7 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Request.cpp \
 	$(SRCS_DIR)/Response.cpp \
 	$(SRCS_DIR)/Signals.cpp \
-	$(SRCS_DIR)/utils.cpp
+	$(SRCS_DIR)/Utils.cpp
 
 OBJ_DIR = obj
 

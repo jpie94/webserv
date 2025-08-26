@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 17:20:42 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 16:33:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,39 +14,24 @@
 #include "Server.hpp"
 #include "Client.hpp"
 
- std::vector<struct pollfd>	Webserv::_pfds;
- std::map<int, Client*> Webserv::_clients;
- std::map<int, Server*> Webserv::_servers;
+std::vector<struct pollfd>	Webserv::_pfds;
+std::map<int, Client*> Webserv::_clients;
+std::map<int, Server*> Webserv::_servers;
 
-/*****************	CANONICAL	*******************/
-
-Webserv::Webserv() :_fd(), _index()
-{
-}
+/*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
+Webserv::Webserv() :_fd(), _index(){}
 
 Webserv::Webserv(const Webserv& srcs)
 {
 	*this = srcs;
 }
 
-Webserv::~Webserv()
-{
-
-}
-
 Webserv	&Webserv::operator=(Webserv const& rhs)
 {
-	(void)rhs;
-	// if (this != &rhs)
-	// {
-	//     _pfds = rhs._pfds;
-	//     this->_web_sockets = rhs._web_sockets;
-	// }
+	this->_fd = rhs._fd;
+	this->_index = rhs._index;
 	return (*this);
 }
-
-/*****************	MEMBER		*******************/
-
 
 Webserv::Webserv(char *FileName): _fd(), _index()
 {
@@ -54,7 +39,7 @@ Webserv::Webserv(char *FileName): _fd(), _index()
 	if (FileName)
 		Config = ExtractConfig(FileName);
 	else
-		throw_error("Error : No default configuration path set yet !");
+		throw_error("Error in Webserv constructor: No default configuration path set yet !");
 	while(Config.find("server") != std::string::npos)
 		ServerMaker(Config);
 	for(size_t i = 0; i < Config.size(); i++)
@@ -64,12 +49,15 @@ Webserv::Webserv(char *FileName): _fd(), _index()
 	}
 }
 
+Webserv::~Webserv(){}
+
+/*****************	MEMBER		*******************/
 std::string		Webserv::ExtractConfig(char *FileName)
 {
 	std::string Config, line;
 	std::ifstream	ConfigFile(FileName);
-	if (!ConfigFile.is_open())
-			throw_error("");
+	if (!ConfigFile.is_open())	
+		throw_error(std::string(std::string ("Error in ExtractConfig : ") + FileName + " : " + std::strerror(errno)).c_str());
 	while (!ConfigFile.eof())
 	{
 		std::getline(ConfigFile, line);
@@ -153,7 +141,7 @@ void	Webserv::runWebserv()
 	{
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
-			throw_error("Error : polling failed !");
+			throw_error("Error in runWebserv : polling failed !");
 		if (status == 0)
 		{
 			std::cout << "Waiting for connection..." << std::endl; 
@@ -163,11 +151,8 @@ void	Webserv::runWebserv()
 		{
 			if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
 				continue;
-			std::cout << "Ready for I/O operation" << '\n';
 			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
 			{
-				std::cout << "pfds de j " << _pfds[j].fd << std::endl;
-				std::cout << "fd du serveur " << _servers[_pfds[j].fd]->_fd << std::endl;
 				_servers[_pfds[j].fd]->add_client_to_pollfds();
 			}
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
@@ -180,11 +165,8 @@ void	Webserv::runWebserv()
 
 void	Webserv::erase_client()
 {
-	std::cout << "Fd de erase client : " << this->_fd << std::endl;
-	std::cout << "Index de erase client : " << this->_index << std::endl;
 	if (close(_pfds[this->_index].fd) < 0)
-		throw_error("");
-	std::cout << "Fd de poll fd a l index souhaite " << _pfds[this->_index].fd << std::endl;
+		throw_error(std::string(std::string ("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
 	_pfds.erase(_pfds.begin() + this->_index);
 	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
 	delete it->second;
@@ -225,10 +207,6 @@ void	Webserv::setIndex()
 void	Webserv::throw_error(const char* msg)
 {
 	clean_close();
-	if(msg[0] == '\0')
-	{
-		msg = std::strerror(errno);
-	}
 	throw std::runtime_error(msg);
 }
 
@@ -251,7 +229,7 @@ void 	Webserv::clean_close()
 		if (_pfds[i].fd > 0)
 		{
 			if (close(_pfds[i].fd) < 0)
-				throw std::runtime_error(strerror(errno));
+				throw std::runtime_error(std::string(std::string ("Error in clean_close : close failed : ") + std::strerror(errno)).c_str());
 			else
 				_pfds[i].fd = -1;
 		}

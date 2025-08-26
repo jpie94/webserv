@@ -3,21 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 17:01:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:13:15 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 std::map<std::string, std::string>	makeTypesMap();
-
 std::map<std::string, std::string> Response::_types = makeTypesMap();
 
-/*****************	CANONICAL	*******************/
-
+/*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 Response::Response() : Request(), _response(), _fileName(), _responseBody(), _autoIndex()//rm autoIndex
 {
 }
@@ -48,7 +46,6 @@ Response::Response(Request& request) : Request(request), _response(), _fileName(
 Response::~Response() {}
 
 /*****************	CLASS UTILS	*******************/
-
 std::map<std::string, std::string> makeTypesMap()
 {
 	std::map<std::string, std::string>	types;
@@ -147,7 +144,6 @@ std::string	Response::getFileExt(std::string value) const
 }
 
 /*****************	MEMBER		*******************/
-
 std::string	Response::getTime() const
 {
 	time_t	rawtime;
@@ -241,7 +237,6 @@ std::string	Response::getContent_type()
 		return (_types[this->getFileType()]);
 	return ("application/octet-stream");//search
 }
-
 
 void	Response::postMethode()
 {
