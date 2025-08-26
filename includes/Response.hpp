@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 17:21:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 18:02:41 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <fcntl.h>
 #include "Request.hpp"
 
-#define SERVER_ROOT "root/"
+#define SERVER_ROOT ""
 
 class Response : public Request
 {

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 17:20:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 18:31:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,14 +159,17 @@ void	Request::parsRequest()
 	std::string	key, value, line, msg(this->_request_msg);
 
 	parsRequestLine(msg);
-	if (this->_responseStatus != "200")
+	if (this->_responseStatus == "200")
 		parsHeaders(msg);
-	if (this->_responseStatus != "200")
+	if (this->_responseStatus == "200")
 		checkRequest();
-	if (this->_responseStatus != "200" && this->_headers.find("Content-Length") != this->_headers.end())
+	if (this->_responseStatus == "200" && this->_headers.find("Content-Length") != this->_headers.end())
 		parsBody(msg);
-	else if (msg.size() > 0)
+	else if (this->_responseStatus == "200 " && msg.size() > 0)
+	{
+		std::cout << "msg= " << msg << std::endl;
 		return (setStatus("400"));
+	}
 }
 
 void	Request::makeResponse()

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 17:20:38 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 18:32:20 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,8 @@ void	Response::HandlePath()
 	struct stat	path_stat;
 
 	this->_path = SERVER_ROOT + this->_path;
+	if (this->_path[0] == '/')
+		this->_path = this->_path.substr(1);
 	// std::cout << "1- this->_path= " << this->_path << '\n';
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 			return(setStatus("404"));
@@ -214,7 +216,7 @@ void	Response::readFile()
 	std::ifstream	file(this->_path.c_str(), std::ios::in|std::ios::binary);
 
 	if (file.fail())
-		Webserv::throw_error("500: Internal server error - ifstream.fail()");
+		return(setStatus("500"), setErrorPage());
 	os << file.rdbuf();
 	this->_responseBody = os.str() + CRLF;
 }
@@ -222,13 +224,13 @@ void	Response::readFile()
 void	Response::getMethode()
 {
 	if (this->_responseStatus != "200")
-		return (setErrorPage());
+		return (std::cout << "ok1" << std::endl, setErrorPage());
 	std::cout << "GET methode called\n";
 	this->readFile();
 	if (this->_responseStatus == "200")
 		return (setResponse());
 	else
-		return (setErrorPage());
+		return (std::cout << "ok2" << std::endl, setErrorPage());
 }
 
 void	Response::postMethode()
@@ -328,7 +330,6 @@ void	Response::setResponse()
 		this->_response += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
 	}
 	this->_response += this->_responseBody;
-	std::cout << this->_response;
 }
 
 
@@ -343,13 +344,32 @@ void	Response::callMethode()
 	for (int i = 0; i < 3; ++i)
 		if (!methodes[i].compare(this->_methode))
 			(void)((this->*f[i])());
-	//Webserv::throw_error("501: Not implemented");
-	printResponse();
+	if (this->_responseStatus == "200" || this->_responseStatus == "201")
+		printResponse();
 }
 void	Response::setErrorPage()
 {
-	
+	std::string		InternalError500;
+	std::ostringstream	os;
+	std::string		target("root/error/" + this->_responseStatus + ".html");
+	std::ifstream		file(target.c_str());
 
+	if (file.fail())
+	{
+		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
+		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">___________________________________________________________________________________________</span></p> \
+		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">webserv</span></p> \
+		<p style=\"text-align: center;\"><br></p> \
+		<p style=\"text-align: center;\"><br></p> \
+		<p style=\"text-align: center;\"><br></p> \
+		<p style=\"text-align: center;\"><br></p>";
+	}
+	else
+	{
+		os << file.rdbuf();
+		this->_responseBody = os.str();
+	}
+	std::cout << "Error page to send : " << this->_responseBody;
 }
 
 void	Response::printResponse() const
