@@ -6,13 +6,13 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 18:30:39 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 12:44:47 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
-
+  
 /*****************	CANONICAL	*******************/
 
 Server::Server(): Webserv(), config(), locations() {} 
@@ -224,7 +224,7 @@ void	Server::add_client_to_pollfds()
 		throw_error("accept");
 	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
 	_pfds.push_back(newPollfd);
-	Client *newClient = new Client(socket_fd, _pfds.size() - 1);
+	Client *newClient = new Client(socket_fd, _pfds.size() - 1, this->config, this->locations);
 	_clients[socket_fd] = newClient;
 	std::cout << "Connection accepted for new client "<< socket_fd << std::endl;
 	// std::cout << "\npfsd.size()= " << _pfds.size() << ", websocket.size()= " << _web_sockets.size() << '\n';

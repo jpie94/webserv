@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 12:33:45 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 12:27:48 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Client::Client() : Webserv(), _count(), _recieved()
+Client::Client() : Server(), _count(), _recieved()
 {
 }
 
@@ -40,10 +40,13 @@ Client&	Client::operator=(Client const & rhs)
 
 /*****************	MEMBER		*******************/
 
-Client::Client(int fd, nfds_t index) : Webserv() , _count(), _recieved()
+Client::Client(int fd, nfds_t index , std::map<std::string, std::string> config, std::map<std::string, std::map<std::string, std::string> > locations ) : Server(), _count(), _recieved()
 {
 	this->_fd = fd;
 	this->_index = index;
+	this->config = config;
+	this->locations = locations;
+	printconfig();
 }
 
 void	Client::handle_request()

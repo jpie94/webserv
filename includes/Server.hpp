@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 15:20:12 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 12:17:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,10 @@
 #include "Webserv.hpp"
 
 class Client;
-class Location;
 
 class Server : public Webserv
 {
-    private :
+    protected:
 
         std::map<std::string, std::string> config;
         std::map<std::string, std::map<std::string, std::string> > locations;   
