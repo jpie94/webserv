@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 18:31:32 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 19:11:15 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol(), _responseStatus("200")
-{
-}
+Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
 
 Request::Request(const Request& src)
 {
@@ -38,13 +36,12 @@ Request&	Request::operator=(const Request& rhs)
 	return (*this);
 }
 
-Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol(), _responseStatus("200")
-{
-}
+Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
 
 Request::~Request() {}
 
 /*****************	CLASS UTILS	*******************/
+
 static void	strCapitalizer(std::string &str)
 {
 	size_t	i = -1;
@@ -52,7 +49,7 @@ static void	strCapitalizer(std::string &str)
 		str[i] = static_cast<char>(std::toupper(str[i]));	
 }
 
-static std::string	trim_white_spaces(std::string str)//end = end - start??
+static std::string	trim_white_spaces(std::string str)
 {
 	size_t	start = 0, end = 0;
 	while (std::isspace(str[start]) && str[start])
@@ -68,10 +65,11 @@ static std::string	trim_white_spaces(std::string str)//end = end - start??
 }
 
 /*****************	MEMBER		*******************/
+
 void	Request::parsRequestLine(std::string& msg)
 {
-	std::istringstream ss(msg);
-	std::string line, tmp;
+	std::istringstream	ss(msg);
+	std::string		line, tmp;
 
 	std::getline(ss, line, '\n');
 	ss.str(line);
@@ -111,12 +109,8 @@ void	Request::parsHeaders(std::string& msg)
 		}
 		else
 			this->_headers[key] = value;
-		// std::cout << "key = " << key << '\n';
-		// std::cout << "value= " << value << '\n';
 		std::getline(ss, line, '\n');
 	}
-	// for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
-	// 	std::cout << "[" << it->first << "]-> " << it->second << '\n';
 	msg = ss.str();
 	if (count + 1 <= msg.size())
 		msg = msg.substr(count + 1);
@@ -124,14 +118,15 @@ void	Request::parsHeaders(std::string& msg)
 
 void	Request::parsBody(std::string& msg)
 {
-	if (msg.size() - 1 != static_cast<unsigned int>(std::atoi(this->_headers["Content-Length"].c_str())))
+	unsigned int	len = std::atoi(this->_headers["Content-Length"].c_str());
+
+	if (msg.size() - 1 != len)
 		return (setStatus("400"));
 	if (msg[msg.size() - 1] == '\n')
 		msg.erase(msg.size() - 1);
 	if (msg[msg.size() - 1] == '\r')
 		msg.erase(msg.size() - 1);
 	this->_body = msg;
-	// std::cout << "body= " << msg << std::endl;
 }
 
 void	Request::checkRequest()
@@ -146,8 +141,6 @@ void	Request::checkRequest()
 	}
 	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
 		 return (setStatus("400"));
-	// if (this->_path[0] == '/')
-	// 	this->_path = this->_path.substr(1);
 	if (this->_protocol.compare("HTTP/1.1"))
 		return (setStatus("505"));
 	if (this->_headers.find("HOST") == this->_headers.end())
@@ -166,10 +159,7 @@ void	Request::parsRequest()
 	if (this->_responseStatus == "200" && this->_headers.find("Content-Length") != this->_headers.end())
 		parsBody(msg);
 	else if (this->_responseStatus == "200 " && msg.size() > 0)
-	{
-		std::cout << "msg= " << msg << std::endl;
 		return (setStatus("400"));
-	}
 }
 
 void	Request::makeResponse()

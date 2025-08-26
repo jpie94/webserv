@@ -6,14 +6,16 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 18:02:41 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 19:28:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
+
 #include <ctime>
 #include <fcntl.h>
+#include <limits>
 #include "Request.hpp"
 
 #define SERVER_ROOT ""
@@ -21,18 +23,18 @@
 class Response : public Request
 {
 	private:
-		std::string									_response;
-		std::string									_fileName;
-		std::string									_responseBody;
+		std::string					_response;
+		std::string					_fileName;
+		std::string					_responseBody;
 		static std::map<std::string, std::string>	_types;
-		bool										_autoIndex;//Inherited from Server Class
+		bool						_autoIndex;//Inherited from Server Class
 	public:
 		/* Canonical Form + Paramtric constructor */
-													Response();
-													Response(Request&);
-													Response(const Response&);
-		Response&									operator=(const Response&);
-		virtual										~Response();
+								Response();
+								Response(Request&);
+								Response(const Response&);
+		Response&					operator=(const Response&);
+		virtual						~Response();
 		/* Member Functions */
 		void						getMethode();
 		void						postMethode();
@@ -49,4 +51,5 @@ class Response : public Request
 		void						setResponse();
 		void						setErrorPage();
 };
+
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 16:33:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 19:03:18 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 #include "Client.hpp"
 
 std::vector<struct pollfd>	Webserv::_pfds;
-std::map<int, Client*> Webserv::_clients;
-std::map<int, Server*> Webserv::_servers;
+std::map<int, Client*>		Webserv::_clients;
+std::map<int, Server*>		Webserv::_servers;
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 Webserv::Webserv() :_fd(), _index(){}
@@ -28,14 +28,17 @@ Webserv::Webserv(const Webserv& srcs)
 
 Webserv	&Webserv::operator=(Webserv const& rhs)
 {
-	this->_fd = rhs._fd;
-	this->_index = rhs._index;
+	if (this != &rhs)
+	{
+		this->_fd = rhs._fd;
+		this->_index = rhs._index;
+	}
 	return (*this);
 }
 
 Webserv::Webserv(char *FileName): _fd(), _index()
 {
-	std::string Config;
+	std::string	Config;
 	if (FileName)
 		Config = ExtractConfig(FileName);
 	else
@@ -52,9 +55,9 @@ Webserv::Webserv(char *FileName): _fd(), _index()
 Webserv::~Webserv(){}
 
 /*****************	MEMBER		*******************/
-std::string		Webserv::ExtractConfig(char *FileName)
+std::string	Webserv::ExtractConfig(char *FileName)
 {
-	std::string Config, line;
+	std::string	Config, line;
 	std::ifstream	ConfigFile(FileName);
 	if (!ConfigFile.is_open())	
 		throw_error(std::string(std::string ("Error in ExtractConfig : ") + FileName + " : " + std::strerror(errno)).c_str());
@@ -152,9 +155,7 @@ void	Webserv::runWebserv()
 			if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
 				continue;
 			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
-			{
 				_servers[_pfds[j].fd]->add_client_to_pollfds();
-			}
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
 				_clients[_pfds[j].fd]->handle_request();
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())

@@ -6,19 +6,18 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 18:32:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 19:28:14 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 std::map<std::string, std::string>	makeTypesMap();
-std::map<std::string, std::string> Response::_types = makeTypesMap();
+std::map<std::string, std::string>	Response::_types = makeTypesMap();
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
-Response::Response() : Request(), _response(), _fileName(), _responseBody(), _autoIndex()//rm autoIndex
-{
-}
+
+Response::Response() : Request(), _response(), _fileName(), _responseBody(), _autoIndex() {}//rm autoIndex
 
 Response::Response(const Response& src)
 {
@@ -44,7 +43,8 @@ Response::Response(Request& request) : Request(request), _response(), _fileName(
 Response::~Response() {}
 
 /*****************	CLASS UTILS	*******************/
-std::map<std::string, std::string> makeTypesMap()
+
+std::map<std::string, std::string>	makeTypesMap()
 {
 	std::map<std::string, std::string>	types;
 
@@ -134,10 +134,8 @@ std::map<std::string, std::string> makeTypesMap()
 std::string	Response::getFileExt(std::string value) const
 {
 	for (std::map<std::string, std::string>::const_iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
-	{
 		if (it->second == value)
 			return (it->first);
-	}
 	return ("");
 }
 
@@ -175,29 +173,29 @@ void	Response::HandlePath()
 	this->_path = SERVER_ROOT + this->_path;
 	if (this->_path[0] == '/')
 		this->_path = this->_path.substr(1);
-	// std::cout << "1- this->_path= " << this->_path << '\n';
-	if (stat(this->_path.c_str(), &path_stat) != 0)
+	if (stat(this->_path.c_str(), &path_stat))
 			return(setStatus("404"));
 	if (S_ISDIR(path_stat.st_mode))
 	{
 		if (this->_autoIndex && this->_methode == "GET")
-			return ((void)this->autoIndex());
+			return (this->autoIndex());
 		if (this->_methode == "GET")
 		{
 			std::string	str(this->_path + "index.html");
-			int	status = open(str.c_str(), O_RDONLY);
-			if (status < 0)
+			std::ifstream	ifs(str);
+			if (ifs.fail())
 				return(setStatus("403"));
 			this->_path += "index.html";
-			if (close(status) < 0)
-				return(setStatus("500"));
 		}
 		if (this->_methode == "POST")
 		{
-			this->_fileName = "newFile";//check for unique file name
+			size_t	i = 0;
+			this->_fileName = "newFile";
 			if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
 				this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
-			this->_path += this->_fileName;//check '/'
+			while (stat(this->_fileName.c_str(), &path_stat) && i < std::numeric_limits<int>::max())
+				this->_fileName += this->_fileName + i_to_string(++i) + getFileExt(this->_headers["CONTENT-TYPE"]);
+			this->_path += this->_fileName;
 		}
 	}
 	std::ifstream	ifs(this->_path.c_str(), std::ifstream::in);
@@ -206,8 +204,6 @@ void	Response::HandlePath()
 	size_t	pos = this->_path.rfind("/");
 	if (pos != std::string::npos)
 		this->_fileName = this->_path.substr(pos + 1, this->_path.size() - pos - 1);
-	// std::cout << "final path= " << this->_path << '\n';
-	// std::cout << "file name= " << this->_fileName << "\n\n";
 }
 
 void	Response::readFile()
@@ -224,13 +220,12 @@ void	Response::readFile()
 void	Response::getMethode()
 {
 	if (this->_responseStatus != "200")
-		return (std::cout << "ok1" << std::endl, setErrorPage());
-	std::cout << "GET methode called\n";
+		return (setErrorPage());
 	this->readFile();
 	if (this->_responseStatus == "200")
 		return (setResponse());
 	else
-		return (std::cout << "ok2" << std::endl, setErrorPage());
+		return (setErrorPage());
 }
 
 void	Response::postMethode()
@@ -240,7 +235,6 @@ void	Response::postMethode()
 
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
-	std::cout << "POST methode called\n";
 	if (this->_body.empty())
 		return (setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
@@ -267,7 +261,6 @@ void	Response::deleteMethode()
 		return (setErrorPage());
 	if (std::remove(this->_path.c_str()))
 		return (setStatus("403"), setErrorPage());
-	std::cout << "DELETE methode called on: " << this->_path << "\n";
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }
@@ -292,10 +285,11 @@ void	Response::autoIndex()
 		index_page += "</p>\n</body>\n</html>\n";
 		this->_responseBody = index_page;
 		std::cout << this->_responseBody << std::endl;
-		closedir(dir);
+		if (closedir(dir) < 0)
+			return (setStatus("500"), setErrorPage());
 	}
 	else
-		Webserv::throw_error("403: forbidden");
+		return(setStatus("403"), setErrorPage());
 }
 
 void	Response::setResponse()
@@ -319,7 +313,7 @@ void	Response::setResponse()
 		this->_response += "Server: Webserv";
 		this->_response += CRLF;
 		this->_response += "Date: " + getTime() + CRLF;
-		this->_response += "Content-type: " + getContent_type();//check value
+		this->_response += "Content-type: " + getContent_type();
 		this->_response += "Content-Length: " + i_to_string(_responseBody.size()) + CRLFCRLF;
 	}
 	if (this->_methode == "DELETE")
