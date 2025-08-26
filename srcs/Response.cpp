@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 18:17:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:36:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,7 @@ Response&	Response::operator=(const Response& rhs)
 
 Response::Response(Request& request) : Request(request), _response(), _fileName(), _responseBody()
 {
-	if (this->_path.c_str()[0] == '/')
-		this->_path = this->_path.substr(1);
-	this->_autoIndex = 1;
+	this->_autoIndex = 0;
 }
 
 Response::~Response() {}
@@ -158,20 +156,30 @@ std::string	Response::getTime() const
 	return (str.erase(str.find_last_not_of("\n") + 1) + " GMT");
 }
 
+std::string	Response::getFileType()
+{
+	size_t	pos = this->_fileName.find(".");
+
+	if (pos != std::string::npos)
+		return (this->_fileName.substr(pos, this->_fileName.size() - pos));
+	return ("");
+}
+
+std::string	Response::getContent_type()
+{
+	if (_types.find(this->getFileType()) != _types.end())
+		return (_types[this->getFileType()]);
+	return ("application/octet-stream");
+}
+
 void	Response::HandlePath()
 {
 	struct stat	path_stat;
-	std::string	absolut_path(SERVER_ROOT);
 
+	this->_path = SERVER_ROOT + this->_path;
 	// std::cout << "1- this->_path= " << this->_path << '\n';
 	if (stat(this->_path.c_str(), &path_stat) != 0)
-	{
-		absolut_path += this->_path;
-		// std::cout << "2- absolute_path= " << absolut_path << '\n';
-		if (stat(absolut_path.c_str(), &path_stat) != 0)
-			return((void)(std::cerr << "404: Not found: " << absolut_path << std::endl));
-		this->_path = absolut_path;
-	}
+			return(setStatus("404"));
 	if (S_ISDIR(path_stat.st_mode))
 	{
 		if (this->_autoIndex && this->_methode == "GET")
@@ -181,10 +189,10 @@ void	Response::HandlePath()
 			std::string	str(this->_path + "index.html");
 			int	status = open(str.c_str(), O_RDONLY);
 			if (status < 0)
-				throw_error("403: forbidden");
+				return(setStatus("403"));
 			this->_path += "index.html";
 			if (close(status) < 0)
-				throw_error("500: Internal server error - close");
+				return(setStatus("500"));
 		}
 		if (this->_methode == "POST")
 		{
@@ -196,7 +204,7 @@ void	Response::HandlePath()
 	}
 	std::ifstream	ifs(this->_path.c_str(), std::ifstream::in);
 	if (ifs.fail() || !ifs.is_open())
-		std::cerr << "Error 404: not found: " << this->_path << std::endl;
+		return(setStatus("404"));
 	size_t	pos = this->_path.rfind("/");
 	if (pos != std::string::npos)
 		this->_fileName = this->_path.substr(pos + 1, this->_path.size() - pos - 1);
@@ -217,85 +225,53 @@ void	Response::readFile()
 
 void	Response::getMethode()
 {
+	if (this->_responseStatus != "200")
+		return (setErrorPage());
 	std::cout << "GET methode called\n";
 	this->readFile();
-	this->_response += "HTTP/1.1 200 OK\nServer: Webserv\nContent-Length: " + i_to_string(this->_responseBody.size()) + CRLF;
-	this->_response += "Date: " + this->getTime() + CRLF;
-	this->_response += "Content-type: " + this->getContent_type() + CRLFCRLF;
-	this->_response += this->_responseBody;
-	std::cout << this->_response;
+	if (this->_responseStatus == "200")
+		return (setResponse());
+	else
+		return (setErrorPage());
 }
-
-std::string	Response::getFileType()
-{
-	size_t	pos = this->_fileName.find(".");
-
-	if (pos != std::string::npos)
-		return (this->_fileName.substr(pos, this->_fileName.size() - pos));
-	return ("");
-}
-
-std::string	Response::getContent_type()
-{
-	if (_types.find(this->getFileType()) != _types.end())
-		return (_types[this->getFileType()]);
-	return ("application/octet-stream");
-}
-
 
 void	Response::postMethode()
 {
 	std::string	status;
-	int	fd;
+	struct stat	path_stat;
 
+	if (this->_responseStatus != "200")
+		return (setErrorPage());
 	std::cout << "POST methode called\n";
 	if (this->_body.empty())
-		Webserv::throw_error("Bad Request: POST request with empty body");
-	fd = open(this->_path.c_str(), O_RDONLY);
-	if (fd)
+		return (setStatus("400"), setErrorPage());
+	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
-		status = "200 OK";
-		this->_responseBody = "Resource successfully updated";
-		if (close(fd) < 0)
-			throw_error("500: Internal server error - close");
+		setStatus("201");
+		this->_responseBody = "Resource succesfully created";
 	}
 	else
 	{
-		status = "201 Created";
-		this->_responseBody = "Resource successfully created";
+		setStatus("200");
+		this->_responseBody = "Resource succedfully upadated";
 	}
+	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open())
-		Webserv::throw_error("Internal Server Error: cannot create file");
+		return(setStatus("500"), setErrorPage());
 	ofs << this->_body;
-	ofs.close();
-	this->_response += "HTTP/1.1 " + status + CRLF;
-	this->_response += "Server: Webserv";
-	this->_response += CRLF;
-	this->_response += "Date: " + getTime() + CRLF;
-	this->_response += "Content-Length: " + i_to_string(_responseBody.size()) + CRLF;
-	this->_response += "Content-type: " + getContent_type();//check value
-	this->_response += CRLFCRLF;
-	this->_response += _responseBody;
-	std::cout << this->_response;
+	//ofs.close();
 }
 
 void	Response::deleteMethode()
 {
+	if (this->_responseStatus != "200")
+		return (setErrorPage());
 	if (std::remove(this->_path.c_str()))
-	{
-		std::cerr << "Error: Can't delete file: " << this->_fileName << std::endl;
-		return;
-	}
+		return (setStatus("403"), setErrorPage());
 	std::cout << "DELETE methode called on: " << this->_path << "\n";
-	this->_responseBody += "File: " + this->_fileName + " deleted";
-	this->_response += "HTTP/1.1 200 OK";
-	this->_response += CRLF;
-	this->_response +="Content-type: " + this->getContent_type() + CRLF;
-	this->_response += "Date: " + this->getTime() + CRLF;
-	this->_response += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
-	this->_response += this->_responseBody + CRLF;
-	std::cout << this->_response;
+	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
+	setResponse();
 }
 
 void	Response::autoIndex()
@@ -318,23 +294,66 @@ void	Response::autoIndex()
 		index_page += "</p>\n</body>\n</html>\n";
 		this->_responseBody = index_page;
 		std::cout << this->_responseBody << std::endl;
-		closedir (dir);
+		closedir(dir);
 	}
 	else
 		Webserv::throw_error("403: forbidden");
 }
+
+void	Response::setResponse()
+{
+	this->_response += "HTTP/1.1 " + this->_responseStatus;
+	if (this->_responseStatus == "200")
+		this->_response += " OK";
+	else if (this->_responseStatus == "201")
+		this->_response += " Created";
+	this->_response += CRLF;
+	if (this->_methode == "GET")
+	{
+		this->_response += "Server: Webserv";
+		this->_response += CRLF;
+		this->_response += "Date: " + this->getTime() + CRLF;
+		this->_response += "Content-type: " + this->getContent_type() + CRLF;
+		this->_response += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
+	}
+	if (this->_methode == "POST")
+	{
+		this->_response += "Server: Webserv";
+		this->_response += CRLF;
+		this->_response += "Date: " + getTime() + CRLF;
+		this->_response += "Content-type: " + getContent_type();//check value
+		this->_response += "Content-Length: " + i_to_string(_responseBody.size()) + CRLFCRLF;
+	}
+	if (this->_methode == "DELETE")
+	{
+		this->_response += CRLF;
+		this->_response += "Date: " + this->getTime() + CRLF;
+		this->_response +="Content-type: " + this->getContent_type() + CRLF;
+		this->_response += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
+	}
+	this->_response += this->_responseBody;
+	std::cout << this->_response;
+}
+
 
 void	Response::callMethode()
 {
 	std::string	methodes[3] = {"GET", "POST", "DELETE"};
 	void	(Response::*f[])(void) = {&Response::getMethode, &Response::postMethode, &Response::deleteMethode};
 
+	if (this->_responseStatus != "200")
+		return(setErrorPage());
 	HandlePath();
 	for (int i = 0; i < 3; ++i)
 		if (!methodes[i].compare(this->_methode))
-			return ((void)((this->*f[i])()));
-	Webserv::throw_error("501: Not implemented");
+			(void)((this->*f[i])());
+	//Webserv::throw_error("501: Not implemented");
 	printResponse();
+}
+void	Response::setErrorPage()
+{
+	
+
 }
 
 void	Response::printResponse() const

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/23 18:59:54 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:30:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,6 @@ class Response : public Request
 		std::string					getTime() const;
 		void						printResponse() const;//del
 		std::string					getFileExt(std::string value) const;
+		void						setResponse();
+		void						setErrorPage();
 };

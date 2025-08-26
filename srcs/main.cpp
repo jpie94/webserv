@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 12:43:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 12:29:03 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,25 @@
 
 int main(int argc, char** argv)
 {
+	struct stat	path_stat;
 	if (argc != 2)
-		return (1);
-	try
-	{
-		Request r(argv[1]);
-		r.parsRequest();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	return (0);
+		return 1;
+	if (stat(argv[1], &path_stat) != 0)
+		std::cout << "error" << std::endl;
+	else
+		std::cout << "ok" << std::endl;
+	return(0);
+	// if (argc != 2)
+	// 	return (1);
+	// try
+	// {
+	// 	Request r(argv[1]);
+	// 	r.parsRequest();
+	// 	r.makeResponse();
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << e.what() << '\n';
+	// }
+	// return (0);
 }

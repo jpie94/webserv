@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 17:00:24 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:33:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol()
+Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol(), _responseStatus("200")
 {
 }
 
@@ -33,11 +33,12 @@ Request&	Request::operator=(const Request& rhs)
 		this->_methode = rhs._methode;
 		this->_path = rhs._path;
 		this->_protocol = rhs._protocol;
+		this->_responseStatus = rhs._responseStatus;
 	}
 	return (*this);
 }
 
-Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol()
+Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol(), _responseStatus("200")
 {
 }
 
@@ -80,10 +81,10 @@ void	Request::parsRequestLine(std::string& msg)
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
-		Webserv::throw_error("Bad request : missing token in request line");
+		return (setStatus("400"));
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
-		Webserv::throw_error("Bad request : invalid token on request line");
+		return (setStatus("400"));
 }
 
 void	Request::parsHeaders(std::string& msg)
@@ -94,7 +95,7 @@ void	Request::parsHeaders(std::string& msg)
 
 	line = ss.str();
 	if (line.find(CRLFCRLF) == std::string::npos)
-		Webserv::throw_error("Bad request: no CRLF found");
+		return (setStatus("400"));
 	std::getline(ss, line, '\n');
 	while (!line.empty())
 	{
@@ -103,7 +104,7 @@ void	Request::parsHeaders(std::string& msg)
 			line.erase(line.size() - 1);
 		found = line.find(':');
 		if (found == std::string::npos)
-			Webserv::throw_error("Bad request : header without ':'");
+			return (setStatus("400"));
 		key = trim_white_spaces(line.substr(0, found));
 		strCapitalizer(key);
 		value = trim_white_spaces(line.substr(found + 1));
@@ -128,7 +129,7 @@ void	Request::parsHeaders(std::string& msg)
 void	Request::parsBody(std::string& msg)
 {
 	if (msg.size() - 1 != static_cast<unsigned int>(std::atoi(this->_headers["Content-Length"].c_str())))
-		Webserv::throw_error("Bad Request: content lenght");
+		return (setStatus("400"));
 	if (msg[msg.size() - 1] == '\n')
 		msg.erase(msg.size() - 1);
 	if (msg[msg.size() - 1] == '\r')
@@ -143,21 +144,18 @@ void	Request::checkRequest()
 	{
 		if (this->_methode.compare("HEAD") && this->_methode.compare("PUT") && this->_methode.compare("CONNECT")
 			&& this->_methode.compare("OPTIONS") && this->_methode.compare("TRACE") && this->_methode.compare("PATCH"))
-			Webserv::throw_error("Error: Invalide request Methode");
+			return (setStatus("501"));
 		else
-			Webserv::throw_error("Error: Webserv doesn't handle this methode");
+			return (setStatus("405"));
 	}
+	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
+		 return (setStatus("400"));
 	// if (this->_path[0] == '/')
 	// 	this->_path = this->_path.substr(1);
-	// DIR* dir = opendir(this->_path.c_str());//certainement qu'il faut quand meme essaye de faire la requete
-	// if (!dir)
-	// 	throw_error("Error: invalid request Path");
-	// if (closedir(dir) < 0)
-	// 	throw_error("Error: closedir");
-	if (this->_protocol.compare("HTTP/1.1") && this->_protocol.compare("HTTP/0.9") && this->_protocol.compare("HTTP/1.0"))
-		Webserv::throw_error("Error: Wrong HTTP request Protocol");
+	if (this->_protocol.compare("HTTP/1.1"))
+		return (setStatus("505"));
 	if (this->_headers.find("HOST") == this->_headers.end())
-		Webserv::throw_error("Error: Bad HTTP request - missing \'Host\' header");
+		return (setStatus("400"));
 }
 
 void	Request::parsRequest()
@@ -165,16 +163,23 @@ void	Request::parsRequest()
 	std::string	key, value, line, msg(this->_request_msg);
 
 	parsRequestLine(msg);
-	parsHeaders(msg);
-	checkRequest();
-	if (this->_headers.find("Content-Length") != this->_headers.end())
+	if (this->_responseStatus != "200")
+		parsHeaders(msg);
+	if (this->_responseStatus != "200")
+		checkRequest();
+	if (this->_responseStatus != "200" && this->_headers.find("Content-Length") != this->_headers.end())
 		parsBody(msg);
 	else if (msg.size() > 0)
-		Webserv::throw_error("Bad request: invalid header");
+		return (setStatus("400"));
 }
 
 void	Request::makeResponse()
 {
 	Response	a(*this);
 	a.callMethode();
+}
+
+void	Request::setStatus(std::string const& str)
+{
+	this->_responseStatus = str;
 }

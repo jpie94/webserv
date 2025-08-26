@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/25 18:16:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:30:07 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Request : public Client
 		std::string				_methode;
 		std::string				_path;
 		std::string				_protocol;
+		std::string				_responseStatus;
 	public:
 		/* Canonical Form + Paramtric constructor */
 							~Request();
@@ -57,4 +58,5 @@ class Request : public Client
 		void					parsBody(std::string&);
 		void					checkRequest();
 		void					makeResponse();
+		void					setStatus(std::string const& str);
 };
