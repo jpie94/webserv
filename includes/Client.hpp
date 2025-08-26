@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/25 18:21:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 17:18:00 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,17 @@
 class Client : public Server
 {
     private :
-
-      int 		    _count;
-		  std::string 	_recieved;
-    
+        int             _count;
+	    std::string     _recieved;
     public :
-
-                    Client();
-        virtual		~Client();
-                    Client(const Client&);
-        Client&	operator=(const Client&);
-
-      Client(int fd, nfds_t index);
-
-		  void		send_answer();
-      void		handle_request();
+	    /* Canonical Form + Paramtric constructor */
+                        Client();
+                        Client(int fd, nfds_t index , std::map<std::string, std::string> config, std::map<std::string, std::map<std::string, std::string> > locations);
+                        Client(const Client&);
+        Client&         operator=(const Client&);
+        virtual	        ~Client();
+	    /* Member Functions */
+        void		    send_answer();
+        void		    handle_request();
 } ;
 #endif

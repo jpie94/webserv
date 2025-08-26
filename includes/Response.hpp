@@ -6,36 +6,33 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 16:30:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 17:21:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-
-#include "Request.hpp"
-#include <map>
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
 #include <ctime>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include "Request.hpp"
 
 #define SERVER_ROOT "root/"
 
 class Response : public Request
 {
 	private:
-		std::string					_response;
-		std::string					_fileName;
-		std::string					_responseBody;
+		std::string									_response;
+		std::string									_fileName;
+		std::string									_responseBody;
 		static std::map<std::string, std::string>	_types;
-		bool						_autoIndex;//Inherited from Server Class
+		bool										_autoIndex;//Inherited from Server Class
 	public:
 		/* Canonical Form + Paramtric constructor */
-								~Response();
-								Response();
-								Response(Request&);
-								Response(const Response&);
-		Response&					operator=(const Response&);
+													Response();
+													Response(Request&);
+													Response(const Response&);
+		Response&									operator=(const Response&);
+		virtual										~Response();
 		/* Member Functions */
 		void						getMethode();
 		void						postMethode();
@@ -52,3 +49,4 @@ class Response : public Request
 		void						setResponse();
 		void						setErrorPage();
 };
+#endif

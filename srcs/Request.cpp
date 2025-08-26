@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 16:33:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/26 17:20:20 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,7 @@ Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _pat
 
 Request::~Request() {}
 
-
 /*****************	CLASS UTILS	*******************/
-
-
 static void	strCapitalizer(std::string &str)
 {
 	size_t	i = -1;
@@ -71,7 +68,6 @@ static std::string	trim_white_spaces(std::string str)//end = end - start??
 }
 
 /*****************	MEMBER		*******************/
-
 void	Request::parsRequestLine(std::string& msg)
 {
 	std::istringstream ss(msg);
