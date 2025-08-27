@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/26 16:13:18 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/27 15:48:05 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void	Server::add_client_to_pollfds()
 		throw_error("Error in add_client_to_pollfds : accept failure !");
 	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
 	_pfds.push_back(newPollfd);
-	Client *newClient = new Client(socket_fd, _pfds.size() - 1, this->_config, this->_locations);
+	Client *newClient = new Client(socket_fd, _pfds.size() - 1, *this);
 	_clients[socket_fd] = newClient;
 }
 
