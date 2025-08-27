@@ -158,7 +158,7 @@ void	Request::parsRequest()
 		checkRequest();
 	if (this->_responseStatus == "200" && this->_headers.find("Content-Length") != this->_headers.end())
 		parsBody(msg);
-	else if (this->_responseStatus == "200 " && msg.size() > 0)
+	else if (this->_responseStatus == "200" && msg.size() > 0)
 		return (setStatus("400"));
 }
 
