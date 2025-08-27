@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/26 16:13:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 18:58:39 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
-Client::Client() : Server(), _count(), _recieved(){}
+Client::Client() : Server(), _count(), _recieved() {}
 
 Client::Client(const Client& srcs)
 {
@@ -40,7 +40,7 @@ Client::Client(int fd, nfds_t index , std::map<std::string, std::string> config,
 	printconfig();
 }
 
-Client::~Client(){}
+Client::~Client() {}
 
 /*****************	MEMBER		*******************/
 void	Client::handle_request()

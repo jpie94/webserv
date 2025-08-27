@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 11:23:10 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/26 18:45:01 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main(int argc, char *argv[])
 	return (0);
 }
 
-/* Request Test main */
+// /* Request Test main */
 
 // int main(int argc, char** argv)
 // {
@@ -43,6 +43,7 @@ int	main(int argc, char *argv[])
 // 	{
 // 		Request r(argv[1]);
 // 		r.parsRequest();
+// 		r.makeResponse();
 // 	}
 // 	catch(const std::exception& e)
 // 	{
