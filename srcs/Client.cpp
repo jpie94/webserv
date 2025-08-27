@@ -6,13 +6,15 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/26 18:58:39 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:04:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Request.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
+
 Client::Client() : Server(), _count(), _recieved() {}
 
 Client::Client(const Client& srcs)
@@ -43,6 +45,7 @@ Client::Client(int fd, nfds_t index , std::map<std::string, std::string> config,
 Client::~Client() {}
 
 /*****************	MEMBER		*******************/
+
 void	Client::handle_request()
 {
 	char	buffer[4096];
@@ -62,16 +65,19 @@ void	Client::handle_request()
 		this->erase_client();
 		return;
 	}
-	std::cout << "index= " << this->_index << std::endl;
-	std::cout << "byte read : " << bytes_read << std::endl;
-	std::cout << "_recieved= " << this->_recieved << std::endl;
+	this->_recieved += buffer;
+	// std::cout << "index= " << this->_index << std::endl;
+	// std::cout << "byte read : " << bytes_read << std::endl;
+	// std::cout << "_recieved= " << this->_recieved << std::endl;
 	this->_recieved = this->_recieved + buffer;
 	this->_count += bytes_read;
-	std::cout << "count : " << this->_count << std::endl;
-	std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	// std::cout << "count : " << this->_count << std::endl;
+	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
+	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	if (this->_count >= HEADERLEN + BODYLEN)
 	{
+		Request newRequest(*this);
+		newRequest.makeResponse();
 		_pfds[this->_index].events = POLLOUT;
 		this->_count = 0;
 	}
@@ -91,10 +97,11 @@ void	Client::send_answer()
 		this->erase_client();
 	}
 	this->_count += sent;
-	std::cout << "\ntaille message envoye: " << this->_count << '\n';
+	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if(this->_count == msg_len)
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
+		this->_recieved = "";
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 19:11:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:07:49 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : _request_msg(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request() : _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
 
 Request::Request(const Request& src)
 {
@@ -36,7 +36,7 @@ Request&	Request::operator=(const Request& rhs)
 	return (*this);
 }
 
-Request::Request(std::string str) : _request_msg(str), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request(const Client& client) : Client(client), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
 
 Request::~Request() {}
 
@@ -149,7 +149,7 @@ void	Request::checkRequest()
 
 void	Request::parsRequest()
 {
-	std::string	key, value, line, msg(this->_request_msg);
+	std::string	key, value, line, msg(this->_recieved);
 
 	parsRequestLine(msg);
 	if (this->_responseStatus == "200")

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/26 18:52:01 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:07:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 class Client : public Server
 {
-	private :
+	protected :
 		int		_count;
 		std::string	_recieved;
 	public :
