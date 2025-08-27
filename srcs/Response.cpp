@@ -184,7 +184,7 @@ void	Response::HandlePath()
 			std::string	str(this->_path + "index.html");
 			std::ifstream	ifs(str);
 			if (ifs.fail())
-				return(setStatus("403"));
+				return(setStatus("404"));
 			this->_path += "index.html";
 		}
 		if (this->_methode == "POST")
