@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/27 16:07:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:51:08 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Client : public Server
 	public :
 		/* Canonical Form + Paramtric constructor */
 				Client();
-				Client(int fd, nfds_t index , std::map<std::string, std::string> config, std::map<std::string, std::map<std::string, std::string> > locations);
+				Client(int fd, nfds_t index, Server & serv);
 				Client(const Client&);
 		Client&		operator=(const Client&);
 		virtual		~Client();

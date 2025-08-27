@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/27 16:04:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:49:47 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,10 @@ Client&	Client::operator=(Client const & rhs)
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index , std::map<std::string, std::string> config, std::map<std::string, std::map<std::string, std::string> > locations ) : Server(), _count(), _recieved()
+Client::Client(int fd, nfds_t index , Server & serv) : Server(serv), _count(), _recieved()
 {
 	this->_fd = fd;
-	this->_index = index;
-	this->_config = config;
-	this->_locations = locations;
+	this->_index = index; 
 	printconfig();
 }
 
