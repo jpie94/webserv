@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 19:28:14 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 15:50:08 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,14 +182,14 @@ void	Response::HandlePath()
 		if (this->_methode == "GET")
 		{
 			std::string	str(this->_path + "index.html");
-			std::ifstream	ifs(str);
+			std::ifstream	ifs(str.c_str());
 			if (ifs.fail())
 				return(setStatus("404"));
 			this->_path += "index.html";
 		}
 		if (this->_methode == "POST")
 		{
-			size_t	i = 0;
+			int	i = 0;
 			this->_fileName = "newFile";
 			if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
 				this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
