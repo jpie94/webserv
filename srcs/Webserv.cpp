@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 19:03:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/28 18:40:29 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,20 @@
 #include "Server.hpp"
 #include "Client.hpp"
 
-std::vector<struct pollfd>	Webserv::_pfds;
-std::map<int, Client*>		Webserv::_clients;
-std::map<int, Server*>		Webserv::_servers;
+std::vector<struct pollfd> Webserv::_pfds;
+std::map<int, Client *> Webserv::_clients;
+std::map<int, Server *> Webserv::_servers;
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
-Webserv::Webserv() :_fd(), _index(){}
 
-Webserv::Webserv(const Webserv& srcs)
+Webserv::Webserv() : _fd(), _index() {}
+
+Webserv::Webserv(const Webserv &srcs)
 {
 	*this = srcs;
 }
 
-Webserv	&Webserv::operator=(Webserv const& rhs)
+Webserv &Webserv::operator=(Webserv const &rhs)
 {
 	if (this != &rhs)
 	{
@@ -36,49 +37,49 @@ Webserv	&Webserv::operator=(Webserv const& rhs)
 	return (*this);
 }
 
-Webserv::Webserv(char *FileName): _fd(), _index()
+Webserv::Webserv(char *FileName) : _fd(), _index()
 {
-	std::string	Config;
+	std::string Config;
 	if (FileName)
 		Config = ExtractConfig(FileName);
 	else
 		throw_error("Error in Webserv constructor: No default configuration path set yet !");
-	while(Config.find("server") != std::string::npos)
+	while (Config.find("server") != std::string::npos)
 		ServerMaker(Config);
-	for(size_t i = 0; i < Config.size(); i++)
+	for (size_t i = 0; i < Config.size(); i++)
 	{
-		if(!isspace(Config[i]))
+		if (!isspace(Config[i]))
 			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
 	}
 }
 
-Webserv::~Webserv(){}
+Webserv::~Webserv() {}
 
 /*****************	MEMBER		*******************/
-std::string	Webserv::ExtractConfig(char *FileName)
+std::string Webserv::ExtractConfig(char *FileName)
 {
-	std::string	Config, line;
-	std::ifstream	ConfigFile(FileName);
-	if (!ConfigFile.is_open())	
-		throw_error(std::string(std::string ("Error in ExtractConfig : ") + FileName + " : " + std::strerror(errno)).c_str());
+	std::string Config, line;
+	std::ifstream ConfigFile(FileName);
+	if (!ConfigFile.is_open())
+		throw_error(std::string(std::string("Error in ExtractConfig : ") + FileName + " : " + std::strerror(errno)).c_str());
 	while (!ConfigFile.eof())
 	{
 		std::getline(ConfigFile, line);
 		Config += line + "\n";
 	}
 	ConfigFile.close();
-	return(Config);
+	return (Config);
 }
 
-void 	Webserv::ServerMaker(std::string & Config)
+void Webserv::ServerMaker(std::string &Config)
 {
-	std::vector<Server*> servs;
+	std::vector<Server *> servs;
 	Server *tempServer = new Server(Config);
-	std::string temp;  
+	std::string temp;
 	std::map<std::string, std::string> conf = tempServer->getConfig();
 	std::map<std::string, std::string>::iterator itPort = conf.find("listen");
 	std::vector<std::string> ports;
-	if(itPort == conf.end())
+	if (itPort == conf.end())
 		temp = "8080";
 	else
 		temp = itPort->second;
@@ -88,7 +89,7 @@ void 	Webserv::ServerMaker(std::string & Config)
 		ports.push_back(temp);
 	std::map<std::string, std::string>::iterator itIP = conf.find("server_name");
 	std::vector<std::string> IPs;
-	if(itIP == conf.end())
+	if (itIP == conf.end())
 		temp = "localhost";
 	else
 		temp = itIP->second;
@@ -100,7 +101,7 @@ void 	Webserv::ServerMaker(std::string & Config)
 	{
 		std::vector<std::string> tempPorts = ports;
 		CheckAvailablePorts(*IPs.rbegin(), tempPorts);
-		while(tempPorts.size() > 0)
+		while (tempPorts.size() > 0)
 		{
 			Server *newServer = new Server(*tempServer);
 			newServer->setPort(*tempPorts.rbegin());
@@ -111,7 +112,7 @@ void 	Webserv::ServerMaker(std::string & Config)
 		IPs.pop_back();
 	}
 	delete tempServer;
-	for(size_t i = 0; i < servs.size(); i++)
+	for (size_t i = 0; i < servs.size(); i++)
 	{
 		if (servs[i]->make_listening_socket())
 			_servers[servs[i]->_fd] = servs[i];
@@ -120,34 +121,34 @@ void 	Webserv::ServerMaker(std::string & Config)
 	}
 }
 
-void	Webserv::CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts)
+void Webserv::CheckAvailablePorts(std::string currentIP, std::vector<std::string> &tempPorts)
 {
-	for(std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
 	{
-		if (it->second->getConfig()["server_name"]== currentIP)
+		if (it->second->getConfig()["server_name"] == currentIP)
 		{
-				if (it->second->getConfig()["listen"] == *tempPorts.rbegin())
-				{
-					std::cerr << "Error in configuration file : conflicting server name \""<< currentIP << "\" on port " << *tempPorts.rbegin() << ", ignored" << std::endl;
-					tempPorts.pop_back();						
-				}
+			if (it->second->getConfig()["listen"] == *tempPorts.rbegin())
+			{
+				std::cerr << "Error in configuration file : conflicting server name \"" << currentIP << "\" on port " << *tempPorts.rbegin() << ", ignored" << std::endl;
+				tempPorts.pop_back();
+			}
 		}
 	}
 }
 
-void	Webserv::runWebserv()
+void Webserv::runWebserv()
 {
 	int status;
-	for(std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
 		it->second->printconfig();
-	while(1)
+	while (1)
 	{
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
 			throw_error("Error in runWebserv : polling failed !");
 		if (status == 0)
 		{
-			std::cout << "Waiting for connection..." << std::endl; 
+			std::cout << "Waiting for connection..." << std::endl;
 			continue;
 		}
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
@@ -159,26 +160,29 @@ void	Webserv::runWebserv()
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
 				_clients[_pfds[j].fd]->handle_request();
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
-				_clients[_pfds[j].fd]->send_answer();
+				{
+					if (_clients[_pfds[j].fd]->send_answer())
+						break;
+				}
 		}
 	}
 }
 
-void	Webserv::erase_client()
+void Webserv::erase_client()
 {
 	if (close(_pfds[this->_index].fd) < 0)
-		throw_error(std::string(std::string ("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
+		throw_error(std::string(std::string("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
 	_pfds.erase(_pfds.begin() + this->_index);
-	std::map<int, Client*>::iterator it = _clients.find(this->_fd);
+	std::map<int, Client *>::iterator it = _clients.find(this->_fd);
 	delete it->second;
 	_clients.erase(it);
 	setIndex();
 }
 
-void	Webserv::setIndex()
+void Webserv::setIndex()
 {
-	std::map<int, Server*>::iterator itServer = _servers.begin();
-	while(itServer != _servers.end())
+	std::map<int, Server *>::iterator itServer = _servers.begin();
+	while (itServer != _servers.end())
 	{
 		for (size_t i = 0; i < _pfds.size(); i++)
 		{
@@ -186,12 +190,12 @@ void	Webserv::setIndex()
 			{
 				itServer->second->_index = i;
 				break;
-			}			
+			}
 		}
 		itServer++;
 	}
-	std::map<int, Client*>::iterator itClient = _clients.begin();
-	while(itClient != _clients.end())
+	std::map<int, Client *>::iterator itClient = _clients.begin();
+	while (itClient != _clients.end())
 	{
 		for (size_t i = 0; i < _pfds.size(); i++)
 		{
@@ -199,30 +203,33 @@ void	Webserv::setIndex()
 			{
 				itClient->second->_index = i;
 				break;
-			}			
+			}
 		}
 		itClient++;
 	}
 }
 
-void	Webserv::throw_error(const char* msg)
+void Webserv::throw_error(const char *msg)
 {
 	clean_close();
 	throw std::runtime_error(msg);
 }
 
-void 	Webserv::clean_close()
+void Webserv::clean_close()
 {
-	for (std::map<int, Server*>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
 	{
-		if(it->second)
+		if (it->second)
 			delete it->second;
 	}
 	_servers.clear();
-	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
-		if(it->second)
+		if (it->second)
+		{
+			it->second->clearClient();
 			delete it->second;
+		}
 	}
 	_clients.clear();
 	for (unsigned int i = 0; i < _pfds.size(); ++i)
@@ -230,7 +237,7 @@ void 	Webserv::clean_close()
 		if (_pfds[i].fd > 0)
 		{
 			if (close(_pfds[i].fd) < 0)
-				throw std::runtime_error(std::string(std::string ("Error in clean_close : close failed : ") + std::strerror(errno)).c_str());
+				throw std::runtime_error(std::string(std::string("Error in clean_close : close failed : ") + std::strerror(errno)).c_str());
 			else
 				_pfds[i].fd = -1;
 		}

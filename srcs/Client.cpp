@@ -6,37 +6,39 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/27 16:49:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/28 19:44:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
-#include "Request.hpp"
+#include "Response.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(), _count(), _recieved() {}
+Client::Client() : Server(), _count(), _recieved(), _current_request(), _response() {}
 
-Client::Client(const Client& srcs)
+Client::Client(const Client &srcs)
 {
 	*this = srcs;
 }
 
-Client&	Client::operator=(Client const & rhs)
+Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
 		this->_fd = rhs._fd;
 		this->_count = rhs._count;
 		this->_recieved = rhs._recieved;
+		this->_current_request = rhs._current_request;
+		this->_response = rhs._response;
 	}
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index , Server & serv) : Server(serv), _count(), _recieved()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _current_request(), _response()
 {
 	this->_fd = fd;
-	this->_index = index; 
+	this->_index = index;
 	printconfig();
 }
 
@@ -44,51 +46,68 @@ Client::~Client() {}
 
 /*****************	MEMBER		*******************/
 
-void	Client::handle_request()
+int Client::clientRecv()
 {
-	char	buffer[4096];
+	char buffer[4096];
 
 	std::memset(buffer, 0, sizeof(buffer));
-	std::cout << _pfds[this->_index].fd <<std::endl;
-	int bytes_read = recv(_pfds[this->_index].fd, &buffer,4096, 0);
+	// std::cout << _pfds[this->_index].fd <<std::endl;
+	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 4096, 0);
 	if (bytes_read < 0)
 	{
 		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
 		this->erase_client();
-		return;
+		return (1);
 	}
 	if (bytes_read == 0)
 	{
 		std::cout << "[" << this->_fd << "] Client socket closed connection." << '\n';
+		this->clearClient();
 		this->erase_client();
-		return;
+		return (1);
 	}
-	this->_recieved += buffer;
 	// std::cout << "index= " << this->_index << std::endl;
 	// std::cout << "byte read : " << bytes_read << std::endl;
-	// std::cout << "_recieved= " << this->_recieved << std::endl;
-	this->_recieved = this->_recieved + buffer;
+	this->_recieved += buffer;
 	this->_count += bytes_read;
 	// std::cout << "count : " << this->_count << std::endl;
 	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
 	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
-	if (this->_count >= HEADERLEN + BODYLEN)
+	return (0);
+}
+
+void Client::handle_request()
+{
+	if (this->_recieved.size() == 0)
+		this->_current_request = new Request(*this);
+	if (this->clientRecv())
+		return;
+	this->_current_request->setRecieved(this->_recieved);
+	if (this->_recieved.size() && findCRLFCRLF(this->_recieved))
 	{
-		Request newRequest(*this);
-		newRequest.makeResponse();
-		_pfds[this->_index].events = POLLOUT;
-		this->_count = 0;
+		// std::cout << "protocol: " << this->_current_request->getProtocol() << std::endl;
+		if (this->_current_request->getProtocol() != "HTTP/1.1")
+			this->_current_request->parsRequest();
+		if (this->_current_request->getHeaders().find("Content-Length") != this->_current_request->getHeaders().end() && this->_current_request->getBody().size() == 0)
+			this->_current_request->parsBody();
+		std::cout << this->_count << std::endl;
+		if (this->_count >= this->_current_request->getBodyLen() + this->_current_request->getHeadersLen() + this->_current_request->getRequestLineLen())
+		{
+			this->_response = new Response(*this->_current_request);
+			this->_response->callMethode();
+			_pfds[this->_index].events = POLLOUT;
+			this->_count = 0;
+		}
 	}
 }
 
-void	Client::send_answer()
+int Client::send_answer()
 {
-	const char	message[] = "hello client, I want to answer you but I'm to dumb to make a real HTTP/1.1 answer O_o\n";
-	ssize_t		msg_len = std::strlen(message);
+	size_t msg_len = std::strlen(this->_response->getResponseMsg().c_str());
 
 	if (!msg_len)
-		return((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl)) ; 
-	size_t sent = send(_pfds[this->_index].fd, message + this->_count, msg_len - this->_count, 0);
+		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl), 1);
+	size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
 	if (sent < 0)
 	{
 		std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
@@ -96,10 +115,22 @@ void	Client::send_answer()
 	}
 	this->_count += sent;
 	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
-	if(this->_count == msg_len)
+	if (this->_count == msg_len)
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
-		this->_recieved = "";
+		this->_recieved.empty();
+		clearClient();
 	}
+	return (0);
+}
+
+void Client::clearClient()
+{
+	if (this->_current_request)
+		delete this->_current_request;
+	this->_current_request = 0;
+	if (this->_response)
+		delete this->_response;
+	this->_response = 0;
 }
