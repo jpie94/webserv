@@ -45,7 +45,7 @@ Webserv::Webserv(char *FileName) : _fd(), _index()
 	else
 		throw_error("Error in Webserv constructor: No default configuration path set yet !");
 	if(Config.find("server") == std::string::npos)
-			throw_error(std::string(std::string("Error in Webserv constructor : ") + FileName + " is empty !" ).c_str());
+			throw_error(std::string(std::string("Error in Webserv constructor : ") + FileName + " has no server bloc !" ).c_str());
 	while (Config.find("server") != std::string::npos)
 		ServerMaker(Config);
 	for (size_t i = 0; i < Config.size(); i++)
