@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/28 15:30:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:23:37 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,7 +342,6 @@ void Response::callMethode()
 }
 void Response::setErrorPage()
 {
-	std::string InternalError500;
 	std::ostringstream os;
 	std::string target("root/error/" + this->_responseStatus + ".html");
 	std::ifstream file(target.c_str());

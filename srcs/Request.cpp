@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/28 19:37:14 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/29 14:23:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void Request::parsBody()
 	if (pos != std::string::npos)
 		msg = msg.substr(msg.find(CRLFCRLF) + 4);
 	else
-		msg = "";
+		msg.clear();
 	if (this->_responseStatus == "200" && this->_headers.find("Content-Length") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["Content-Length"].c_str());
