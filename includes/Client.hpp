@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/27 15:42:13 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/08/28 18:40:41 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,29 @@
 
 #include "Server.hpp"
 
-#define HEADERLEN 10
-#define BODYLEN 0
+class Response;
+class Request;
 
 class Client : public Server
 {
-	private :
-		int		_count;
-		std::string	_recieved;
-	public :
+	protected:
+		size_t		_count;
+		std::string _recieved;
+		Request*	_current_request;
+		Response*	_response;
+
+	public:
 		/* Canonical Form + Paramtric constructor */
-				Client();
-				Client(int fd, nfds_t index, Server & serv);
-				Client(const Client&);
-		Client&		operator=(const Client&);
+					Client();
+					Client(int fd, nfds_t index, Server &serv);
+					Client(const Client &);
+		Client		&operator=(const Client &);
 		virtual		~Client();
 		/* Member Functions */
-		void		send_answer();
+		int		send_answer();
 		void		handle_request();
-} ;
+		int			clientRecv();
+		void		clearClient();
+};
 
 #endif

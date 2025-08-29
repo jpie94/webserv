@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 18:44:37 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/28 18:34:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,40 +18,46 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define CRLFCRLF "\n\n"
-#define CRLF "\n"
+#define CRLFCRLF "\r\n\r\n"
+#define CRLF "\r\n"
 
 class Request : public Client
 {
 	protected:
-		const std::string			_request_msg;
+		size_t								_headers_len;
+		size_t								_request_line_len;
+		size_t								_body_len;
 		std::map<std::string, std::string>	_headers;
-		std::string				_body;
-		std::string				_methode;
-		std::string				_path;
-		std::string				_protocol;
-		std::string				_responseStatus;
+		std::string							_body;
+		std::string							_methode;
+		std::string							_path;
+		std::string							_protocol;
+		std::string							_responseStatus;
+
 	public:
 		/* Canonical Form + Paramtric constructor */
-							Request();
-							Request(std::string str);
-							Request(const Request&);
-		Request&				operator=(const Request&);
-		virtual					~Request();
+											Request();
+											Request(const Client &);
+											Request(const Request &);
+		Request								&operator=(const Request &);
+		virtual								~Request();
 		/* Getters */
-		std::string				getPath() const;
-		std::string				getProtocol() const;
+		std::string							getPath() const;
+		std::string							getProtocol() const;
+		std::string							getBody() const;
+		std::map<std::string, std::string>	getHeaders() const;
+		size_t								getBodyLen() const;
+		size_t								getHeadersLen() const;
+		size_t								getRequestLineLen() const;
+		std::string							getRecieved() const;
 		/* Member Functions */
-		void					getMethode() const;
-		void					postMethode() const;
-		void					deleteMethode() const;
-		void					parsRequest();
-		void					parsRequestLine(std::string&);
-		void					parsHeaders(std::string&);
-		void					parsBody(std::string&);
-		void					checkRequest();
-		void					makeResponse();
-		void					setStatus(std::string const& str);
+		void								parsRequest();
+		void								parsRequestLine(std::string &);
+		void								parsHeaders(std::string &);
+		void								parsBody();
+		void								checkRequest();
+		void								setStatus(std::string const &str);
+		void								setRecieved(std::string &);
 };
 
 #endif

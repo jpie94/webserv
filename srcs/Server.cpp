@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
 /*   Updated: 2025/08/27 15:48:05 by jpiech           ###   ########.fr       */
@@ -104,7 +104,7 @@ void	Server::CheckBeforeBracket(std::string Config, size_t & i)
 	i++;	
 }
 
-std::string		Server::GetConfigKey(std::string Config, size_t & i)
+std::string	Server::GetConfigKey(std::string Config, size_t & i)
 {
 	size_t j;
 
@@ -137,7 +137,7 @@ void	Server::CheckDirective(std::string & key, bool recursion, std::string locat
 		throw_error(std::string("Error in configuration file: directive is a duplicate : " + key).c_str());			
 }
 
-std::string		Server::GetConfigValue(std::string Config, size_t & i)
+std::string	Server::GetConfigValue(std::string Config, size_t & i)
 {
 	size_t j;
 	

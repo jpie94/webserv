@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/26 18:47:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/27 18:48:59 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,24 +40,24 @@ class Webserv
 		static std::vector<struct pollfd>	_pfds;
 		static std::map<int, Client*>		_clients;
 		static std::map<int, Server*>		_servers;
-		int					_fd;
-		int					_index;
+		int									_fd;
+		int									_index;
 	public:
 		/* Canonical Form + Paramtric constructor */
-							Webserv();
-							Webserv(char *FileName);
-							Webserv(const Webserv& srcs);
-		Webserv&				operator=(const Webserv& rhs);
-		virtual					~Webserv();
+											Webserv();
+											Webserv(char *FileName);
+											Webserv(const Webserv& srcs);
+		Webserv&							operator=(const Webserv& rhs);
+		virtual								~Webserv();
 		/* Member Functions */
-		void					ServerMaker(std::string & Config);
-		void					CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts);
-		std::string				ExtractConfig(char *FileName);
-		void					throw_error(const char*);
-		void					runWebserv();
-		void					setIndex();
-		void					clean_close();
-		void					erase_client();
+		void								ServerMaker(std::string & Config);
+		void								CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts);
+		std::string							ExtractConfig(char *FileName);
+		void								throw_error(const char*);
+		void								runWebserv();
+		void								setIndex();
+		void								clean_close();
+		void								erase_client();
 };
 
 #endif
