@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 14:23:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:38:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ void Request::parsHeaders(std::string &msg)
 		// if (line[line.size() - 1] == '\r')
 		// 	line.erase(line.size() - 1);
 		line = trim_white_spaces(line);
-		std::cout << "line= " << line << std::endl;
+		// std::cout << "line= " << line << std::endl;
 		found = line.find(':');
 		if (!line.empty() && found == std::string::npos)
 			return ((void)(std::cout << "3" << std::endl), setStatus("400"));
@@ -183,10 +183,11 @@ void Request::checkRequest()
 {
 	if (this->_methode.compare("GET") && this->_methode.compare("POST") && this->_methode.compare("DELETE"))
 	{
-		if (this->_methode.compare("HEAD") && this->_methode.compare("PUT") && this->_methode.compare("CONNECT") && this->_methode.compare("OPTIONS") && this->_methode.compare("TRACE") && this->_methode.compare("PATCH"))
-			return (setStatus("501"));
-		else
+		if (this->_methode.compare("HEAD") && this->_methode.compare("PUT") && this->_methode.compare("CONNECT")
+			&& this->_methode.compare("OPTIONS") && this->_methode.compare("TRACE") && this->_methode.compare("PATCH"))
 			return (setStatus("405"));
+		else
+			return (setStatus("501"));
 	}
 	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
 		return ((void)(std::cout << "6" << std::endl), setStatus("400"));

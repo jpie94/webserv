@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 14:23:37 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/29 18:04:18 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,7 @@ void Response::HandlePath()
 	}
 	std::ifstream ifs(this->_path.c_str(), std::ifstream::in);
 	if (ifs.fail() || !ifs.is_open())
-		return (setStatus("404"));
+		return (setStatus("403"));
 	size_t pos = this->_path.rfind("/");
 	if (pos != std::string::npos)
 		this->_fileName = this->_path.substr(pos + 1, this->_path.size() - pos - 1);
@@ -259,10 +259,14 @@ void Response::postMethode()
 
 void Response::deleteMethode()
 {
+	std::cout << "deleteeeee\n";
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
 	if (std::remove(this->_path.c_str()))
+	{
+		std::cout << "here it's forbiden\n";
 		return (setStatus("403"), setErrorPage());
+	}
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }
@@ -348,7 +352,7 @@ void Response::setErrorPage()
 
 	if (file.fail())
 	{
-		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
+		this->_response_msg = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
 		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">___________________________________________________________________________________________</span></p> \
 		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">webserv</span></p> \
 		<p style=\"text-align: center;\"><br></p> \
@@ -359,9 +363,8 @@ void Response::setErrorPage()
 	else
 	{
 		os << file.rdbuf();
-		this->_responseBody = os.str();
+		this->_response_msg = os.str();
 	}
-	std::cout << "Error page to send : " << this->_responseBody;
 }
 
 std::string Response::getResponseMsg() const

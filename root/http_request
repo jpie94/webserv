@@ -1,4 +1,83 @@
+***********	OK	*************
+
 GET /root/index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
+
+GET /root/ HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+telnet localhost **** ok -> if press 'enter' x2
+
+
+aksldjf /root/index.html HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr  --> --> infinit loop (strlen)
+
+
+HEAD /root/index.html HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html HTTP/1.2
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: frGET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/hello.txt HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /lol/ HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/hello.txt HTTP/1.1
+Accept-Language: fr
+
+
+
+********** PROBLEM ***********
+
+
+DELETE /root/test.txt HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr 
+
+
+
+--->not found / should be forbiden
+
+
+
+
+
+
+
+DELETE /hello HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+
+
+
+TO DO :: TEST FOR POST METHODE

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/28 19:44:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/29 16:41:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@ void Client::handle_request()
 		this->_current_request = new Request(*this);
 	if (this->clientRecv())
 		return;
+	if (!this->_current_request)
+		return;
 	this->_current_request->setRecieved(this->_recieved);
 	if (this->_recieved.size() && findCRLFCRLF(this->_recieved))
 	{
@@ -95,6 +97,7 @@ void Client::handle_request()
 		{
 			this->_response = new Response(*this->_current_request);
 			this->_response->callMethode();
+			std::cout << "\nResponse: " << this->_response->getResponseMsg() << '\n';
 			_pfds[this->_index].events = POLLOUT;
 			this->_count = 0;
 		}
@@ -106,7 +109,13 @@ int Client::send_answer()
 	size_t msg_len = std::strlen(this->_response->getResponseMsg().c_str());
 
 	if (!msg_len)
+	{
+		_pfds[this->_index].events = POLLIN;
+		this->_count = 0;
+		this->_recieved.empty();
+		clearClient();
 		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl), 1);
+	}
 	size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
 	if (sent < 0)
 	{
@@ -119,7 +128,7 @@ int Client::send_answer()
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
-		this->_recieved.empty();
+		this->_recieved.clear();
 		clearClient();
 	}
 	return (0);
