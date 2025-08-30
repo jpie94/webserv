@@ -1,8 +1,9 @@
-***********	OK	*************
+*********** OK *************
 
 GET /root/index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
+Connection: close
 
 
 GET /root/ HTTP/1.1
@@ -54,30 +55,27 @@ GET /root/hello.txt HTTP/1.1
 Accept-Language: fr
 
 
-
-********** PROBLEM ***********
-
-
 DELETE /root/test.txt HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr 
 
 
-
---->not found / should be forbiden
-
-
-
-
-
-
-
+(with no permission)
 DELETE /hello HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
+POST /root/example.txt HTTP/1.1
+Host: Webserv
+Content-Type: text
+Content-Length: 19
 
+hello post test
 
+POST /root/ HTTP/1.1
+Host: Webserv
+Content-Type: text/plain
+Content-Length: 19
 
+hello post test
 
-TO DO :: TEST FOR POST METHODE

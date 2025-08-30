@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 16:38:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 15:00:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,17 +55,12 @@ static void strCapitalizer(std::string &str)
 
 static std::string trim_white_spaces(std::string str)
 {
-	size_t start = 0, end = 0;
-	while (std::isspace(str[start]) && str[start])
-		start++;
-	end = str.size() - 1;
-	while (std::isspace(str[end]) && end > 0)
-		end--;
-	if (end < str.size())
-		end++;
-	if (start <= end)
-		return (str.substr(start, end - start));
-	return ("");
+	std::istringstream	ss(str);
+	std::string	res, tmp;
+
+	while (ss >> tmp)
+		res += tmp + " ";
+	return (res.substr(0, res.size() - 1));
 }
 
 /*****************	MEMBER		*******************/
@@ -115,10 +110,10 @@ void Request::parsRequestLine(std::string &msg)
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
-		return ((void)(std::cout << "1" << std::endl), setStatus("400"));
+		return ((void)(std::cout << "400 Error -> 1\n"), setStatus("400"));
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
-		return ((void)(std::cout << "2" << std::endl), setStatus("400"));
+		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
 }
 
 void Request::parsHeaders(std::string &msg)
@@ -134,11 +129,13 @@ void Request::parsHeaders(std::string &msg)
 		count += line.size() + 1;
 		// if (line[line.size() - 1] == '\r')
 		// 	line.erase(line.size() - 1);
+		// std::cout << "1- line= " << line << std::endl;
 		line = trim_white_spaces(line);
-		// std::cout << "line= " << line << std::endl;
+		if (line.empty())
+			break;
 		found = line.find(':');
 		if (!line.empty() && found == std::string::npos)
-			return ((void)(std::cout << "3" << std::endl), setStatus("400"));
+			return ((void)(std::cout << "400 Error -> 3\n"), setStatus("400"));
 		key = trim_white_spaces(line.substr(0, found));
 		strCapitalizer(key);
 		value = trim_white_spaces(line.substr(found + 1));
@@ -146,6 +143,8 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] += " " + value;
 		else
 			this->_headers[key] = value;
+		// std::cout << "key= " << key << std::endl;
+		// std::cout << "value= " << value << std::endl;
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
@@ -158,25 +157,28 @@ void Request::parsBody()
 {
 	std::string msg(this->_recieved);
 
-	size_t pos = msg.find(CRLFCRLF);
+	size_t pos = findCRLFCRLF(msg);
 
 	if (pos != std::string::npos)
 		msg = msg.substr(msg.find(CRLFCRLF) + 4);
 	else
 		msg.clear();
-	if (this->_responseStatus == "200" && this->_headers.find("Content-Length") != this->_headers.end())
+	// std::cout << "body1= " << msg << std::endl;
+	// std::cout << "status= " << this->_responseStatus << std::endl;
+	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
-		this->_body_len = std::atoi(this->_headers["Content-Length"].c_str());
-		if (msg.size() - 1 != this->_body_len)
-			return ((void)(std::cout << "4" << std::endl), setStatus("400"));
+		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
+		// std::cout << "msg.size()= " << msg.size() << std::endl;
+		// std::cout << "body_len= " << this->_body_len << std::endl;
+		if (msg.size() != this->_body_len)//check if content-length is suppose to count CRLF
+			return ((void)(std::cout << "400 Error -> 4\n"), setStatus("400"));
 		if (msg[msg.size() - 1] == '\n')
 			msg.erase(msg.size() - 1);
 		if (msg[msg.size() - 1] == '\r')
 			msg.erase(msg.size() - 1);
+		// std::cout << "body2= " << msg << std::endl;
 		this->_body = msg;
 	}
-	else if (this->_responseStatus == "200" && msg.size() > 0)
-		return ((void)(std::cout << "5" << std::endl), setStatus("400"));
 }
 
 void Request::checkRequest()
@@ -190,11 +192,11 @@ void Request::checkRequest()
 			return (setStatus("501"));
 	}
 	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
-		return ((void)(std::cout << "6" << std::endl), setStatus("400"));
+		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
 	if (this->_protocol.compare("HTTP/1.1"))
 		return (setStatus("505"));
 	if (this->_headers.find("HOST") == this->_headers.end())
-		return ((void)(std::cout << "7" << std::endl), setStatus("400"));
+		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
 }
 
 void Request::parsRequest()

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 18:04:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 15:34:31 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,14 +135,14 @@ std::map<std::string, std::string> makeTypesMap()
 
 std::string Response::getFileExt(std::string value) const
 {
-	for (std::map<std::string, std::string>::const_iterator it = this->_headers.begin(); it != this->_headers.end(); ++it)
+	for (std::map<std::string, std::string>::const_iterator it = _types.begin(); it != _types.end(); ++it)
 		if (it->second == value)
 			return (it->first);
 	return ("");
 }
 
 /*****************	MEMBER		*******************/
-std::string Response::getTime() const
+std::string Response::getTimeStr() const
 {
 	time_t rawtime;
 
@@ -150,6 +150,21 @@ std::string Response::getTime() const
 	std::tm *gmt = std::gmtime(&rawtime);
 	std::string str = std::asctime(gmt);
 	return (str.erase(str.find_last_not_of("\n") + 1) + " GMT");
+}
+
+std::string	Response::getTime() const
+{
+    std::time_t now = std::time(NULL);
+    std::tm* t = std::localtime(&now);
+    std::ostringstream oss;
+
+	oss << (t->tm_year + 1900)
+		<< (t->tm_mon + 1 < 10 ? "0" : "") << (t->tm_mon + 1)
+		<< (t->tm_mday < 10 ? "0" : "") << t->tm_mday << "_"
+		<< (t->tm_hour < 10 ? "0" : "") << t->tm_hour
+		<< (t->tm_min < 10 ? "0" : "") << t->tm_min
+		<< (t->tm_sec < 10 ? "0" : "") << t->tm_sec;
+    return (oss.str());
 }
 
 std::string Response::getFileType()
@@ -171,13 +186,15 @@ std::string Response::getContent_type()
 void Response::HandlePath()
 {
 	struct stat path_stat;
+	int			status;
 
 	this->_path = SERVER_ROOT + this->_path;
 	if (this->_path[0] == '/')
 		this->_path = this->_path.substr(1);
-	if (stat(this->_path.c_str(), &path_stat))
+	status = stat(this->_path.c_str(), &path_stat);
+	if (status && this->_methode.compare("POST"))
 		return (setStatus("404"));
-	if (S_ISDIR(path_stat.st_mode))
+	if (!status && S_ISDIR(path_stat.st_mode))
 	{
 		if (this->_autoIndex && this->_methode == "GET")
 			return (this->autoIndex());
@@ -191,18 +208,41 @@ void Response::HandlePath()
 		}
 		if (this->_methode == "POST")
 		{
-			int i = 0;
+			// int i = 0;
 			this->_fileName = "newFile";
+			// std::cout << "headers[CONTENT-TYPE]= " << this->_headers["CONTENT-TYPE"] << std::endl;
+			// std::cout << "file ext= " << getFileExt(this->_headers["CONTENT-TYPE"]) << std::endl;
 			if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
 				this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
-			while (stat(this->_fileName.c_str(), &path_stat) && i < std::numeric_limits<int>::max())
-				this->_fileName += this->_fileName + i_to_string(++i) + getFileExt(this->_headers["CONTENT-TYPE"]);
+			std::cout << "filename= " << this->_fileName << '\n';
+			if (stat(this->_fileName.c_str(), &path_stat))
+			{
+				// std::cout << "file name= " << this->_fileName << std::endl;
+				size_t pos = this->_fileName.rfind('.');
+				this->_fileName = this->_fileName.substr(0, this->_fileName.size() - pos);
+				// std::cout << "file name without ext= " << this->_fileName << std::endl;
+				// std::cout << "i= " << i_to_string(i + 1) << std::endl;
+				// std::cout << "headers[CONTENT-TYPE]= " << this->_headers["CONTENT-TYPE"] << std::endl;
+				// std::cout << "file ext= " << getFileExt(this->_headers["CONTENT-TYPE"]) << std::endl;
+				this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
+				std::cout << "filename= " << this->_fileName << '\n';
+			}
 			this->_path += this->_fileName;
+			// std::cout << "new_file_name: " << this->_fileName << std::endl;
 		}
 	}
-	std::ifstream ifs(this->_path.c_str(), std::ifstream::in);
-	if (ifs.fail() || !ifs.is_open())
-		return (setStatus("403"));
+	else if (!status && this->_methode.compare("POST"))
+	{
+		std::ifstream ifs(this->_path.c_str(), std::ifstream::in);
+		if (ifs.fail() || !ifs.is_open())
+			return (setStatus("403"));
+	}
+	else if (!status && !this->_methode.compare("POST"))
+	{
+		std::ofstream ofs(this->_path.c_str(), std::ofstream::out);
+		if (ofs.fail() || !ofs.is_open())
+			return (setStatus("403"));
+	}
 	size_t pos = this->_path.rfind("/");
 	if (pos != std::string::npos)
 		this->_fileName = this->_path.substr(pos + 1, this->_path.size() - pos - 1);
@@ -221,8 +261,6 @@ void Response::readFile()
 
 void Response::getMethode()
 {
-	if (this->_responseStatus != "200")
-		return (setErrorPage());
 	this->readFile();
 	if (this->_responseStatus == "200")
 		return (setResponse());
@@ -235,10 +273,8 @@ void Response::postMethode()
 	std::string status;
 	struct stat path_stat;
 
-	if (this->_responseStatus != "200")
-		return (setErrorPage());
-	if (this->_body.empty())
-		return (setStatus("400"), setErrorPage());
+	if (this->_body.empty())//check if useless
+		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
 		setStatus("201");
@@ -251,17 +287,15 @@ void Response::postMethode()
 	}
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
-	if (!ofs.is_open())
+	if (!ofs.is_open() || ofs.fail())
 		return (setStatus("500"), setErrorPage());
 	ofs << this->_body;
 	// ofs.close();
+	setResponse();
 }
 
 void Response::deleteMethode()
 {
-	std::cout << "deleteeeee\n";
-	if (this->_responseStatus != "200")
-		return (setErrorPage());
 	if (std::remove(this->_path.c_str()))
 	{
 		std::cout << "here it's forbiden\n";
@@ -302,33 +336,13 @@ void Response::setResponse()
 {
 	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
 	if (this->_responseStatus == "200")
-		this->_response_msg += " OK";
+		this->_response_msg += " OK\r\n";
 	else if (this->_responseStatus == "201")
-		this->_response_msg += " Created";
-	this->_response_msg += CRLF;
-	if (this->_methode == "GET")
-	{
-		this->_response_msg += "Server: Webserv";
-		this->_response_msg += CRLF;
-		this->_response_msg += "Date: " + this->getTime() + CRLF;
-		this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-		this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
-	}
-	if (this->_methode == "POST")
-	{
-		this->_response_msg += "Server: Webserv";
-		this->_response_msg += CRLF;
-		this->_response_msg += "Date: " + getTime() + CRLF;
-		this->_response_msg += "Content-type: " + getContent_type();
-		this->_response_msg += "Content-Length: " + i_to_string(_responseBody.size()) + CRLFCRLF;
-	}
-	if (this->_methode == "DELETE")
-	{
-		this->_response_msg += CRLF;
-		this->_response_msg += "Date: " + this->getTime() + CRLF;
-		this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-		this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
-	}
+	this->_response_msg += " Created\r\n";
+	this->_response_msg += "Server: Webserv\r\n";
+	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
+	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
+	this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
 	this->_response_msg += this->_responseBody;
 }
 
@@ -340,6 +354,8 @@ void Response::callMethode()
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
 	HandlePath();
+	if (this->_responseStatus != "200")
+		return (setErrorPage());
 	for (int i = 0; i < 3; ++i)
 		if (!methodes[i].compare(this->_methode))
 			(void)((this->*f[i])());
