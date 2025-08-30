@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/28 18:34:53 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 18:40:15 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,12 @@ class Request : public Client
 		void								parsRequestLine(std::string &);
 		void								parsHeaders(std::string &);
 		void								parsBody();
+		void								parsChunked();
 		void								checkRequest();
 		void								setStatus(std::string const &str);
 		void								setRecieved(std::string &);
+		void								addChunktoBody(std::string str);
+
 };
 
 #endif

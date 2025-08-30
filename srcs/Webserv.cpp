@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 16:39:55 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 18:59:07 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,10 +160,7 @@ void Webserv::runWebserv()
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
 				_clients[_pfds[j].fd]->handle_request();
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
-				{
-					if (_clients[_pfds[j].fd]->send_answer())
-						break;
-				}
+					_clients[_pfds[j].fd]->send_answer();
 		}
 	}
 }

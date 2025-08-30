@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 15:00:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 18:54:35 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,18 @@ static std::string trim_white_spaces(std::string str)
 	while (ss >> tmp)
 		res += tmp + " ";
 	return (res.substr(0, res.size() - 1));
+}
+
+static std::string	trim_CRLF(std::string str)
+{
+	size_t	end = str.size() - 1;
+
+	while (end - 1 > 0 && str[end] == '\n' && str[end - 1] == '\r')
+	{
+			str = str.substr(0, str.size() - 2);
+			end = str.size() -1;
+	}
+	return (str);
 }
 
 /*****************	MEMBER		*******************/
@@ -160,7 +172,7 @@ void Request::parsBody()
 	size_t pos = findCRLFCRLF(msg);
 
 	if (pos != std::string::npos)
-		msg = msg.substr(msg.find(CRLFCRLF) + 4);
+		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
 	else
 		msg.clear();
 	// std::cout << "body1= " << msg << std::endl;
@@ -216,4 +228,42 @@ void Request::setStatus(std::string const &str)
 std::string	Request::getRecieved() const
 {
 	return (this->_recieved);
+}
+
+void	Request::parsChunked()
+{
+	std::string msg(this->_recieved);
+	size_t pos = findCRLFCRLF(msg);
+	size_t		chunk_len;
+
+	if (pos != std::string::npos)
+		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
+	else
+		msg.clear();
+	std::cout << "chunk= " << msg << std::endl;
+	std::istringstream iss(msg);
+	std::string token;
+	iss >> token;
+	std::cout << "tkn= " << token << std::endl;
+	chunk_len = hexStringToInt(token);
+	msg = msg.substr(token.size() + 2);
+	std::cout << "msg without hex= " << msg << std::endl;
+	trim_CRLF(msg);
+	if (msg.size() != chunk_len)
+		return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
+	addChunktoBody(msg);
+}
+
+void	Request::addChunktoBody(std::string str)
+{
+	std::ifstream::pos_type size;
+	char * memblock;
+	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
+	
+	size = iss.tellg();
+	memblock = new char [size];
+	iss.seekg (0, std::ios::beg);
+	iss.read (memblock, size);
+	this->_body += memblock;
+	delete[] memblock;
 }

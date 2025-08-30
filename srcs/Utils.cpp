@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 15:31:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 18:00:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,4 +29,11 @@ size_t	findCRLFCRLF(std::string str)
 			return (i);
 	}
 	return (std::string::npos);
+}
+
+int	hexStringToInt(std::string str)
+{
+	int	res;
+	std::istringstream(str) >> std::hex >> res;
+	return (res);
 }
