@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/30 16:13:50 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 16:40:37 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,15 +127,19 @@ int Client::send_answer()
 	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if (this->_count == msg_len)
 	{
-		_pfds[this->_index].events = POLLIN;
-		this->_count = 0;
-		this->_recieved.clear();
-		clearClient();
 		if (this->_current_request->getHeaders().find("CONNECTION")->second == "close")
 		{
 			std::cout << "connection close ---> erase client...\n";
+			clearClient();
 			this->erase_client();
 			return (1);
+		}
+		else
+		{
+			_pfds[this->_index].events = POLLIN;
+			this->_count = 0;
+			this->_recieved.clear();
+			clearClient();
 		}
 	}
 	return (0);
