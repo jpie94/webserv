@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 15:19:31 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/01 15:28:37 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,20 +166,20 @@ void Webserv::runWebserv()
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
 				_clients[_pfds[j].fd]->handle_request();
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
-				{
-					if (_clients[_pfds[j].fd]->send_answer())
-						break;
-				}
+					_clients[_pfds[j].fd]->send_answer();
 		}
 	}
 }
 
 void Webserv::erase_client()
 {
+	std::cout << "fd= " << _pfds[this->_index].fd << std::endl;
 	if (close(_pfds[this->_index].fd) < 0)
 		throw_error(std::string(std::string("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
+	std::cout << "pfd index= " << (_pfds.begin() + this->_index)->fd << std::endl;
 	_pfds.erase(_pfds.begin() + this->_index);
 	std::map<int, Client *>::iterator it = _clients.find(this->_fd);
+	std::cout << "client= " << it->first << std::endl;
 	delete it->second;
 	_clients.erase(it);
 	setIndex();

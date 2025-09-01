@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/28 18:40:41 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 18:59:33 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class Client : public Server
 	protected:
 		size_t		_count;
 		std::string _recieved;
-		Request*	_current_request;
+		Request*	_request;
 		Response*	_response;
 
 	public:
@@ -34,10 +34,11 @@ class Client : public Server
 		Client		&operator=(const Client &);
 		virtual		~Client();
 		/* Member Functions */
-		int		send_answer();
+		void			send_answer();
 		void		handle_request();
 		int			clientRecv();
 		void		clearClient();
+		void		makeResponse();
 };
 
 #endif
