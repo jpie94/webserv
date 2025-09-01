@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/28 19:44:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/08/30 17:54:07 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(), _count(), _recieved(), _current_request(), _response() {}
+Client::Client() : Server(), _count(), _recieved(), _request(), _response() {}
 
 Client::Client(const Client &srcs)
 {
@@ -29,13 +29,13 @@ Client &Client::operator=(Client const &rhs)
 		this->_fd = rhs._fd;
 		this->_count = rhs._count;
 		this->_recieved = rhs._recieved;
-		this->_current_request = rhs._current_request;
+		this->_request = rhs._request;
 		this->_response = rhs._response;
 	}
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _current_request(), _response()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response()
 {
 	this->_fd = fd;
 	this->_index = index;
@@ -45,6 +45,14 @@ Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _re
 Client::~Client() {}
 
 /*****************	MEMBER		*******************/
+
+void	Client::makeResponse()
+{
+	this->_response = new Response(*this->_request);
+	this->_response->callMethode();
+	_pfds[this->_index].events = POLLOUT;
+	this->_count = 0;
+}
 
 int Client::clientRecv()
 {
@@ -79,34 +87,41 @@ int Client::clientRecv()
 void Client::handle_request()
 {
 	if (this->_recieved.size() == 0)
-		this->_current_request = new Request(*this);
+		this->_request = new Request(*this);
 	if (this->clientRecv())
 		return;
-	this->_current_request->setRecieved(this->_recieved);
-	if (this->_recieved.size() && findCRLFCRLF(this->_recieved))
+	if (!this->_request)
+		return;
+	this->_request->setRecieved(this->_recieved);
+	if (this->_recieved.size() && findCRLFCRLF(this->_recieved) != std::string::npos)
 	{
-		// std::cout << "protocol: " << this->_current_request->getProtocol() << std::endl;
-		if (this->_current_request->getProtocol() != "HTTP/1.1")
-			this->_current_request->parsRequest();
-		if (this->_current_request->getHeaders().find("Content-Length") != this->_current_request->getHeaders().end() && this->_current_request->getBody().size() == 0)
-			this->_current_request->parsBody();
-		std::cout << this->_count << std::endl;
-		if (this->_count >= this->_current_request->getBodyLen() + this->_current_request->getHeadersLen() + this->_current_request->getRequestLineLen())
-		{
-			this->_response = new Response(*this->_current_request);
-			this->_response->callMethode();
-			_pfds[this->_index].events = POLLOUT;
-			this->_count = 0;
-		}
+		// std::cout << "protocol: " << this->_request->getProtocol() << std::endl;
+		if (this->_request->getProtocol() != "HTTP/1.1")
+			this->_request->parsRequest();
+		if (this->_request->getHeaders().find("CONTENT-LENGTH") != this->_request->getHeaders().end()
+			&& this->_request->getBody().size() < this->_request->getBodyLen())
+			this->_request->parsBody();
+		if (this->_request->getHeaders().find("TRANSFER-ENCODING") != this->_request->getHeaders().end()
+			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second == "chunked")
+			this->_request->parsChunked();
+		// std::cout << this->_count << std::endl;
+		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+			makeResponse();
 	}
 }
 
-int Client::send_answer()
+void	Client::send_answer()
 {
 	size_t msg_len = std::strlen(this->_response->getResponseMsg().c_str());
 
 	if (!msg_len)
-		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl), 1);
+	{
+		_pfds[this->_index].events = POLLIN;
+		this->_count = 0;
+		this->_recieved.empty();
+		clearClient();
+		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
+	}
 	size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
 	if (sent < 0)
 	{
@@ -117,19 +132,28 @@ int Client::send_answer()
 	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if (this->_count == msg_len)
 	{
-		_pfds[this->_index].events = POLLIN;
-		this->_count = 0;
-		this->_recieved.empty();
-		clearClient();
+		if (this->_request->getHeaders().find("CONNECTION")->second == "close")
+		{
+			std::cout << "connection close ---> erase client...\n";
+			clearClient();
+			this->erase_client();
+			return;
+		}
+		else
+		{
+			_pfds[this->_index].events = POLLIN;
+			this->_count = 0;
+			this->_recieved.clear();
+			clearClient();
+		}
 	}
-	return (0);
 }
 
 void Client::clearClient()
 {
-	if (this->_current_request)
-		delete this->_current_request;
-	this->_current_request = 0;
+	if (this->_request)
+		delete this->_request;
+	this->_request = 0;
 	if (this->_response)
 		delete this->_response;
 	this->_response = 0;

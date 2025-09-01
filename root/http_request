@@ -1,4 +1,95 @@
+*********** OK *************
+
 GET /root/index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
+Connection: close
 
+
+GET /root/ HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+telnet localhost **** ok -> if press 'enter' x2
+
+
+aksldjf /root/index.html HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr  --> --> infinit loop (strlen)
+
+
+HEAD /root/index.html HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html HTTP/1.2
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: frGET /root/index.html
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/hello.txt HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /lol/ HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+
+GET /root/hello.txt HTTP/1.1
+Accept-Language: fr
+
+
+DELETE /root/test.txt HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr 
+
+
+(with no permission)
+DELETE /hello HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
+POST /root/example.txt HTTP/1.1
+Host: Webserv
+Content-Type: text
+Content-Length: 19
+
+hello post test
+
+POST /root/ HTTP/1.1
+Host: Webserv
+Content-Type: text/plain
+Content-Length: 19
+
+hello post test
+
+POST /root/test.txt HTTP/1.1
+Host: Webserv
+Content-Type: text/plain
+Transfer-Encoding: chunked
+
+27
+Voici les données du premier morceau
+1C
+et voici un second morceau
+20
+et voici deux derniers morceaux
+12
+sans saut de ligne
+0
