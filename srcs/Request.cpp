@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 18:54:35 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/01 12:39:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,6 +249,7 @@ void	Request::parsChunked()
 	msg = msg.substr(token.size() + 2);
 	std::cout << "msg without hex= " << msg << std::endl;
 	trim_CRLF(msg);
+	std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
 	if (msg.size() != chunk_len)
 		return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
 	addChunktoBody(msg);

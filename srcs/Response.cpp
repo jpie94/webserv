@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 15:34:31 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/01 14:58:31 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Response &Response::operator=(const Response &rhs)
 
 Response::Response(Request &request) : Request(request), _fileName(), _responseBody()
 {
-	this->_autoIndex = 0;
+	this->_autoIndex = 1;
 }
 
 Response::~Response() {}
@@ -323,7 +323,7 @@ void Response::autoIndex()
 		}
 
 		index_page += "</p>\n</body>\n</html>\n";
-		this->_responseBody = index_page;
+		this->_response_msg = index_page;
 		std::cout << this->_responseBody << std::endl;
 		if (closedir(dir) < 0)
 			return (setStatus("500"), setErrorPage());

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/30 17:54:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/01 12:34:16 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,8 @@ void	Client::send_answer()
 	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if (this->_count == msg_len)
 	{
-		if (this->_request->getHeaders().find("CONNECTION")->second == "close")
+		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
+			&& this->_request->getHeaders().find("CONNECTION")->second == "close")
 		{
 			std::cout << "connection close ---> erase client...\n";
 			clearClient();
