@@ -1,1 +1,0 @@
-			throw_error(std::string(std::string("Error in Webserv constructor : ") + FileName + " has no server bloc !" ).c_str());

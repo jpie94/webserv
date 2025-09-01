@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 15:33:01 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/01 16:02:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ class Response : public Request
 		void		readFile();
 		std::string getContent_type();
 		std::string getFileType();
-		void		HandlePath();
+		int			HandlePath();
 		void		callMethode();
 		std::string	getTimeStr() const;
 		std::string	getTime() const;

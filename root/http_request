@@ -94,3 +94,7 @@ et voici deux derniers morceaux
 sans saut de ligne
 0
 
+GET /root/a HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+
