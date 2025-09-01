@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 18:59:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/01 15:28:37 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ Webserv::Webserv(char *FileName) : _fd(), _index()
 		Config = ExtractConfig(FileName);
 	else
 		throw_error("Error in Webserv constructor: No default configuration path set yet !");
+	if(Config.find("server") == std::string::npos)
+			throw_error(std::string(std::string("Error in Webserv constructor : ") + FileName + " has no server bloc !" ).c_str());
 	while (Config.find("server") != std::string::npos)
 		ServerMaker(Config);
 	for (size_t i = 0; i < Config.size(); i++)
@@ -60,6 +62,10 @@ std::string Webserv::ExtractConfig(char *FileName)
 {
 	std::string Config, line;
 	std::ifstream ConfigFile(FileName);
+	struct stat s;
+	if (stat(FileName, &s) == 0)
+		if(s.st_mode & S_IFDIR)
+			throw_error(std::string(std::string("Error in ExtractConfig : ") + FileName + " is a directory !" ).c_str());
 	if (!ConfigFile.is_open())
 		throw_error(std::string(std::string("Error in ExtractConfig : ") + FileName + " : " + std::strerror(errno)).c_str());
 	while (!ConfigFile.eof())
