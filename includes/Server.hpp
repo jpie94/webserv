@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 11:58:26 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:43:48 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ class Server : public Webserv
 		void								add_client_to_pollfds();
 		/* Getters & setters*/
 		std::map<std::string, std::string>	getConfig();
-		std::map<std::string, std::map<std::string, std::string> >	getLocations();
 		void								setPort(std::string port);
 		void								setIP(std::string IP);
 		void								printconfig();

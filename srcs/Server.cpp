@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 14:31:44 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:44:52 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,11 +206,6 @@ void	Server::add_client_to_pollfds()
 std::map<std::string, std::string>	Server::getConfig()
 {
 	return(this->_config);
-}
-
-std::map<std::string, std::map<std::string, std::string> >	Server::getLocations()
-{
-	return(this->_locations);
 }
 
 void	Server::setPort(std::string port)

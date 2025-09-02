@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 14:32:59 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:44:21 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(), _serverFd(), _count(), _recieved(), _request(), _response() {}
+Client::Client() : Server(), _count(), _recieved(), _request(), _response() {}
 
 Client::Client(const Client &srcs)
 {
@@ -30,7 +30,6 @@ Client &Client::operator=(Client const &rhs)
 		this->_locations = rhs._locations;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
-		this->_serverFd = rhs._serverFd;
 		this->_count = rhs._count;
 		this->_recieved = rhs._recieved;
 		this->_request = rhs._request;
@@ -41,7 +40,6 @@ Client &Client::operator=(Client const &rhs)
 
 Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response()
 {
-	this->_serverFd = this->_fd;
 	this->_fd = fd;
 	this->_index = index;
 	printconfig();

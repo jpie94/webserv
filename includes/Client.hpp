@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 11:25:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:43:53 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ class Request;
 class Client : public Server
 {
 	protected:
-		int			_serverFd;
 		size_t		_count;
 		std::string _recieved;
 		Request*	_request;
