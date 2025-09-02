@@ -6,14 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/01 16:02:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 16:28:34 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-#include <ctime>
 #include <fcntl.h>
 #include <limits>
 #include "Request.hpp"

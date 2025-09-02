@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 15:45:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 19:05:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(), _count(), _recieved(), _request(), _response() {}
+Client::Client() : Server(), _count(), _recieved(), _request(), _response()
+{
+	this->_timeout = std::time(0);
+}
 
 Client::Client(const Client &srcs)
 {
@@ -34,6 +37,7 @@ Client &Client::operator=(Client const &rhs)
 		this->_recieved = rhs._recieved;
 		this->_request = rhs._request;
 		this->_response = rhs._response;
+		this->_timeout = rhs._timeout;
 	}
 	return (*this);
 }
@@ -42,12 +46,33 @@ Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _re
 {
 	this->_fd = fd;
 	this->_index = index;
+	this->_timeout = std::time(0);
 	printconfig();
 }
 
 Client::~Client() {}
 
 /*****************	MEMBER		*******************/
+
+int	Client::checkTimeout()
+{
+	double	diff = std::difftime(std::time(0), this->_timeout);
+	if (diff > 30.0)
+	{
+		std::cout << "Client " << this->_fd << " got timeout !\n";
+		clearClient();
+		erase_client();
+		return (1);
+	}
+	else
+		std::cout << "Client " << this->_fd <<  ", timeout= " << diff << std::endl;
+	return (0);
+}
+
+// std::time_t	Client::getTimeout() const
+// {
+// 	return (this->_timeout);
+// }
 
 void	Client::makeResponse()
 {
@@ -67,12 +92,13 @@ int Client::clientRecv()
 	if (bytes_read < 0)
 	{
 		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
+		this->clearClient();
 		this->erase_client();
 		return (1);
 	}
 	if (bytes_read == 0)
 	{
-		std::cout << "[" << this->_fd << "] Client socket closed connection." << '\n';
+		std::cout << BOLD << PURPLE << "[" << this->_fd << "] Client socket closed connection." << RESET << '\n';
 		this->clearClient();
 		this->erase_client();
 		return (1);
@@ -81,6 +107,7 @@ int Client::clientRecv()
 	// std::cout << "byte read : " << bytes_read << std::endl;
 	this->_recieved += buffer;
 	this->_count += bytes_read;
+	this->_timeout = std::time(0);
 	// std::cout << "count : " << this->_count << std::endl;
 	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
 	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
@@ -105,6 +132,7 @@ void Client::handle_request()
 			&& this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		if (this->_request->getHeaders().find("TRANSFER-ENCODING") != this->_request->getHeaders().end()
+			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second != ""
 			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second == "chunked")
 			this->_request->parsChunked();
 		// std::cout << this->_count << std::endl;
@@ -136,6 +164,7 @@ void	Client::send_answer()
 	if (this->_count == msg_len)
 	{
 		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
+			&& this->_request->getHeaders().find("CONNECTION")->second != ""
 			&& this->_request->getHeaders().find("CONNECTION")->second == "close")
 		{
 			std::cout << "connection close ---> erase client...\n";
@@ -149,6 +178,7 @@ void	Client::send_answer()
 			this->_count = 0;
 			this->_recieved.clear();
 			clearClient();
+			this->_timeout = std::time(0);
 		}
 	}
 }

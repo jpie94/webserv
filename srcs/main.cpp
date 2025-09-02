@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 14:46:05 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 18:37:34 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	main(int argc, char *argv[])
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cerr  << BOLD << RED << e.what() << RESET << '\n';
 	}
 	return (0);
 }

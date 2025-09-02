@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 15:25:19 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 19:05:15 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,16 +268,16 @@ void	Request::parsChunked()
 		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
 	else
 		msg.clear();
-	std::cout << "chunk= " << msg << std::endl;
+	//std::cout << "chunk= " << msg << std::endl;
 	std::istringstream iss(msg);
 	std::string token;
 	iss >> token;
-	std::cout << "tkn= " << token << std::endl;
+	//std::cout << "tkn= " << token << std::endl;
 	chunk_len = hexStringToInt(token);
 	msg = msg.substr(token.size() + 2);
-	std::cout << "msg without hex= " << msg << std::endl;
+	//std::cout << "msg without hex= " << msg << std::endl;
 	trim_CRLF(msg);
-	std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
+	//std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
 	if (msg.size() != chunk_len)
 		return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
 	addChunktoBody(msg);
