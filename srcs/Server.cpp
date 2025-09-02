@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 12:19:25 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:31:44 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ Server	&Server::operator=(Server const& rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
 		this->_fd = rhs._fd;
 	    this->_config = rhs._config;
 	    this->_locations = rhs._locations;

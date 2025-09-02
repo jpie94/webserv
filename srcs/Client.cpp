@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 12:19:43 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:32:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
 		this->_serverFd = rhs._serverFd;

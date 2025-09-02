@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 13:01:20 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:40:38 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
 		this->_headers = rhs._headers;
 		this->_body = rhs._body;
 		this->_methode = rhs._methode;
@@ -213,26 +215,31 @@ void Request::checkRequest()
 
 void Request::resolvePath()
 {
-	this->_config.clear();
 	std::string temPath = this->_path;
-	std::map<std::string, std::map<std::string, std::string> > LocationMap = _servers[this->_serverFd]->getLocations();
+	std::list<std::string> suffix;
+	if(this->_config.empty())
+		std::cout << "PUTAIN C EST VIDE ICI  !!!! " << std::endl;
 	while (!temPath.empty())
 	{
-		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = LocationMap.find(temPath);
-		if (MapLoc != LocationMap.end())
+		size_t i = temPath.rfind('/');
+		suffix.push_back(temPath.substr(i));
+	 	temPath = temPath.substr(0, i);
+	}
+	temPath += *suffix.rbegin();
+	suffix.pop_back();
+	while (!suffix.empty())
+	{
+		std::cout << "TEMPATH = " << temPath << std::endl;
+		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = _locations.find(temPath);
+		if (MapLoc != _locations.end())
 	 	{
 			std::map<std::string, std::string> Location = MapLoc->second;
 	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
-	 			if (_config.find(itLoc->first) == _config.end())
-	 				this->_config[itLoc->first] = itLoc->second;
+	 			this->_config[itLoc->first] = itLoc->second;
 	 	}
-	 	size_t i = temPath.rfind('/');
-	 	temPath = temPath.substr(0, i);
+		temPath += *suffix.rbegin();
+		suffix.pop_back();
 	}
-	std::map<std::string, std::string> ServConfig = _servers[this->_serverFd]->getConfig();
-	for (std::map<std::string, std::string>::iterator itSConf = ServConfig.begin(); itSConf != ServConfig.end(); itSConf++)
-		if (_config.find(itSConf->first) == _config.end())
-			this->_config[itSConf->first] = itSConf->second;
 	std::cout << "REQUESTED URI : " << this->_path << std::endl;
 	for (std::map<std::string, std::string>::iterator printconfig = this->_config.begin(); printconfig != this->_config.end(); printconfig++)
 		std::cout << printconfig->first << " " << printconfig->second << std::endl;
