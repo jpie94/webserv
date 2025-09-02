@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 18:54:35 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 13:01:20 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,10 +211,39 @@ void Request::checkRequest()
 		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
 }
 
+void Request::resolvePath()
+{
+	this->_config.clear();
+	std::string temPath = this->_path;
+	std::map<std::string, std::map<std::string, std::string> > LocationMap = _servers[this->_serverFd]->getLocations();
+	while (!temPath.empty())
+	{
+		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = LocationMap.find(temPath);
+		if (MapLoc != LocationMap.end())
+	 	{
+			std::map<std::string, std::string> Location = MapLoc->second;
+	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
+	 			if (_config.find(itLoc->first) == _config.end())
+	 				this->_config[itLoc->first] = itLoc->second;
+	 	}
+	 	size_t i = temPath.rfind('/');
+	 	temPath = temPath.substr(0, i);
+	}
+	std::map<std::string, std::string> ServConfig = _servers[this->_serverFd]->getConfig();
+	for (std::map<std::string, std::string>::iterator itSConf = ServConfig.begin(); itSConf != ServConfig.end(); itSConf++)
+		if (_config.find(itSConf->first) == _config.end())
+			this->_config[itSConf->first] = itSConf->second;
+	std::cout << "REQUESTED URI : " << this->_path << std::endl;
+	for (std::map<std::string, std::string>::iterator printconfig = this->_config.begin(); printconfig != this->_config.end(); printconfig++)
+		std::cout << printconfig->first << " " << printconfig->second << std::endl;
+}
+
 void Request::parsRequest()
 {
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
+	if (this->_responseStatus == "200")
+		resolvePath();
 	if (this->_responseStatus == "200")
 		parsHeaders(msg);
 	if (this->_responseStatus == "200")
