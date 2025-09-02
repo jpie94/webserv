@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/01 12:34:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 15:45:07 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
 		this->_fd = rhs._fd;
+		this->_index = rhs._index;
 		this->_count = rhs._count;
 		this->_recieved = rhs._recieved;
 		this->_request = rhs._request;
