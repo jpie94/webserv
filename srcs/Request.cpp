@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 14:40:38 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 15:25:19 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,20 +216,17 @@ void Request::checkRequest()
 void Request::resolvePath()
 {
 	std::string temPath = this->_path;
-	std::list<std::string> suffix;
-	if(this->_config.empty())
-		std::cout << "PUTAIN C EST VIDE ICI  !!!! " << std::endl;
+	std::vector<std::string> suffix;
 	while (!temPath.empty())
 	{
 		size_t i = temPath.rfind('/');
 		suffix.push_back(temPath.substr(i));
 	 	temPath = temPath.substr(0, i);
 	}
-	temPath += *suffix.rbegin();
-	suffix.pop_back();
 	while (!suffix.empty())
 	{
-		std::cout << "TEMPATH = " << temPath << std::endl;
+		temPath += *suffix.rbegin();
+		suffix.pop_back();
 		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = _locations.find(temPath);
 		if (MapLoc != _locations.end())
 	 	{
@@ -237,12 +234,7 @@ void Request::resolvePath()
 	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
 	 			this->_config[itLoc->first] = itLoc->second;
 	 	}
-		temPath += *suffix.rbegin();
-		suffix.pop_back();
 	}
-	std::cout << "REQUESTED URI : " << this->_path << std::endl;
-	for (std::map<std::string, std::string>::iterator printconfig = this->_config.begin(); printconfig != this->_config.end(); printconfig++)
-		std::cout << printconfig->first << " " << printconfig->second << std::endl;
 }
 
 void Request::parsRequest()
@@ -302,4 +294,11 @@ void	Request::addChunktoBody(std::string str)
 	iss.read (memblock, size);
 	this->_body += memblock;
 	delete[] memblock;
+}
+
+void 	Request::printURIConfig()
+{
+	std::cout << "REQUESTED URI CONFIG = " << this->_path << std::endl; 
+	for (std::map<std::string, std::string>::iterator it = _config.begin(); it != _config.end(); it++)
+		std::cout << it->first << " " << it->second << std::endl;
 }
