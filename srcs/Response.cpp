@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/01 19:18:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 13:26:34 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,8 +195,7 @@ int Response::HandlePath()
 	status = stat(this->_path.c_str(), &path_stat);
 	if (status && this->_methode.compare("POST"))
 		return (setStatus("404"), 0);
-	if ((access (this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode)))
-		&& (access (this->_path.c_str(), X_OK) && S_ISREG(path_stat.st_mode)))
+	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
 	if (!status && S_ISDIR(path_stat.st_mode))
 	{
