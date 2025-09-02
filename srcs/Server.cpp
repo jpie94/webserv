@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/08/27 15:48:05 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 14:44:52 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ Server	&Server::operator=(Server const& rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
+		this->_fd = rhs._fd;
 	    this->_config = rhs._config;
 	    this->_locations = rhs._locations;
 	}
@@ -218,7 +221,7 @@ void	Server::setIP(std::string IP)
 void	Server::printconfig()
 {
 	std::cout << "***************CONFIGURATION FOR SERVER  FD " << this->_fd << "**************"<< std::endl;
-	for (std::map<std::string, std::string>::iterator pconf = _config.begin(); pconf != _config.end(); pconf++)
+	for (std::map<std::string, std::string>::iterator pconf = this->_config.begin(); pconf != _config.end(); pconf++)
 		std::cout << pconf->first << " " << pconf->second <<std::endl;
 	if(!this->_locations.empty())
 		std::cout << "***************LOCATIONS**************"<< std::endl;

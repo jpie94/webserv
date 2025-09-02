@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 18:54:35 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 15:25:19 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_locations = rhs._locations;
 		this->_headers = rhs._headers;
 		this->_body = rhs._body;
 		this->_methode = rhs._methode;
@@ -211,10 +213,36 @@ void Request::checkRequest()
 		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
 }
 
+void Request::resolvePath()
+{
+	std::string temPath = this->_path;
+	std::vector<std::string> suffix;
+	while (!temPath.empty())
+	{
+		size_t i = temPath.rfind('/');
+		suffix.push_back(temPath.substr(i));
+	 	temPath = temPath.substr(0, i);
+	}
+	while (!suffix.empty())
+	{
+		temPath += *suffix.rbegin();
+		suffix.pop_back();
+		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = _locations.find(temPath);
+		if (MapLoc != _locations.end())
+	 	{
+			std::map<std::string, std::string> Location = MapLoc->second;
+	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
+	 			this->_config[itLoc->first] = itLoc->second;
+	 	}
+	}
+}
+
 void Request::parsRequest()
 {
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
+	if (this->_responseStatus == "200")
+		resolvePath();
 	if (this->_responseStatus == "200")
 		parsHeaders(msg);
 	if (this->_responseStatus == "200")
@@ -266,4 +294,11 @@ void	Request::addChunktoBody(std::string str)
 	iss.read (memblock, size);
 	this->_body += memblock;
 	delete[] memblock;
+}
+
+void 	Request::printURIConfig()
+{
+	std::cout << "REQUESTED URI CONFIG = " << this->_path << std::endl; 
+	for (std::map<std::string, std::string>::iterator it = _config.begin(); it != _config.end(); it++)
+		std::cout << it->first << " " << it->second << std::endl;
 }
