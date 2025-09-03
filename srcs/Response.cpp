@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 13:26:34 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 17:15:51 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,9 +188,6 @@ int Response::HandlePath()
 	struct stat path_stat;
 	int			status;
 
-	this->_path = SERVER_ROOT + this->_path;
-	if (this->_path[0] == '/')
-		this->_path = this->_path.substr(1);
 	std::memset(&path_stat, 0, sizeof(path_stat));
 	status = stat(this->_path.c_str(), &path_stat);
 	if (status && this->_methode.compare("POST"))
