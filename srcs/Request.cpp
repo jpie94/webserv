@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 19:05:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 17:23:07 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,10 @@ void Request::parsRequestLine(std::string &msg)
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
 		return ((void)(std::cout << "400 Error -> 1\n"), setStatus("400"));
+	if (this->_protocol.compare("HTTP/1.1"))
+		return (setStatus("505"));
+	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
+		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
@@ -205,18 +209,18 @@ void Request::checkRequest()
 		else
 			return (setStatus("501"));
 	}
-	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
-		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
-	if (this->_protocol.compare("HTTP/1.1"))
-		return (setStatus("505"));
+
 	if (this->_headers.find("HOST") == this->_headers.end())
 		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
 }
 
 void Request::resolvePath()
 {
-	std::string temPath = this->_path;
+	std::string finalPath, ogRoot, temPath = this->_path;
 	std::vector<std::string> suffix;
+	std::map<std::string, std::string>::iterator it = this->_config.find("root");
+	if (it != this->_config.end())
+		ogRoot = it->second;
 	while (!temPath.empty())
 	{
 		size_t i = temPath.rfind('/');
@@ -226,15 +230,28 @@ void Request::resolvePath()
 	while (!suffix.empty())
 	{
 		temPath += *suffix.rbegin();
+		finalPath += *suffix.rbegin();
 		suffix.pop_back();
 		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = _locations.find(temPath);
 		if (MapLoc != _locations.end())
 	 	{
 			std::map<std::string, std::string> Location = MapLoc->second;
 	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
-	 			this->_config[itLoc->first] = itLoc->second;
+			{
+				if(itLoc->first == "root")
+				{
+					if(itLoc->second != "/")
+						finalPath = "/" + itLoc->second; 
+					else
+						finalPath.clear();
+				}
+	 			else
+					this->_config[itLoc->first] = itLoc->second;
+			}
 	 	}
 	}
+	finalPath = ogRoot + finalPath;
+	this->_path = finalPath;
 }
 
 void Request::parsRequest()
