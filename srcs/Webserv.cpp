@@ -176,7 +176,6 @@ void Webserv::runWebserv()
 
 void Webserv::erase_client()
 {
-	std::cout << BOLD << RED << "fd= " << _pfds[this->_index].fd << std::endl;
 	if (close(_pfds[this->_index].fd) < 0)
 		throw_error(std::string(std::string("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
 	_pfds.erase(_pfds.begin() + this->_index);

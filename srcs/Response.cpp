@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 13:26:34 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 17:06:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,7 @@ int Response::HandlePath()
 			{
 				// std::cout << "file name= " << this->_fileName << std::endl;
 				size_t pos = this->_fileName.rfind('.');
-				this->_fileName = this->_fileName.substr(0, this->_fileName.size() - pos);
+				this->_fileName = this->_fileName.substr(0, pos);
 				// std::cout << "file name without ext= " << this->_fileName << std::endl;
 				// std::cout << "i= " << i_to_string(i + 1) << std::endl;
 				// std::cout << "headers[CONTENT-TYPE]= " << this->_headers["CONTENT-TYPE"] << std::endl;

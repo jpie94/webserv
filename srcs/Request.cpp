@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 19:05:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 17:24:29 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,9 @@ void Request::parsRequestLine(std::string &msg)
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
+	// std::cout << "_methode= " << this->_methode << std::endl;
+	// std::cout << "_path= " << this->_path << std::endl;
+	// std::cout << "_protocol= " << this->_protocol << std::endl;
 }
 
 void Request::parsHeaders(std::string &msg)
@@ -157,14 +160,16 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] += " " + value;
 		else
 			this->_headers[key] = value;
-		// std::cout << "key= " << key << std::endl;
-		// std::cout << "value= " << value << std::endl;
+		std::cout << "key= " << key << std::endl;
+		std::cout << "value= " << value << std::endl;
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
 	if (count + 1 <= msg.size())
 		msg = msg.substr(count + 1);
 	this->_headers_len += count;
+	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
+		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 }
 
 void Request::parsBody()
@@ -181,7 +186,6 @@ void Request::parsBody()
 	// std::cout << "status= " << this->_responseStatus << std::endl;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
-		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 		// std::cout << "msg.size()= " << msg.size() << std::endl;
 		// std::cout << "body_len= " << this->_body_len << std::endl;
 		if (msg.size() != this->_body_len)//check if content-length is suppose to count CRLF
@@ -192,6 +196,7 @@ void Request::parsBody()
 			msg.erase(msg.size() - 1);
 		// std::cout << "body2= " << msg << std::endl;
 		this->_body = msg;
+		std::cout << "body at the end of parsBody()= " << this->_body << std::endl;
 	}
 }
 
