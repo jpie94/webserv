@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/02 14:44:52 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 19:07:48 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ int	Server::make_listening_socket()
 	hint.ai_family = AF_INET;
 	hint.ai_socktype = SOCK_STREAM;
 	if (getaddrinfo(_config["server_name"].c_str(), _config["listen"].c_str(), &hint, &addr) != 0)
-		return (std::cerr << "Error in make_listening_socket : Could not resolve " << _config["server_name"] << std::endl, 0);
+		return (std::cerr << RED << "Error in make_listening_socket : Could not resolve "  << RESET  << BOLD << _config["server_name"] << RESET << std::endl, 0);
 	int socket_fd = socket(addr->ai_family, addr->ai_socktype, 0);
 	if (socket_fd < 0)
 	{
@@ -187,6 +187,7 @@ int	Server::make_listening_socket()
 	_pfds.push_back(newPollfd);
 	this->_fd = socket_fd;
 	this->_index = _pfds.size()-1;
+	std::cout << BOLD << GREEN << "[" << socket_fd << "] new socket Server created\n" << RESET;
 	return(1);
 }
 
@@ -201,6 +202,7 @@ void	Server::add_client_to_pollfds()
 	_pfds.push_back(newPollfd);
 	Client *newClient = new Client(socket_fd, _pfds.size() - 1, *this);
 	_clients[socket_fd] = newClient;
+	std::cout << BOLD << GREEN << "[" << socket_fd << "] Client new connection accept!\n" << RESET;
 }
 
 std::map<std::string, std::string>	Server::getConfig()
@@ -220,15 +222,15 @@ void	Server::setIP(std::string IP)
 
 void	Server::printconfig()
 {
-	std::cout << "***************CONFIGURATION FOR SERVER  FD " << this->_fd << "**************"<< std::endl;
+	std::cout << BOLD << CYAN << "***************CONFIGURATION FOR SERVER  FD " << this->_fd << "**************"<< RESET << std::endl;
 	for (std::map<std::string, std::string>::iterator pconf = this->_config.begin(); pconf != _config.end(); pconf++)
-		std::cout << pconf->first << " " << pconf->second <<std::endl;
+		std::cout << BOLD << pconf->first << RESET << " " << GREEN << pconf->second << RESET <<std::endl;
 	if(!this->_locations.empty())
-		std::cout << "***************LOCATIONS**************"<< std::endl;
+		std::cout << BOLD << CYAN << "***************LOCATIONS**************"<< RESET << std::endl;
 	for (std::map<std::string, std::map<std::string, std::string> >::iterator ploc = _locations.begin(); ploc != _locations.end(); ploc++)
 	{
-		std::cout << "______LOCATION NAME : "<< ploc->first <<std::endl;
+		std::cout << "______LOCATION NAME : " << BOLD << YELLOW << ploc->first << RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator locconf = ploc->second.begin(); locconf != ploc->second.end(); locconf++)
-		std::cout << locconf->first << " " << locconf->second <<std::endl;	
+		std::cout << BOLD << locconf->first << RESET << " " << GREEN << locconf->second << RESET << std::endl;	
 	}
 }

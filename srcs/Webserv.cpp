@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/01 15:28:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 18:36:59 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,9 @@ void Webserv::runWebserv()
 		it->second->printconfig();
 	while (1)
 	{
+		for (nfds_t j = 0; j < _pfds.size(); ++j)
+			if (_pfds[j].fd && _clients[_pfds[j].fd] && _clients[_pfds[j].fd]->checkTimeout())
+				break;
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
 			throw_error("Error in runWebserv : polling failed !");
@@ -173,13 +176,11 @@ void Webserv::runWebserv()
 
 void Webserv::erase_client()
 {
-	std::cout << "fd= " << _pfds[this->_index].fd << std::endl;
+	std::cout << BOLD << RED << "fd= " << _pfds[this->_index].fd << std::endl;
 	if (close(_pfds[this->_index].fd) < 0)
 		throw_error(std::string(std::string("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
-	std::cout << "pfd index= " << (_pfds.begin() + this->_index)->fd << std::endl;
 	_pfds.erase(_pfds.begin() + this->_index);
 	std::map<int, Client *>::iterator it = _clients.find(this->_fd);
-	std::cout << "client= " << it->first << std::endl;
 	delete it->second;
 	_clients.erase(it);
 	setIndex();
@@ -207,7 +208,8 @@ void Webserv::setIndex()
 		{
 			if (itClient->first == _pfds[i].fd)
 			{
-				itClient->second->_index = i;
+				if (itClient->second)//j'ai du ajoute cette condition pour eviter de segfault mais je trouve ca bizarre
+					itClient->second->_index = i;
 				break;
 			}
 		}

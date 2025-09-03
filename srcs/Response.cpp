@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 15:34:31 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/02 13:26:34 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ std::string	Response::getTime() const
 
 std::string Response::getFileType()
 {
-	size_t pos = this->_fileName.find(".");
+	size_t pos = this->_fileName.rfind(".");
 
 	if (pos != std::string::npos)
 		return (this->_fileName.substr(pos, this->_fileName.size() - pos));
@@ -183,7 +183,7 @@ std::string Response::getContent_type()
 	return ("application/octet-stream");
 }
 
-void Response::HandlePath()
+int Response::HandlePath()
 {
 	struct stat path_stat;
 	int			status;
@@ -191,19 +191,22 @@ void Response::HandlePath()
 	this->_path = SERVER_ROOT + this->_path;
 	if (this->_path[0] == '/')
 		this->_path = this->_path.substr(1);
+	std::memset(&path_stat, 0, sizeof(path_stat));
 	status = stat(this->_path.c_str(), &path_stat);
 	if (status && this->_methode.compare("POST"))
-		return (setStatus("404"));
+		return (setStatus("404"), 0);
+	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
+		return (setStatus("403"), 0);
 	if (!status && S_ISDIR(path_stat.st_mode))
 	{
 		if (this->_autoIndex && this->_methode == "GET")
-			return (this->autoIndex());
+			return (this->autoIndex(), 1);
 		if (this->_methode == "GET")
 		{
 			std::string str(this->_path + "index.html");
 			std::ifstream ifs(str.c_str());
 			if (ifs.fail())
-				return (setStatus("404"));
+				return (setStatus("404"), 0);
 			this->_path += "index.html";
 		}
 		if (this->_methode == "POST")
@@ -235,17 +238,18 @@ void Response::HandlePath()
 	{
 		std::ifstream ifs(this->_path.c_str(), std::ifstream::in);
 		if (ifs.fail() || !ifs.is_open())
-			return (setStatus("403"));
+			return (setStatus("403"), 0);
 	}
 	else if (!status && !this->_methode.compare("POST"))
 	{
 		std::ofstream ofs(this->_path.c_str(), std::ofstream::out);
 		if (ofs.fail() || !ofs.is_open())
-			return (setStatus("403"));
+			return (setStatus("403"), 0);
 	}
 	size_t pos = this->_path.rfind("/");
 	if (pos != std::string::npos)
 		this->_fileName = this->_path.substr(pos + 1, this->_path.size() - pos - 1);
+	return (0);
 }
 
 void Response::readFile()
@@ -323,23 +327,24 @@ void Response::autoIndex()
 		}
 
 		index_page += "</p>\n</body>\n</html>\n";
-		this->_responseBody = index_page;
-		std::cout << this->_responseBody << std::endl;
 		if (closedir(dir) < 0)
 			return (setStatus("500"), setErrorPage());
 	}
 	else
 		return (setStatus("403"), setErrorPage());
+	this->_fileName = "autoIndex.html";
+	this->_responseBody = index_page;
+	setResponse();
 }
 
 void Response::setResponse()
 {
 	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
 	if (this->_responseStatus == "200")
-		this->_response_msg += " OK\r\n";
-	else if (this->_responseStatus == "201")
-		this->_response_msg += " Created\r\n";
-	this->_response_msg += "Server: Webserv\r\n";
+		this->_response_msg += " OK";
+	if (this->_responseStatus == "201")
+		this->_response_msg += " Created";
+	this->_response_msg += "\r\nServer: Webserv\r\n";
 	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
 	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
 	this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
@@ -353,7 +358,8 @@ void Response::callMethode()
 
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
-	HandlePath();
+	if (HandlePath())
+		return;
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
 	for (int i = 0; i < 3; ++i)
@@ -363,24 +369,27 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target("root/error/" + this->_responseStatus + ".html");
+	std::string target("./root/error/" + this->_responseStatus + ".html");
 	std::ifstream file(target.c_str());
 
 	if (file.fail())
 	{
-		this->_response_msg = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
+		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
 		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">___________________________________________________________________________________________</span></p> \
 		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">webserv</span></p> \
 		<p style=\"text-align: center;\"><br></p> \
 		<p style=\"text-align: center;\"><br></p> \
 		<p style=\"text-align: center;\"><br></p> \
 		<p style=\"text-align: center;\"><br></p>";
+		this->_fileName = "500.html";
 	}
 	else
 	{
 		os << file.rdbuf();
-		this->_response_msg = os.str();
+		this->_responseBody = os.str();
+		this->_fileName = target;
 	}
+	setResponse();
 }
 
 std::string Response::getResponseMsg() const

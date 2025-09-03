@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/29 15:08:55 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/02 18:15:57 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,20 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <unistd.h>
 #include <vector>
 #include <fstream>
 #include <map>
 #include <sstream>
 #include "Utils.hpp"
+
+#define GREEN "\033[32m"
+#define RED "\033[31m"
+#define CYAN "\033[36m"
+#define PURPLE "\e[35m"
+#define YELLOW "\e[33m"
+#define BOLD "\033[1m"
+#define RESET "\033[0m"
 
 class Client;
 class Server;
