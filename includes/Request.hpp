@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/02 19:05:12 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 18:44:38 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,6 @@ class Request : public Client
 		void								setRecieved(std::string &);
 		void								addChunktoBody(std::string str);
 		void 								printURIConfig();
-
-
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 17:55:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 19:31:20 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,16 +65,15 @@ static std::string trim_white_spaces(std::string str)
 	return (res.substr(0, res.size() - 1));
 }
 
-static std::string	trim_CRLF(std::string str)
+void	trim_CRLF(std::string &str)
 {
 	size_t	end = str.size() - 1;
 
 	while (end - 1 > 0 && str[end] == '\n' && str[end - 1] == '\r')
 	{
-			str = str.substr(0, str.size() - 2);
-			end = str.size() -1;
+		str = str.substr(0, str.size() - 2);
+		end = str.size() - 1;
 	}
-	return (str);
 }
 
 /*****************	MEMBER		*******************/
@@ -92,6 +91,11 @@ void Request::setRecieved(std::string &str)
 std::string Request::getBody() const
 {
 	return (this->_body);
+}
+
+std::string	Request::getPath() const
+{
+	return (this->_path);
 }
 
 std::map<std::string, std::string> Request::getHeaders() const
@@ -164,8 +168,8 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] += " " + value;
 		else
 			this->_headers[key] = value;
-		std::cout << "key= " << key << std::endl;
-		std::cout << "value= " << value << std::endl;
+		// std::cout << "key= " << key << std::endl;
+		// std::cout << "value= " << value << std::endl;
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
@@ -200,7 +204,7 @@ void Request::parsBody()
 			msg.erase(msg.size() - 1);
 		// std::cout << "body2= " << msg << std::endl;
 		this->_body = msg;
-		std::cout << "body at the end of parsBody()= " << this->_body << std::endl;
+		// std::cout << "body at the end of parsBody()= " << this->_body << std::endl;
 	}
 }
 
@@ -256,6 +260,8 @@ void Request::resolvePath()
 	 	}
 	}
 	finalPath = ogRoot + finalPath;
+	if (finalPath[0] == '/')
+		finalPath = finalPath.substr(1);
 	this->_path = finalPath;
 }
 
@@ -280,7 +286,7 @@ std::string	Request::getRecieved() const
 	return (this->_recieved);
 }
 
-void	Request::parsChunked()
+void	Request::parsChunked()//faire une boucle
 {
 	std::string msg(this->_recieved);
 	size_t pos = findCRLFCRLF(msg);
@@ -290,34 +296,37 @@ void	Request::parsChunked()
 		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
 	else
 		msg.clear();
-	//std::cout << "chunk= " << msg << std::endl;
+	pos = findCRLFCRLF(msg);
+	if (pos != std::string::npos)
+		msg = msg.substr(0, pos -1);
+	// std::cout << "initial msg= " << msg << std::endl;
 	std::istringstream iss(msg);
 	std::string token;
 	iss >> token;
-	//std::cout << "tkn= " << token << std::endl;
 	chunk_len = hexStringToInt(token);
 	msg = msg.substr(token.size() + 2);
-	//std::cout << "msg without hex= " << msg << std::endl;
 	trim_CRLF(msg);
-	//std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
-	if (msg.size() != chunk_len)
-		return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
-	addChunktoBody(msg);
+	// std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
+	// if (msg.size() != chunk_len)
+	// 	return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
+	//addChunktoBody(msg);
+	this->_body += msg;
+	// std::cout << "body= " << this->_body << std::endl;
 }
 
-void	Request::addChunktoBody(std::string str)
-{
-	std::ifstream::pos_type size;
-	char * memblock;
-	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
+// void	Request::addChunktoBody(std::string str)
+// {
+// 	std::ifstream::pos_type size;
+// 	char * memblock;
+// 	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
 	
-	size = iss.tellg();
-	memblock = new char [size];
-	iss.seekg (0, std::ios::beg);
-	iss.read (memblock, size);
-	this->_body += memblock;
-	delete[] memblock;
-}
+// 	size = iss.tellg();
+// 	memblock = new char [size];
+// 	iss.seekg (0, std::ios::beg);
+// 	iss.read (memblock, size);
+// 	this->_body += iss.str();
+// 	delete[] memblock;
+// }
 
 void 	Request::printURIConfig()
 {

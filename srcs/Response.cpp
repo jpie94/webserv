@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 17:55:34 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 19:30:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,11 @@ Response::Response(Request &request) : Request(request), _fileName(), _responseB
 Response::~Response() {}
 
 /*****************	CLASS UTILS	*******************/
+
+std::string Response::getPath() const
+{
+	return (this->_path);
+}
 
 std::map<std::string, std::string> makeTypesMap()
 {
@@ -187,7 +192,7 @@ int Response::HandlePath()
 {
 	struct stat path_stat;
 	int			status;
-
+	std::cout << "handle path!!\n";
 	std::memset(&path_stat, 0, sizeof(path_stat));
 	status = stat(this->_path.c_str(), &path_stat);
 	if (status && this->_methode.compare("POST"))
@@ -196,6 +201,7 @@ int Response::HandlePath()
 		return (setStatus("403"), 0);
 	if (!status && S_ISDIR(path_stat.st_mode))
 	{
+		std::cout << "handle path 2!!\n";
 		if (this->_autoIndex && this->_methode == "GET")
 			return (this->autoIndex(), 1);
 		if (this->_methode == "GET")
@@ -214,7 +220,7 @@ int Response::HandlePath()
 			// std::cout << "file ext= " << getFileExt(this->_headers["CONTENT-TYPE"]) << std::endl;
 			if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
 				this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
-			std::cout << "filename= " << this->_fileName << '\n';
+			// std::cout << "filename= " << this->_fileName << '\n';
 			if (stat(this->_fileName.c_str(), &path_stat))
 			{
 				// std::cout << "file name= " << this->_fileName << std::endl;
@@ -225,7 +231,7 @@ int Response::HandlePath()
 				// std::cout << "headers[CONTENT-TYPE]= " << this->_headers["CONTENT-TYPE"] << std::endl;
 				// std::cout << "file ext= " << getFileExt(this->_headers["CONTENT-TYPE"]) << std::endl;
 				this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
-				std::cout << "filename= " << this->_fileName << '\n';
+				// std::cout << "filename= " << this->_fileName << '\n';
 			}
 			this->_path += this->_fileName;
 			// std::cout << "new_file_name: " << this->_fileName << std::endl;
@@ -255,7 +261,7 @@ void Response::readFile()
 	std::ifstream file(this->_path.c_str(), std::ios::in | std::ios::binary);
 
 	if (file.fail())
-		return (setStatus("500"), setErrorPage());
+		return ((void)(std::cout << "500 Error -> 1\n"),setStatus("500"), setErrorPage());
 	os << file.rdbuf();
 	this->_responseBody = os.str() + CRLF;
 }
@@ -288,8 +294,10 @@ void Response::postMethode()
 	}
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
+	// std::cout << "this->_fileName= " << this->_fileName << std::endl;
+	// std::cout << "this->_path= " << this->_path << std::endl;
 	if (!ofs.is_open() || ofs.fail())
-		return (setStatus("500"), setErrorPage());
+		return ((void)(std::cout << "500 Error -> 2\n"),setStatus("500"), setErrorPage());
 	ofs << this->_body;
 	// ofs.close();
 	setResponse();
@@ -325,7 +333,7 @@ void Response::autoIndex()
 
 		index_page += "</p>\n</body>\n</html>\n";
 		if (closedir(dir) < 0)
-			return (setStatus("500"), setErrorPage());
+			return ((void)(std::cout << "500 Error -> 3\n"),setStatus("500"), setErrorPage());
 	}
 	else
 		return (setStatus("403"), setErrorPage());

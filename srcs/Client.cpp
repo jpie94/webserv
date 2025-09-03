@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/03 17:13:08 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/03 19:20:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void Client::handle_request()
 		// std::cout << "protocol: " << this->_request->getProtocol() << std::endl;
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
-		std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
+		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
 		if (this->_request->getHeaders().find("CONTENT-LENGTH") != this->_request->getHeaders().end()
 			&& this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
