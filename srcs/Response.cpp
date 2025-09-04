@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 17:15:51 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/04 11:30:07 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,10 @@ Response &Response::operator=(const Response &rhs)
 
 Response::Response(Request &request) : Request(request), _fileName(), _responseBody()
 {
-	this->_autoIndex = 0;
+	if(this->_config.find("autoindex") != this->_config.end())
+		this->_autoIndex = this->_config["autoindex"];
+	else
+		this->_autoIndex = "off";
 }
 
 Response::~Response() {}
@@ -196,7 +199,7 @@ int Response::HandlePath()
 		return (setStatus("403"), 0);
 	if (!status && S_ISDIR(path_stat.st_mode))
 	{
-		if (this->_autoIndex && this->_methode == "GET")
+		if (this->_autoIndex == "on" && this->_methode == "GET")
 			return (this->autoIndex(), 1);
 		if (this->_methode == "GET")
 		{
