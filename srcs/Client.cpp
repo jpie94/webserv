@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/04 16:27:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 18:00:08 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,8 @@ int	Client::checkTimeout()
 		erase_client();
 		return (1);
 	}
-	// else
-	// 	std::cout << "Client " << this->_fd <<  ", timeout= " << diff << std::endl;
 	return (0);
 }
-
-// std::time_t	Client::getTimeout() const
-// {
-// 	return (this->_timeout);
-// }
 
 void	Client::makeResponse()
 {
