@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 11:30:07 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/04 14:43:56 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ Response::Response(Request &request) : Request(request), _fileName(), _responseB
 		this->_autoIndex = this->_config["autoindex"];
 	else
 		this->_autoIndex = "off";
+	if(this->_config.find("return") != this->_config.end())
+		this->setStatus("302");
 }
 
 Response::~Response() {}
@@ -337,6 +339,16 @@ void Response::autoIndex()
 	setResponse();
 }
 
+void Response::setRedirect()
+{
+	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
+	this->_response_msg += " Found ";
+	this->_response_msg += "\r\nServer: Webserv\r\n";
+	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
+	this->_response_msg += "Content-length: 0\r\n";
+	this->_response_msg += "Location: " + this->_config["return"] + CRLF;
+}
+
 void Response::setResponse()
 {
 	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
@@ -355,7 +367,8 @@ void Response::callMethode()
 {
 	std::string methodes[3] = {"GET", "POST", "DELETE"};
 	void (Response::*f[])(void) = {&Response::getMethode, &Response::postMethode, &Response::deleteMethode};
-
+	if (this->_responseStatus == "302")
+		return (setRedirect());
 	if (this->_responseStatus != "200")
 		return (setErrorPage());
 	if (HandlePath())
