@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/03 19:20:32 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:27:18 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ void Client::handle_request()
 void	Client::send_answer()
 {
 	size_t msg_len = std::strlen(this->_response->getResponseMsg().c_str());
-
 	if (!msg_len)
 	{
 		_pfds[this->_index].events = POLLIN;
@@ -175,6 +174,7 @@ void	Client::send_answer()
 		}
 		else
 		{
+			std::cout << this->_response->getResponseMsg() << std::endl;	
 			_pfds[this->_index].events = POLLIN;
 			this->_count = 0;
 			this->_recieved.clear();

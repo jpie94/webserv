@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 18:44:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:27:28 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Response : public Request
 		std::string									_fileName;
 		std::string									_responseBody;
 		static std::map<std::string, std::string>	_types;
-		bool										_autoIndex; // Inherited from Server Class
+		std::string									_autoIndex;
 	public:
 		/* Canonical Form + Paramtric constructor */
 					Response();
@@ -48,6 +48,7 @@ class Response : public Request
 		std::string	getTime() const;
 		std::string	getFileExt(std::string value) const;
 		void		setResponse();
+		void 		setRedirect();
 		void		setErrorPage();
 		std::string	getResponseMsg() const;
 		std::string	getPath() const;

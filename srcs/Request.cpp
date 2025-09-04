@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 15:55:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 16:27:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,10 @@ void Request::parsBody()
 	// std::cout << "status= " << this->_responseStatus << std::endl;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
+		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
+		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
+			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
+				return ((void)setStatus("413"));
 		// std::cout << "msg.size()= " << msg.size() << std::endl;
 		// std::cout << "body_len= " << this->_body_len << std::endl;
 		if (msg.size() != this->_body_len)//check if content-length is suppose to count CRLF
@@ -218,9 +222,11 @@ void Request::checkRequest()
 		else
 			return (setStatus("501"));
 	}
-
+	else if(this->_config.find("allowed_methods") != this->_config.end())
+		if(this->_config["allowed_methods"].find(this->_methode) == std::string::npos)
+			return (setStatus("405"));
 	if (this->_headers.find("HOST") == this->_headers.end())
-		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
+		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));	
 }
 
 void Request::resolvePath()
