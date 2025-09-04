@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 19:31:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 15:55:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,8 +260,6 @@ void Request::resolvePath()
 	 	}
 	}
 	finalPath = ogRoot + finalPath;
-	if (finalPath[0] == '/')
-		finalPath = finalPath.substr(1);
 	this->_path = finalPath;
 }
 
@@ -286,7 +284,7 @@ std::string	Request::getRecieved() const
 	return (this->_recieved);
 }
 
-void	Request::parsChunked()//faire une boucle
+void	Request::parsChunked()
 {
 	std::string msg(this->_recieved);
 	size_t pos = findCRLFCRLF(msg);
@@ -299,18 +297,38 @@ void	Request::parsChunked()//faire une boucle
 	pos = findCRLFCRLF(msg);
 	if (pos != std::string::npos)
 		msg = msg.substr(0, pos -1);
-	// std::cout << "initial msg= " << msg << std::endl;
+	std::cout << "initial msg= " << msg << std::endl;
 	std::istringstream iss(msg);
-	std::string token;
+	std::string token, chunk;
 	iss >> token;
 	chunk_len = hexStringToInt(token);
-	msg = msg.substr(token.size() + 2);
-	trim_CRLF(msg);
-	// std::cout << "chunk_len= " << chunk_len << ", msg.size()= " << msg.size() << std::endl;
-	// if (msg.size() != chunk_len)
-	// 	return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
-	//addChunktoBody(msg);
-	this->_body += msg;
+	while (chunk_len)
+	{
+		msg = msg.substr(token.size() + 2);
+		std::cout << "0 - msg= " << msg << std::endl;
+		pos = findCRLF(msg);
+		chunk = msg.substr(0, pos);
+		std::cout << "1 - msg= " << msg << std::endl;
+		// trim_CRLF(msg);
+		std::cout << "chunk= " << chunk << std::endl;
+		std::cout << "chunk_len= " << chunk_len << ", chunk.size()= " << chunk.size() << std::endl;
+		if (chunk.size() + 2 != chunk_len)
+			return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
+		std::cout << "2 - msg= " << msg << std::endl;
+		msg = msg.substr(pos + 2);
+		std::cout << "3 - msg= " << msg << std::endl;
+		//addChunktoBody(msg);
+		this->_body += chunk;
+		std::cout << "ok\n";
+		iss.clear();
+		std::cout << "okok\n";
+		iss.str(msg);
+		std::cout << "okokok\n";
+		iss >> token;
+		std::cout << "okokokok\n";
+		chunk_len = hexStringToInt(token);
+		std::cout << "okokokokokok\n";
+	}
 	// std::cout << "body= " << this->_body << std::endl;
 }
 
