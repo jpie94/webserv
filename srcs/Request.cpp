@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 12:09:35 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/04 12:12:51 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ void Request::parsBody()
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
-		if (this->_config.find("client_max_body_size") != this->_config.end() && !this->_config["client_max_body_size"].empty() && this->_config["client_max_body_size"] != "0")
+		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
 		// std::cout << "msg.size()= " << msg.size() << std::endl;
