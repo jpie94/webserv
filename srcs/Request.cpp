@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 17:23:07 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/04 11:15:03 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,9 @@ void Request::checkRequest()
 		else
 			return (setStatus("501"));
 	}
-
+	else if(this->_config.find("allowed_methods") != this->_config.end())
+		if(this->_config["allowed_methods"].find(this->_methode) == std::string::npos)
+			return (setStatus("405"));
 	if (this->_headers.find("HOST") == this->_headers.end())
 		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));
 }
