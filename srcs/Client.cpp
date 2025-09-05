@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/04 18:00:08 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 11:59:45 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ void	Client::send_answer()
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
-		this->_recieved.empty();
+		this->_recieved.clear();
 		clearClient();
 		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
 	}

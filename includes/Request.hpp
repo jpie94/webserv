@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/03 18:44:38 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 13:43:11 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class Request : public Client
 		std::string							_path;
 		std::string							_protocol;
 		std::string							_responseStatus;
+		std::string							_ogRoot;
 
 	public:
 		/* Canonical Form + Paramtric constructor */

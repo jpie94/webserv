@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 15:15:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 15:31:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ void Response::setRedirect()
 	this->_response_msg += "\r\nServer: Webserv\r\n";
 	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
 	this->_response_msg += "Content-length: 0\r\n";
-	this->_response_msg += "Location: " + this->_config["return"] + CRLF;
+	this->_response_msg += "Location: " + this->_config["return"] + CRLFCRLF;
 }
 
 void Response::setResponse()
@@ -203,7 +203,7 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target("./root/error/" + this->_responseStatus + ".html");
+	std::string target(this->_ogRoot + "/error/" + this->_responseStatus + ".html");
 	std::ifstream file(target.c_str());
 
 	if (file.fail())
