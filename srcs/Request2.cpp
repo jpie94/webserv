@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 18:11:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 13:47:49 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,11 +172,11 @@ void Request::checkRequest()
 
 void Request::resolvePath()
 {
-	std::string finalPath, ogRoot, temPath = this->_path;
+	std::string finalPath, temPath = this->_path;
 	std::vector<std::string> suffix;
 	std::map<std::string, std::string>::iterator it = this->_config.find("root");
 	if (it != this->_config.end())
-		ogRoot = it->second;
+		_ogRoot = it->second;
 	while (!temPath.empty())
 	{
 		size_t i = temPath.rfind('/');
@@ -206,7 +206,7 @@ void Request::resolvePath()
 			}
 	 	}
 	}
-	finalPath = ogRoot + finalPath;
+	finalPath = _ogRoot + finalPath;
 	this->_path = finalPath;
 }
 

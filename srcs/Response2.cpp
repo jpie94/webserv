@@ -6,7 +6,7 @@
 /*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 12:31:15 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/05 13:51:45 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target("./root/error/" + this->_responseStatus + ".html");
+	std::string target(this->_ogRoot + "/error/" + this->_responseStatus + ".html");
 	std::ifstream file(target.c_str());
 
 	if (file.fail())

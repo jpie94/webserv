@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 18:05:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 13:46:21 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_ogRoot = rhs._ogRoot;
 		this->_config = rhs._config;
 		this->_locations = rhs._locations;
 		this->_headers = rhs._headers;
@@ -45,8 +46,6 @@ Request &Request::operator=(const Request &rhs)
 Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
 
 Request::~Request() {}
-
-
 
 /*****************	GETTERS / SETTERS		*******************/
 
