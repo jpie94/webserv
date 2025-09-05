@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 13:47:49 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/05 17:14:43 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,39 +118,42 @@ void Request::parsBody()
 	}
 }
 
-void	Request::parsChunked()
+int	Request::parsChunk(std::string &msg)
+{
+	std::string	chunk;
+	size_t	pos, chunk_len;
+	char* endpos;
+
+	if (!msg.compare("0\r\n\r\n"))
+	{
+		msg = "";
+		return (1);
+	}
+	chunk_len = std::strtol(msg.c_str(), &endpos, 16);
+	pos = findCRLF(msg);
+	if (pos == std::string::npos)
+		return (setStatus("404"), 1);
+	chunk = msg.substr(pos + 2, chunk_len);
+	this->_body += chunk;
+	msg = msg.substr(pos + chunk_len + 4);
+	return (0);
+}
+
+void	Request::parsChunkedBody()
 {
 	std::string msg(this->_recieved);
 	size_t pos = findCRLFCRLF(msg);
-	size_t		chunk_len;
 
 	if (pos != std::string::npos)
 		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
 	else
 		msg.clear();
-	pos = findCRLFCRLF(msg);
-	if (pos != std::string::npos)
-		msg = msg.substr(0, pos);
-	std::istringstream iss(msg);
-	std::string token, chunk;
-	iss >> token;
-	chunk_len = hexStringToInt(token);
-	while (chunk_len)
+	std::string line, chunk;
+	while (msg != "")
 	{
-		msg = msg.substr(token.size() + 2);
-		pos = findCRLF(msg);
-		chunk = msg.substr(0, pos);
-		// trim_CRLF(msg);
-		if (chunk.size() + 2 != chunk_len)
-			return ((void)(std::cout << "400 Error -> 8\n"), setStatus("400"));
-		msg = msg.substr(pos + 2);
-		this->_body += chunk;
-		iss.clear();
-		iss.str(msg);
-		iss >> token;
-		chunk_len = hexStringToInt(token);
+		if (parsChunk(msg))
+			break;
 	}
-	// std::cout << "body= " << this->_body << std::endl;
 }
 
 void Request::checkRequest()

@@ -3,14 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 13:51:45 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/05 18:01:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+
+void	Response::generateFileName(struct stat path_stat)
+{
+	this->_fileName = "newFile";
+	if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
+		this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
+	if (stat(this->_fileName.c_str(), &path_stat))
+	{
+		size_t pos = this->_fileName.rfind('.');
+		this->_fileName = this->_fileName.substr(0, pos);
+		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
+	}
+	this->_path += this->_fileName;
+}
+
+int	Response::expandPath(struct stat path_stat)
+{
+	if (this->_autoIndex == "on" && this->_methode == "GET")
+		return (this->autoIndex(), 1);
+	if (this->_methode == "GET")
+	{
+		std::string str(this->_path + "index.html");
+		std::ifstream ifs(str.c_str());
+		if (ifs.fail())
+			return (setStatus("404"), 0);
+		this->_path += "index.html";
+	}
+	if (this->_methode == "POST")
+		generateFileName(path_stat);
+	return (0);
+}
 
 int Response::HandlePath()
 {
@@ -23,31 +54,7 @@ int Response::HandlePath()
 	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
 	if (!status && S_ISDIR(path_stat.st_mode))
-	{
-		if (this->_autoIndex == "on" && this->_methode == "GET")
-			return (this->autoIndex(), 1);
-		if (this->_methode == "GET")
-		{
-			std::string str(this->_path + "index.html");
-			std::ifstream ifs(str.c_str());
-			if (ifs.fail())
-				return (setStatus("404"), 0);
-			this->_path += "index.html";
-		}
-		if (this->_methode == "POST")
-		{
-			this->_fileName = "newFile";
-			if (this->_headers.find("CONTENT-TYPE") != this->_headers.end())
-				this->_fileName += getFileExt(this->_headers["CONTENT-TYPE"]);
-			if (stat(this->_fileName.c_str(), &path_stat))
-			{
-				size_t pos = this->_fileName.rfind('.');
-				this->_fileName = this->_fileName.substr(0, pos);
-				this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
-			}
-			this->_path += this->_fileName;
-		}
-	}
+		return(expandPath(path_stat));
 	else if (!status && this->_methode.compare("POST"))
 	{
 		std::ifstream ifs(this->_path.c_str(), std::ifstream::in);
@@ -74,7 +81,7 @@ void Response::readFile()
 	if (file.fail())
 		return ((void)(std::cout << "500 Error -> 1\n"),setStatus("500"), setErrorPage());
 	os << file.rdbuf();
-	this->_responseBody = os.str() + CRLF;
+	this->_responseBody = os.str();;
 }
 
 void Response::getMethode()

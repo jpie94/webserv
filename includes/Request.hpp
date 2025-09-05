@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 13:43:11 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/05 15:56:51 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ class Request : public Client
 		void								resolvePath();
 		void								parsHeaders(std::string &);
 		void								parsBody();
-		void								parsChunked();
+		void								parsChunkedBody();
+		int									parsChunk(std::string&);
 		void								checkRequest();
 		void								setStatus(std::string const &str);
 		void								setRecieved(std::string &);
