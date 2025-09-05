@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/08/30 18:01:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/04 18:03:17 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,14 @@ std::string	i_to_string(int value);
 
 size_t		findCRLFCRLF(std::string str);
 
+size_t		findCRLF(std::string str);
+
 int			hexStringToInt(std::string str);
+
+void		 strCapitalizer(std::string &str);
+
+std::string trim_white_spaces(std::string str);
+
+void		trim_CRLF(std::string &str);
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/04 14:42:34 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/04 18:00:08 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,20 +59,13 @@ int	Client::checkTimeout()
 	double	diff = std::difftime(std::time(0), this->_timeout);
 	if (diff > 30.0)
 	{
-		std::cout << "Client " << this->_fd << " got timeout !\n";
+		std::cout  << BOLD << PURPLE << "Client " << this->_fd << " got timeout !\n" << RESET;
 		clearClient();
 		erase_client();
 		return (1);
 	}
-	else
-		std::cout << "Client " << this->_fd <<  ", timeout= " << diff << std::endl;
 	return (0);
 }
-
-// std::time_t	Client::getTimeout() const
-// {
-// 	return (this->_timeout);
-// }
 
 void	Client::makeResponse()
 {
@@ -110,7 +103,7 @@ int Client::clientRecv()
 	this->_timeout = std::time(0);
 	// std::cout << "count : " << this->_count << std::endl;
 	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
-	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	return (0);
 }
 
@@ -128,6 +121,7 @@ void Client::handle_request()
 		// std::cout << "protocol: " << this->_request->getProtocol() << std::endl;
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
+		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
 		if (this->_request->getHeaders().find("CONTENT-LENGTH") != this->_request->getHeaders().end()
 			&& this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();

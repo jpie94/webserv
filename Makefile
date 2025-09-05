@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
+#    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/08/26 15:12:35 by jpiech           ###   ########.fr        #
+#    Updated: 2025/09/04 18:15:17 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = webserv
 
-CC = c++
+CC = @c++
 
 INCLUDES_DIR = includes
 
@@ -22,10 +22,14 @@ SRCS_DIR = srcs
 
 SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Webserv.cpp \
+	$(SRCS_DIR)/Webserv2.cpp \
 	$(SRCS_DIR)/Server.cpp \
+	$(SRCS_DIR)/Server2.cpp \
 	$(SRCS_DIR)/Client.cpp \
 	$(SRCS_DIR)/Request.cpp \
+	$(SRCS_DIR)/Request2.cpp \
 	$(SRCS_DIR)/Response.cpp \
+	$(SRCS_DIR)/Response2.cpp \
 	$(SRCS_DIR)/Signals.cpp \
 	$(SRCS_DIR)/Utils.cpp
 
@@ -41,15 +45,18 @@ RM = rm -rf
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) -o $(NAME) $(CFLAGS) $(OBJS)
+	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS)
+	@echo "\033[0;92m * $(NAME) program file was created\033[0m *"
 
 $(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)
 clean:
-	$(RM) $(OBJ_DIR)
+	@$(RM) $(OBJ_DIR)
+	@echo "\033[0;91m* $(NAME) object files was deleted *\033[0m"
 
 fclean: clean
-	$(RM) $(NAME)
+	@$(RM) $(NAME)
+	@echo "\033[0;91m* $(NAME) was deleted *\033[0m"
 
 re: fclean all
 

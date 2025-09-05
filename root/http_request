@@ -1,12 +1,12 @@
 *********** OK *************
 
-GET /root/index.html HTTP/1.1
+GET /index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 Connection: close
 
 
-GET /root/ HTTP/1.1
+GET / HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
@@ -14,34 +14,34 @@ Accept-Language: fr
 telnet localhost **** ok -> if press 'enter' x2
 
 
-aksldjf /root/index.html HTTP/1.1
+aksldjf /index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr  --> --> infinit loop (strlen)
 
 
-HEAD /root/index.html HTTP/1.1
+HEAD /index.html HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
 
-GET /root/index.html HTTP/1.2
+GET /index.html HTTP/1.2
 Host: developer.mozilla.org
 Accept-Language: fr
 
 
-GET /root/index.html
+GET /index.html
 Host: developer.mozilla.org
 Accept-Language: fr
 
 
-GET /root/index.html
+GET /index.html
 Host: developer.mozilla.org
 Accept-Language: frGET /root/index.html
 Host: developer.mozilla.org
 Accept-Language: fr
 
 
-GET /root/hello.txt HTTP/1.1
+GET /hello.txt HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
@@ -51,11 +51,11 @@ Host: developer.mozilla.org
 Accept-Language: fr
 
 
-GET /root/hello.txt HTTP/1.1
+GET /hello.txt HTTP/1.1
 Accept-Language: fr
 
 
-DELETE /root/test.txt HTTP/1.1
+DELETE /test.txt HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr 
 
@@ -65,21 +65,21 @@ DELETE /hello HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
 
-POST /root/example.txt HTTP/1.1
+POST /example.txt HTTP/1.1
 Host: Webserv
 Content-Type: text
 Content-Length: 19
 
 hello post test
 
-POST /root/ HTTP/1.1
+POST / HTTP/1.1
 Host: Webserv
 Content-Type: text/plain
 Content-Length: 19
 
 hello post test
 
-POST /root/test.txt HTTP/1.1
+POST /test.txt HTTP/1.1
 Host: Webserv
 Content-Type: text/plain
 Transfer-Encoding: chunked
@@ -88,13 +88,22 @@ Transfer-Encoding: chunked
 Voici les données du premier morceau
 1C
 et voici un second morceau
-20
-et voici deux derniers morceaux
-12
-sans saut de ligne
 0
 
-GET /root/a HTTP/1.1
+
+
+GET /a HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr
+
+
+/*** testchuncked transfer ***/
+
+curl --http1.1 -X POST http://localhost:8081/upload -H "Transfer-Encoding: chunked" \
+  -H "Content-Type: text/plain" \
+  -d @- <<EOF
+Wiki
+pedia
+in chunks.
+EOF
 
