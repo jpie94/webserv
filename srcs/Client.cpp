@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/05 11:59:45 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/05 15:48:43 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void Client::handle_request()
 		if (this->_request->getHeaders().find("TRANSFER-ENCODING") != this->_request->getHeaders().end()
 			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second != ""
 			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second == "chunked")
-			this->_request->parsChunked();
+			this->_request->parsChunkedBody();
 		// std::cout << this->_count << std::endl;
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 			makeResponse();

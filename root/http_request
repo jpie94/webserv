@@ -84,13 +84,17 @@ Host: Webserv
 Content-Type: text/plain
 Transfer-Encoding: chunked
 
-29
+27
 Voici les données du premier morceau
 
 1C
 et voici un second morceau
-0
 
+20
+et voici deux derniers morceaux 
+12
+sans saut de ligne
+0
 
 
 GET /a HTTP/1.1
