@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 18:16:04 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 11:59:32 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ void Webserv::ServerMaker(std::string &Config)
 	else
 		temp = itPort->second;
 	std::istringstream iss(temp);
-	temp.empty();
+	temp.clear();
 	while (iss >> temp)
 		ports.push_back(temp);
 	std::map<std::string, std::string>::iterator itIP = conf.find("server_name");
@@ -101,7 +101,7 @@ void Webserv::ServerMaker(std::string &Config)
 	else
 		temp = itIP->second;
 	std::istringstream iss2(temp);
-	temp.empty();
+	temp.clear();
 	while (iss2 >> temp)
 		IPs.push_back(temp);
 	while (IPs.size() > 0)
