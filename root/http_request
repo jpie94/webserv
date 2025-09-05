@@ -84,8 +84,9 @@ Host: Webserv
 Content-Type: text/plain
 Transfer-Encoding: chunked
 
-27
+29
 Voici les données du premier morceau
+
 1C
 et voici un second morceau
 0
