@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/05 15:48:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 18:05:21 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ void Client::handle_request()
 
 void	Client::send_answer()
 {
-	size_t msg_len = std::strlen(this->_response->getResponseMsg().c_str());
+	size_t msg_len = this->_response->getResponseMsg().size();
 	if (!msg_len)
 	{
 		_pfds[this->_index].events = POLLIN;

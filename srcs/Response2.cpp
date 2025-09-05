@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 15:31:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/05 18:01:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void Response::readFile()
 	if (file.fail())
 		return ((void)(std::cout << "500 Error -> 1\n"),setStatus("500"), setErrorPage());
 	os << file.rdbuf();
-	this->_responseBody = os.str() + CRLF;
+	this->_responseBody = os.str();;
 }
 
 void Response::getMethode()
