@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
+#    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/09/04 18:15:17 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/09/08 12:12:44 by jpiech           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,7 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Webserv2.cpp \
 	$(SRCS_DIR)/Server.cpp \
 	$(SRCS_DIR)/Server2.cpp \
+	$(SRCS_DIR)/Location.cpp \
 	$(SRCS_DIR)/Client.cpp \
 	$(SRCS_DIR)/Request.cpp \
 	$(SRCS_DIR)/Request2.cpp \
