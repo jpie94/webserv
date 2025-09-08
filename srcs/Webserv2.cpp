@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 18:16:46 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 14:39:37 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void Webserv::runWebserv()
 {
 	int status;
 	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
-		it->second->printconfig();
+			it->second->printconfig();
 	while (1)
 	{
 		for (nfds_t j = 0; j < _pfds.size(); ++j)

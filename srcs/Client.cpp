@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/05 18:05:21 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 17:10:25 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(), _count(), _recieved(), _request(), _response()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response()
 {
 	this->_timeout = std::time(0);
 }
@@ -29,8 +29,8 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_server_fd = rhs._server_fd;
 		this->_config = rhs._config;
-		this->_locations = rhs._locations;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
 		this->_count = rhs._count;
@@ -44,6 +44,7 @@ Client &Client::operator=(Client const &rhs)
 
 Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response()
 {
+	this->_server_fd = this->_fd;
 	this->_fd = fd;
 	this->_index = index;
 	this->_timeout = std::time(0);

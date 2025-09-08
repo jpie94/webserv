@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 17:14:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 17:18:53 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "Location.hpp"
 
 void Request::parsRequest()
 {
@@ -178,6 +179,7 @@ void Request::resolvePath()
 	std::string finalPath, temPath = this->_path;
 	std::vector<std::string> suffix;
 	std::map<std::string, std::string>::iterator it = this->_config.find("root");
+	std::map<std::string, Location*> temploc = _servers[this->_server_fd]->getLocations();
 	if (it != this->_config.end())
 		_ogRoot = it->second;
 	while (!temPath.empty())
@@ -191,11 +193,11 @@ void Request::resolvePath()
 		temPath += *suffix.rbegin();
 		finalPath += *suffix.rbegin();
 		suffix.pop_back();
-		std::map<std::string, std::map<std::string, std::string> >::iterator MapLoc = _locations.find(temPath);
-		if (MapLoc != _locations.end())
+		std::map<std::string, Location*>::iterator MapLoc = temploc.find(temPath);
+		if (MapLoc != temploc.end())
 	 	{
-			std::map<std::string, std::string> Location = MapLoc->second;
-	 		for (std::map<std::string, std::string>::iterator itLoc = Location.begin(); itLoc != Location.end(); itLoc++)
+			std::map<std::string, std::string> loc = MapLoc->second->getConfig();
+	 		for (std::map<std::string, std::string>::iterator itLoc = loc.begin(); itLoc != loc.end(); itLoc++)
 			{
 				if(itLoc->first == "root")
 				{

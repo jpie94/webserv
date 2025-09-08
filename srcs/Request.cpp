@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 13:46:21 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/08 17:10:58 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_server_fd = rhs._server_fd;
 		this->_ogRoot = rhs._ogRoot;
 		this->_config = rhs._config;
-		this->_locations = rhs._locations;
 		this->_headers = rhs._headers;
 		this->_body = rhs._body;
 		this->_methode = rhs._methode;
