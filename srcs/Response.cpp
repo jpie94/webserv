@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/04 18:11:14 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 17:11:23 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ Response &Response::operator=(const Response &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_server_fd = rhs._server_fd;
 		this->_response_msg = rhs._response_msg;
 		this->_fileName = rhs._fileName;
 		this->_responseBody = rhs._responseBody;

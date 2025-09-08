@@ -6,16 +6,15 @@ server
 	index index.html;
 	allowed_methods GET DELETE POST;
 	autoindex on;
-	cgi_ext .sh .py .php;
-	cgi_bins /bin/bash /usr/bin/python3 /bin/php8.1;
+	cgi .sh /bin/bash;
 	error_page 504 /uploads/post.html;
 	upload_folder /uploads;
 
 	location /tests
 	{
-		autoindex on;
-		cgi_ext .sh .py .php;
-		cgi_bins /bin/bash /usr/bin/python3 /bin/php8.1;
+		index on;
+		autoindex off;
+		cgi .php /bin/php8.1;
 		allowed_methods  GET POST;
 	}
 
