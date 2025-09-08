@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 18:01:53 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:01:09 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,10 @@ void Response::postMethode()
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	// std::cout << "this->_fileName= " << this->_fileName << std::endl;
 	// std::cout << "this->_path= " << this->_path << std::endl;
+	std::cout << "filename= " << this->_fileName << std::endl;
+	std::cout << "path= " << this->_path << std::endl;
 	if (!ofs.is_open() || ofs.fail())
-		return ((void)(std::cout << "500 Error -> 2\n"),setStatus("500"), setErrorPage());
+		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
 	ofs << this->_body;
 	// ofs.close();
 	setResponse();
@@ -132,12 +134,13 @@ void Response::deleteMethode()
 	setResponse();
 }
 
-void Response::autoIndex()
+void Response::autoIndex()//rework
 {
 	DIR *dir;
 	struct dirent *ent;
-	std::string index_page = "<!DOCTYPE html>\n<html>\n<head>\n<title>Page Title</title>\n</head>\n<body>\n\n<h1>Index of ";
-	index_page += this->_path + "</h1>";
+	std::string path, filename, index_page = "<!DOCTYPE html>\n<html>\n<head>\n<title>Page Title</title>\n</head>\n<body>\n\n<h1>Index of ";
+	path = this->_path.substr(_ogRoot.size() + 1);
+	index_page += path + "/" + "</h1>";
 
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{
@@ -145,8 +148,13 @@ void Response::autoIndex()
 		{
 			if (ent->d_name[0] == '.')
 				continue;
-			index_page += ent->d_name;
-			index_page += "<p>";
+			filename = ent->d_name;
+			index_page += "<a href=\"";
+			index_page += path + "/" + filename;
+			index_page += "\">";
+			index_page += filename;
+			index_page += "</a><br>\n";
+
 		}
 
 		index_page += "</p>\n</body>\n</html>\n";

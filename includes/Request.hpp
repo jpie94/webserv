@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/05 15:56:51 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 16:14:20 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "Client.hpp"
 #include <cstdlib>
 #include <dirent.h>
+#include <stdio.h>
 
 #define CRLFCRLF "\r\n\r\n"
 #define CRLF "\r\n"
@@ -63,6 +64,8 @@ class Request : public Client
 		void								setRecieved(std::string &);
 		void								addChunktoBody(std::string str);
 		void 								printURIConfig();
+		void								parsMultipart();
+		int									parsPart(std::string&, std::string&, std::string&);
 };
 
 #endif

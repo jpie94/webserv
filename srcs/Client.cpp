@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/05 18:05:21 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/08 17:40:30 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int Client::clientRecv()
 	this->_timeout = std::time(0);
 	// std::cout << "count : " << this->_count << std::endl;
 	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	return (0);
 }
 
@@ -121,13 +121,13 @@ void Client::handle_request()
 		// std::cout << "protocol: " << this->_request->getProtocol() << std::endl;
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
+		std::map<std::string, std::string> headers = this->_request->getHeaders();
 		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
-		if (this->_request->getHeaders().find("CONTENT-LENGTH") != this->_request->getHeaders().end()
-			&& this->_request->getBody().size() < this->_request->getBodyLen())
+		if (headers.find("CONTENT-TYPE") != headers.end() && headers["CONTENT-TYPE"] == "multipart/fomr-data")
+			this->_request->parsMultipart();
+		if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
-		if (this->_request->getHeaders().find("TRANSFER-ENCODING") != this->_request->getHeaders().end()
-			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second != ""
-			&& this->_request->getHeaders().find("TRANSFER-ENCODING")->second == "chunked")
+		if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 			this->_request->parsChunkedBody();
 		// std::cout << this->_count << std::endl;
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
@@ -157,8 +157,7 @@ void	Client::send_answer()
 	if (this->_count == msg_len)
 	{
 		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
-			&& this->_request->getHeaders().find("CONNECTION")->second != ""
-			&& this->_request->getHeaders().find("CONNECTION")->second == "close")
+			&& this->_request->getHeaders()["CONNECTION"] == "close")
 		{
 			std::cout << "connection close ---> erase client...\n";
 			clearClient();
