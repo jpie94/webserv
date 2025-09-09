@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 18:06:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 12:54:28 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,10 @@ void Request::resolvePath()
 	 			else
 					this->_config[itLoc->first] = itLoc->second;
 			}
+			// if (!MapLoc->second->_cgi.empty())
+			// 	resolveCGIPath();
+			// if (!MapLoc->second->_error_pages.empty())
+			// 	resolveErrorPagePath();
 	 	}
 	}
 	finalPath = _ogRoot + finalPath;

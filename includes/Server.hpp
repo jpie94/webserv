@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 17:06:29 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 12:04:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ class Server : public Webserv
 		std::map<std::string, Location*>							_locations;	
 	protected:
 		std::map<std::string, std::string>							_config;
+		std::map<std::string, std::string>							_error_pages;
+		std::map<std::string, std::string>							_cgi;
 	public :
 		/* Canonical Form + Paramtric constructor */
 											Server();
@@ -37,6 +39,8 @@ class Server : public Webserv
 		std::string							GetConfigKey(std::string Config, size_t & i);
 		void								CheckDirective(std::string &key, bool mod);
 		std::string							GetConfigValue(std::string Config, size_t & i);
+		void								GetCGIConfig(std::string value);
+		void								GetErrorPageConfig(std::string value);
 		int									make_listening_socket();
 		void								add_client_to_pollfds();
 		/* Getters & setters*/
