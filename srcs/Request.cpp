@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 11:52:54 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 15:37:47 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,8 @@ size_t Request::getRequestLineLen() const
 
 void Request::setStatus(std::string const &str)
 {
-	this->_responseStatus = str;
+	if (!this->_responseStatus.empty() && this->_responseStatus == "200")
+		this->_responseStatus = str;
 }
 
 std::string	Request::getRecieved() const
