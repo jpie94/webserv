@@ -116,7 +116,7 @@ EOF
 
 
 
-POST /test.html HTTP/1.1
+POST /index.html HTTP/1.1
 Host: example.org
 Content-Type: multipart/form-data;boundary="boundary"
 

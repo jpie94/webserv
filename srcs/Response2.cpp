@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 17:23:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 17:49:33 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void Response::postMethode()
 	std::string status;
 	struct stat path_stat;
 
-	if (this->_body.empty())//check if useless
+	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
@@ -120,34 +120,28 @@ void Response::postMethode()
 	}
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
-	// std::cout << "this->_fileName= " << this->_fileName << std::endl;
-	// std::cout << "this->_path= " << this->_path << std::endl;
-	std::cout << "filename= " << this->_fileName << std::endl;
-	std::cout << "path= " << this->_path << std::endl;
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
 	ofs << this->_body;
-	// ofs.close();
 	setResponse();
 }
 
 void Response::deleteMethode()
 {
 	if (std::remove(this->_path.c_str()))
-	{
-		std::cout << "here it's forbiden\n";
 		return (setStatus("403"), setErrorPage());
-	}
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }
 
-void Response::autoIndex()//rework
+void Response::autoIndex()
 {
 	DIR *dir;
 	struct dirent *ent;
 	std::string path, filename, index_page = "<!DOCTYPE html>\n<html>\n<head>\n<title>Page Title</title>\n</head>\n<body>\n\n<h1>Index of ";
 	path = this->_path.substr(_ogRoot.size() + 1);
+	while (path[path.size() - 1] == '/')
+		path = path.substr(0, path.size() - 1);
 	index_page += path + "/" + "</h1>";
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{

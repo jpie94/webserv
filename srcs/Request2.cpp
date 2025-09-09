@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 15:46:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 19:31:54 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,6 @@ void Request::parsRequestLine(std::string &msg)
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
-	// std::cout << "_methode= " << this->_methode << std::endl;
-	// std::cout << "_path= " << this->_path << std::endl;
-	// std::cout << "_protocol= " << this->_protocol << std::endl;
 }
 
 void Request::parsHeaders(std::string &msg)
@@ -74,8 +71,6 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] += " " + value;
 		else
 			this->_headers[key] = value;
-		// std::cout << "key= " << key << std::endl;
-		// std::cout << "value= " << value << std::endl;
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
@@ -96,23 +91,17 @@ void Request::parsBody()
 		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
 	else
 		msg.clear();
-	// std::cout << "body1= " << msg << std::endl;
-	// std::cout << "status= " << this->_responseStatus << std::endl;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
-		// std::cout << "msg.size()= " << msg.size() << std::endl;
-		// std::cout << "body_len= " << this->_body_len << std::endl;
 		if (!msg.empty() && msg[msg.size() - 1] == '\n')
 			msg.erase(msg.size() - 1);
 		if (msg[!msg.empty() && msg.size() - 1] == '\r')
 			msg.erase(msg.size() - 1);
-		// std::cout << "body2= " << msg << std::endl;
 		this->_body = msg;
-		// std::cout << "body at the end of parsBody()= " << this->_body << std::endl;
 	}
 }
 
@@ -186,9 +175,10 @@ int	Request::parsPart(std::string& msg, std::string& bound, std::string& endboun
 		if (this->_headers.find(key) != this->_headers.end())
 			this->_headers[key] += " " + value;
 		else
-			this->_headers[key] = value;
+			this->_headers[key] = value;//try to get all the name= in Content-disposition
 		// std::cout << "key= " << key << std::endl;
 		// std::cout << "value= " << value << std::endl;
+		std::cout << "name= " << getName(value) << std::endl;//search all the "name=" in Content-disposition
 		std::getline(ss, line, '\n');
 	}
 	part = part.substr(count);

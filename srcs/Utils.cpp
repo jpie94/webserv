@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 12:47:39 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 19:32:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,4 +81,18 @@ void	removeQuotes(std::string& str)
 {
 	if ((str[0] == '\"' && str[str.size() - 1] == '\"') || (str[0] == '\'' && str[str.size() - 1] == '\''))
 		str = str.substr(1, str.size() - 2);
+}
+
+std::string	getName(std::string& str)
+{
+	size_t	pos = str.rfind("name=");
+	if (pos == std::string::npos)
+	{
+		str = "";
+		return ("");
+	}
+	std::string res = str.substr(pos + 6);
+	if (res[res.size() - 1] == '\'' || res[res.size() - 1] == '\"')
+		res = res.substr(0, res.size() - 1);
+	return (res);
 }

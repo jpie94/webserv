@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 15:30:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 17:52:16 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ int Client::clientRecv()
 	char buffer[4096];
 
 	std::memset(buffer, 0, sizeof(buffer));
-	// std::cout << _pfds[this->_index].fd <<std::endl;
 	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 4096, 0);
 	if (bytes_read < 0)
 	{
@@ -99,13 +98,9 @@ int Client::clientRecv()
 		this->erase_client();
 		return (1);
 	}
-	// std::cout << "index= " << this->_index << std::endl;
-	// std::cout << "byte read : " << bytes_read << std::endl;
 	this->_recieved += buffer;
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	// std::cout << "count : " << this->_count << std::endl;
-	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
 	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	return (0);
 }
@@ -121,18 +116,15 @@ void Client::handle_request()
 	this->_request->setRecieved(this->_recieved);
 	if (this->_recieved.size() && findCRLFCRLF(this->_recieved) != std::string::npos)
 	{
-		// std::cout << "protocol: " << this->_request->getProtocol() << std::endl;
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
 		std::map<std::string, std::string> headers = this->_request->getHeaders();
-		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
 		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 			this->_request->parsMultipart();
 		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 			this->_request->parsChunkedBody();
-		// std::cout << this->_count << std::endl;
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 			makeResponse();
 	}
@@ -156,7 +148,6 @@ void	Client::send_answer()
 		this->erase_client();
 	}
 	this->_count += sent;
-	// std::cout << "\ntaille message envoye: " << this->_count << '\n';
 	if (this->_count == msg_len)
 	{
 		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
