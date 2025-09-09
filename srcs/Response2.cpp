@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 11:29:04 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 17:23:16 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,11 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName = this->_fileName.substr(0, pos);
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
+	this->_path = _ogRoot;
+	if (this->_config.find("upload_folder") != this->_config.end())
+		this->_path += this->_config["upload_folder"];
+	if (this->_path[_path.size() - 1 ] != '/')
+		this->_path += "/";
 	this->_path += this->_fileName;
 }
 
@@ -103,6 +108,8 @@ void Response::postMethode()
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
+		if (this->_config.find("upload_folder") == this->_config.end())
+			return (setStatus("500"), setErrorPage());
 		setStatus("201");
 		this->_responseBody = "Resource succesfully created";
 	}
@@ -211,9 +218,12 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target(this->_ogRoot + "/error/" + this->_responseStatus + ".html");
+	std::string target;
+	if(this->_error_pages.find(this->_responseStatus) != this->_error_pages.end())
+		target = this->_ogRoot + this->_error_pages[_responseStatus];
+	else
+		target = this->_ogRoot + "/error/" + this->_responseStatus + ".html";
 	std::ifstream file(target.c_str());
-
 	if (file.fail())
 	{
 		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \

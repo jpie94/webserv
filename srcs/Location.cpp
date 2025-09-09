@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 17:07:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 12:46:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,11 @@ Location::Location(const Location &srcs)
 Location &Location::operator=(Location const &rhs)
 {
 	if (this != &rhs)
+	{
 		this->_config = rhs._config;
+		this->_error_pages = rhs._error_pages;
+		this->_cgi = rhs._cgi;
+	}	
 	return (*this);
 }
 Location::Location(std::string name) : Server(), _location_name(name) {}
@@ -46,7 +50,12 @@ void	Location::ExtractLocBloc(std::string & Config, size_t & it)
 		value = GetConfigValue(Config, i);
 		if(value.empty())
 			break;
-		this->_config[key] = value;
+		if(key == "error_page")
+			GetErrorPageConfig(value);
+		else if (key == "cgi")
+			GetCGIConfig(value);
+		else
+			this->_config[key] = value;
 	}
 	if(Config[i] && Config[i] == '}')
 		{

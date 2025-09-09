@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 15:23:10 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 15:46:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,10 @@ void Request::parsRequest()
 {
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
-	if (this->_responseStatus == "200")
-		resolvePath();
-	if (this->_responseStatus == "200")
-		parsHeaders(msg);
-	if (this->_responseStatus == "200")
-		checkRequest();
+	resolvePath();
+	this->printconfig();
+	parsHeaders(msg);
+	checkRequest();
 }
 
 void Request::parsRequestLine(std::string &msg)
@@ -272,13 +270,15 @@ void Request::resolvePath()
 	 			else
 					this->_config[itLoc->first] = itLoc->second;
 			}
+			if (!MapLoc->second->getCgi().empty())
+				this->_cgi = MapLoc->second->getCgi();
+			if (!MapLoc->second->getErrPage().empty())
+				this->_error_pages = MapLoc->second->getErrPage();
 	 	}
 	}
 	finalPath = _ogRoot + finalPath;
 	this->_path = finalPath;
 }
-
-
 // void	Request::addChunktoBody(std::string str)
 // {
 // 	std::ifstream::pos_type size;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 17:10:58 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 15:37:47 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,11 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_config = rhs._config;
+		this->_error_pages = rhs._error_pages;
+		this->_cgi = rhs._cgi;
 		this->_server_fd = rhs._server_fd;
 		this->_ogRoot = rhs._ogRoot;
-		this->_config = rhs._config;
 		this->_headers = rhs._headers;
 		this->_body = rhs._body;
 		this->_methode = rhs._methode;
@@ -91,7 +93,8 @@ size_t Request::getRequestLineLen() const
 
 void Request::setStatus(std::string const &str)
 {
-	this->_responseStatus = str;
+	if (!this->_responseStatus.empty() && this->_responseStatus == "200")
+		this->_responseStatus = str;
 }
 
 std::string	Request::getRecieved() const
