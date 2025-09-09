@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 17:06:17 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 13:58:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Server	&Server::operator=(Server const& rhs)
 	if (this != &rhs)
 	{
 		this->_config = rhs._config;
+		this->_error_pages = rhs._error_pages;
+		this->_cgi = rhs._cgi;
 		this->_fd = rhs._fd;
 		for(std::map<std::string, Location*>::const_iterator it = rhs._locations.begin(); it != rhs._locations.end(); it++)
 			this->_locations[it->first] = new Location(*it->second);
@@ -97,12 +99,36 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 		value = GetConfigValue(Config, i);
 		if (value.empty())
 			break;
-		this->_config[key] = value;
+		if(key == "error_page")
+			GetErrorPageConfig(value);
+		else if (key == "cgi")
+			GetCGIConfig(value);
+		else
+			this->_config[key] = value;
 	}
 	if (Config[i] && Config[i] == '}')
 		Config.erase(it, (i - it + 1));		
 	else
 			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
+}
+
+void	Server::GetCGIConfig(std::string value)
+{
+	std::string extension, path, check;
+	std::istringstream ss(value);
+	ss >> extension >> path >> check;
+	if (!check.empty())
+		throw_error(std::string("Error in configuration file : wrong cgi directive (" + extension + ")").c_str());
+	this->_cgi[extension] = path;
+}
+void	Server::GetErrorPageConfig(std::string value)
+{
+	std::string code, uri, check;
+	std::istringstream ss(value);
+	ss >> code >> uri >> check;
+	if (!check.empty())
+		throw_error(std::string("Error in configuration file : wrong error_page directive (" + code + ")").c_str());
+	this->_error_pages[code] = uri;
 }
 
 void	Server::CheckBeforeBracket(std::string Config, size_t & i)
@@ -194,6 +220,16 @@ std::map<std::string, Location*>	Server::getLocations()
 	return(this->_locations);
 }
 
+std::map<std::string, std::string>	Server::getCgi()
+{
+	return(this->_cgi);
+}
+
+std::map<std::string, std::string>	Server::getErrPage()
+{
+	return(this->_error_pages);
+}
+
 void	Server::setPort(std::string port)
 {
 	this->_config["listen"] = port;
@@ -209,12 +245,28 @@ void	Server::printconfig()
 	std::cout << BOLD << CYAN << "***************CONFIGURATION FOR SERVER  FD " << this->_fd << "**************"<< RESET << std::endl;
 	for (std::map<std::string, std::string>::iterator pconf = this->_config.begin(); pconf != _config.end(); pconf++)
 		std::cout << BOLD << pconf->first << RESET << " " << GREEN << pconf->second << RESET <<std::endl;
+	if(!this->_error_pages.empty())
+		std::cout << BOLD << RED << "______ERROR CONFIGURATION :"<< RESET << std::endl;
+	for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); it++)
+		std::cout << RED << "______Error : " << RED << it->first << " " << it->second << RESET  << std::endl;
+	if(!this->_cgi.empty())
+		std::cout << BOLD << PURPLE << "______CGI CONFIGURATION :"<< RESET << std::endl;
+	for (std::map<std::string, std::string>::iterator it = _cgi.begin(); it != _cgi.end(); it++)
+		std::cout << PURPLE << "______CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	if(!this->_locations.empty())
 		std::cout << BOLD << CYAN << "***************LOCATIONS**************"<< RESET << std::endl;
 	for (std::map<std::string, Location *>::iterator ploc = _locations.begin(); ploc != _locations.end(); ploc++)
 	{
-		std::cout << "______LOCATION NAME : " << BOLD << YELLOW << ploc->first << RESET << std::endl;
+		std::cout << BOLD << YELLOW << "______LOCATION NAME : " << BOLD << YELLOW << ploc->first << RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator locconf = ploc->second->_config.begin(); locconf != ploc->second->_config.end(); locconf++)
 		std::cout << BOLD << locconf->first << RESET << " " << GREEN << locconf->second << RESET << std::endl;	
+		if(!ploc->second->_error_pages.empty())
+			std::cout << BOLD << RED << "____________ERROR CONFIGURATION :"<< RESET << std::endl;
+		for (std::map<std::string, std::string>::iterator it = ploc->second->_error_pages.begin(); it != ploc->second->_error_pages.end(); it++)
+			std::cout << RED << "____________Error : " << RED << it->first << " " << it->second << RESET   << std::endl;
+		if(!ploc->second->_cgi.empty())
+			std::cout << BOLD << PURPLE << "____________CGI CONFIGURATION:"<< RESET << std::endl;
+		for (std::map<std::string, std::string>::iterator it = ploc->second->_cgi.begin(); it != ploc->second->_cgi.end(); it++)
+			std::cout <<PURPLE << "____________CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	}
 }

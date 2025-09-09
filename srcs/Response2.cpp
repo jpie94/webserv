@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 11:29:04 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 15:08:53 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName = this->_fileName.substr(0, pos);
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
+	this->_path = this->_config["upload_folder"];
+	if (this->_path[_path.size() - 1 ] != '/')
+		this->_path += '/';
 	this->_path += this->_fileName;
 }
 
@@ -50,7 +53,7 @@ int Response::HandlePath()
 	int			status;
 	std::memset(&path_stat, 0, sizeof(path_stat));
 	status = stat(this->_path.c_str(), &path_stat);
-	if (status && this->_methode.compare("POST"))
+	if ((status && this->_methode.compare("POST")) || (status && !this->_methode.compare("POST") && this->_config.find("upload_folder") == this->_config.end()))
 		return (setStatus("404"), 0);
 	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
@@ -211,9 +214,12 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target(this->_ogRoot + "/error/" + this->_responseStatus + ".html");
+	std::string target;
+	if(this->_error_pages.find(this->_responseStatus) != this->_error_pages.end())
+		target = this->_ogRoot + this->_error_pages[_responseStatus];
+	else
+		target = this->_ogRoot + "/error/" + this->_responseStatus + ".html";
 	std::ifstream file(target.c_str());
-
 	if (file.fail())
 	{
 		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \

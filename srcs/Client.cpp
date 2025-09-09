@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 18:06:37 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 11:52:14 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,10 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
-		this->_server_fd = rhs._server_fd;
 		this->_config = rhs._config;
+		this->_error_pages = rhs._error_pages;
+		this->_cgi = rhs._cgi;
+		this->_server_fd = rhs._server_fd;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
 		this->_count = rhs._count;

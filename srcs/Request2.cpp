@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 18:06:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 13:54:41 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ void Request::parsRequest()
 	parsRequestLine(msg);
 	if (this->_responseStatus == "200")
 		resolvePath();
+	this->printconfig();
 	if (this->_responseStatus == "200")
 		parsHeaders(msg);
 	if (this->_responseStatus == "200")
@@ -269,13 +270,15 @@ void Request::resolvePath()
 	 			else
 					this->_config[itLoc->first] = itLoc->second;
 			}
+			if (!MapLoc->second->getCgi().empty())
+				this->_cgi = MapLoc->second->getCgi();
+			if (!MapLoc->second->getErrPage().empty())
+				this->_error_pages = MapLoc->second->getErrPage();
 	 	}
 	}
 	finalPath = _ogRoot + finalPath;
 	this->_path = finalPath;
 }
-
-
 // void	Request::addChunktoBody(std::string str)
 // {
 // 	std::ifstream::pos_type size;
