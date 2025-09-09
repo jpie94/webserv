@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 18:06:37 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 12:28:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ int Client::clientRecv()
 	this->_timeout = std::time(0);
 	// std::cout << "count : " << this->_count << std::endl;
 	// std::cout << "\ntaille message recu: " << this->_recieved.size() << '\n';
-	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	return (0);
 }
 
@@ -124,8 +124,11 @@ void Client::handle_request()
 			this->_request->parsRequest();
 		std::map<std::string, std::string> headers = this->_request->getHeaders();
 		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
-		if (headers.find("CONTENT-TYPE") != headers.end() && headers["CONTENT-TYPE"] == "multipart/fomr-data")
+		if (headers.find("CONTENT-TYPE") != headers.end() && headers["CONTENT-TYPE"] == "multipart/form-data")
+		{
+			std::cout << "Multipart go!\n";
 			this->_request->parsMultipart();
+		}
 		if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
