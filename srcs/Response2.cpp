@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 18:01:09 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 11:29:04 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,12 @@ int	Response::expandPath(struct stat path_stat)
 		return (this->autoIndex(), 1);
 	if (this->_methode == "GET")
 	{
-		std::string str(this->_path + "index.html");
+		std::string str(this->_path + this->_config["index"]);
 		std::ifstream ifs(str.c_str());
 		if (ifs.fail())
 			return (setStatus("404"), 0);
-		this->_path += "index.html";
+		this->_path += this->_config["index"];
+		this->_fileName = this->_config["index"];
 	}
 	if (this->_methode == "POST")
 		generateFileName(path_stat);
@@ -141,7 +142,6 @@ void Response::autoIndex()//rework
 	std::string path, filename, index_page = "<!DOCTYPE html>\n<html>\n<head>\n<title>Page Title</title>\n</head>\n<body>\n\n<h1>Index of ";
 	path = this->_path.substr(_ogRoot.size() + 1);
 	index_page += path + "/" + "</h1>";
-
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
