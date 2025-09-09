@@ -16,7 +16,7 @@ telnet localhost **** ok -> if press 'enter' x2
 
 aksldjf /index.html HTTP/1.1
 Host: developer.mozilla.org
-Accept-Language: fr  --> --> infinit loop (strlen)
+Accept-Language: fr
 
 
 HEAD /index.html HTTP/1.1
@@ -72,12 +72,14 @@ Content-Length: 19
 
 hello post test
 
+
 POST / HTTP/1.1
 Host: Webserv
 Content-Type: text/plain
 Content-Length: 19
 
 hello post test
+
 
 POST /test.txt HTTP/1.1
 Host: Webserv

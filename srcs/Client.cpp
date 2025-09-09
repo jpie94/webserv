@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 12:28:32 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 15:21:55 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,14 +124,11 @@ void Client::handle_request()
 			this->_request->parsRequest();
 		std::map<std::string, std::string> headers = this->_request->getHeaders();
 		// std::cout << "bodySize= " << this->_request->getBody().size() << ", BodyLen= " << this->_request->getBodyLen() << std::endl;
-		if (headers.find("CONTENT-TYPE") != headers.end() && headers["CONTENT-TYPE"] == "multipart/form-data")
-		{
-			std::cout << "Multipart go!\n";
+		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 			this->_request->parsMultipart();
-		}
-		if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
+		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
-		if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
+		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 			this->_request->parsChunkedBody();
 		// std::cout << this->_count << std::endl;
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 17:11:55 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/09 12:47:39 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,5 +80,5 @@ void	trim_CRLF(std::string &str)
 void	removeQuotes(std::string& str)
 {
 	if ((str[0] == '\"' && str[str.size() - 1] == '\"') || (str[0] == '\'' && str[str.size() - 1] == '\''))
-		str = str.substr(1, str.size() - 1);
+		str = str.substr(1, str.size() - 2);
 }
