@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 17:18:53 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/08 18:06:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ void Request::parsRequestLine(std::string &msg)
 		return (setStatus("505"));
 	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
 		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
+	if (this->_path.size() >= 4000)
+		return (setStatus("414"));
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
@@ -59,9 +61,8 @@ void Request::parsHeaders(std::string &msg)
 	while (!line.empty())
 	{
 		count += line.size() + 1;
-		// if (line[line.size() - 1] == '\r')
-		// 	line.erase(line.size() - 1);
-		// std::cout << "1- line= " << line << std::endl;
+		if (count >= 4000)
+			setStatus("431");
 		line = trim_white_spaces(line);
 		if (line.empty())
 			break;
@@ -107,8 +108,6 @@ void Request::parsBody()
 				return ((void)setStatus("413"));
 		// std::cout << "msg.size()= " << msg.size() << std::endl;
 		// std::cout << "body_len= " << this->_body_len << std::endl;
-		if (msg.size() != this->_body_len)//check if content-length is suppose to count CRLF
-			return ((void)(std::cout << "400 Error -> 4\n"), setStatus("400"));
 		if (msg[msg.size() - 1] == '\n')
 			msg.erase(msg.size() - 1);
 		if (msg[msg.size() - 1] == '\r')
@@ -155,6 +154,67 @@ void	Request::parsChunkedBody()
 		if (parsChunk(msg))
 			break;
 	}
+}
+
+int	Request::parsPart(std::string& msg, std::string& bound, std::string& endbound)
+{
+	size_t pos, endpos, count = 0;
+	std::string part, line, key, value;
+	std::map<std::string, std::string> partHeaders;
+	pos = msg.find(bound);
+	endpos = msg.find(endbound);
+	if (endpos == std::string::npos || pos == endpos)	
+		return (1);
+	part = msg.substr(pos + bound.size());
+	msg = msg.substr(part.size() + bound.size());
+	pos = part.find(bound);
+	part = part.substr(0, pos);
+	std::cout << "part= " <<  part << std::endl;
+	std::cout << "msg= " << msg << std::endl;
+	std::istringstream ss(part);
+	std::getline(ss, line, '\n');
+	while (!line.empty() && line.find(':') != std::string::npos)
+	{
+		count += line.size() + 1;
+		line = trim_white_spaces(line);
+		if (line.empty())
+			break;
+		pos = line.find(':');
+		if (!line.empty() && pos == std::string::npos)
+			return (std::cout << "400 Error -> 9\n", setStatus("400"), 1);
+		key = trim_white_spaces(line.substr(0, pos));
+		strCapitalizer(key);
+		value = trim_white_spaces(line.substr(pos + 1));
+		if (this->_headers.find(key) != this->_headers.end())
+			this->_headers[key] += " " + value;
+		else
+			this->_headers[key] = value;
+		std::cout << "key= " << key << std::endl;
+		std::cout << "value= " << value << std::endl;
+		std::getline(ss, line, '\n');
+	}
+	part = part.substr(count);
+	std::cout << "bodypart= " << part << std::endl;
+	return (0);
+	
+}
+
+void	Request::parsMultipart()
+{
+	std::string	bound, endbound, msg(this->_recieved);
+	size_t pos = this->_headers["CONTENT-TYPE"].find("boundary=");
+
+	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
+	removeQuotes(bound);
+	bound = "--" + bound;
+	pos = findCRLFCRLF(msg);
+	if (pos != std::string::npos)
+		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
+	else
+		msg.clear();
+	while (pos!= std::string::npos)
+		if (parsPart(msg, bound, endbound))
+			return;
 }
 
 void Request::checkRequest()
