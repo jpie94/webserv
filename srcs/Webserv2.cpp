@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 14:39:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 13:54:51 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 void Webserv::runWebserv()
 {
 	int status;
-	for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
-			it->second->printconfig();
+	// for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
+	// 		it->second->printconfig();
 	while (1)
 	{
 		for (nfds_t j = 0; j < _pfds.size(); ++j)

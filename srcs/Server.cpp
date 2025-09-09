@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 12:52:33 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 13:58:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,16 @@ std::map<std::string, Location*>	Server::getLocations()
 	return(this->_locations);
 }
 
+std::map<std::string, std::string>	Server::getCgi()
+{
+	return(this->_cgi);
+}
+
+std::map<std::string, std::string>	Server::getErrPage()
+{
+	return(this->_error_pages);
+}
+
 void	Server::setPort(std::string port)
 {
 	this->_config["listen"] = port;
@@ -238,11 +248,11 @@ void	Server::printconfig()
 	if(!this->_error_pages.empty())
 		std::cout << BOLD << RED << "______ERROR CONFIGURATION :"<< RESET << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); it++)
-		std::cout << RED << "______Error : " << RED << it->first << ": " << it->second << RESET  << std::endl;
+		std::cout << RED << "______Error : " << RED << it->first << " " << it->second << RESET  << std::endl;
 	if(!this->_cgi.empty())
 		std::cout << BOLD << PURPLE << "______CGI CONFIGURATION :"<< RESET << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _cgi.begin(); it != _cgi.end(); it++)
-		std::cout << PURPLE << "______CGI : " << PURPLE << it->first << ": " << it->second << RESET  << std::endl;
+		std::cout << PURPLE << "______CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	if(!this->_locations.empty())
 		std::cout << BOLD << CYAN << "***************LOCATIONS**************"<< RESET << std::endl;
 	for (std::map<std::string, Location *>::iterator ploc = _locations.begin(); ploc != _locations.end(); ploc++)
@@ -253,10 +263,10 @@ void	Server::printconfig()
 		if(!ploc->second->_error_pages.empty())
 			std::cout << BOLD << RED << "____________ERROR CONFIGURATION :"<< RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = ploc->second->_error_pages.begin(); it != ploc->second->_error_pages.end(); it++)
-			std::cout << RED << "____________Error : " << RED << it->first << ": " << it->second << RESET   << std::endl;
+			std::cout << RED << "____________Error : " << RED << it->first << " " << it->second << RESET   << std::endl;
 		if(!ploc->second->_cgi.empty())
 			std::cout << BOLD << PURPLE << "____________CGI CONFIGURATION:"<< RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = ploc->second->_cgi.begin(); it != ploc->second->_cgi.end(); it++)
-			std::cout <<PURPLE << "____________CGI : " << PURPLE << it->first << ": " << it->second << RESET  << std::endl;
+			std::cout <<PURPLE << "____________CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	}
 }

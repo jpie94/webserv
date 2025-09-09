@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 11:29:04 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 14:12:25 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,9 +211,12 @@ void Response::callMethode()
 void Response::setErrorPage()
 {
 	std::ostringstream os;
-	std::string target(this->_ogRoot + "/error/" + this->_responseStatus + ".html");
+	std::string target;
+	if(this->_error_pages.find(this->_responseStatus) != this->_error_pages.end())
+		target = this->_ogRoot + this->_error_pages[_responseStatus];
+	else
+		target = this->_ogRoot + "/error/" + this->_responseStatus + ".html";
 	std::ifstream file(target.c_str());
-
 	if (file.fail())
 	{
 		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
