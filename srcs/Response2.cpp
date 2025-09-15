@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 15:08:53 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 17:49:33 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,11 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName = this->_fileName.substr(0, pos);
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
-	this->_path = this->_config["upload_folder"];
+	this->_path = _ogRoot;
+	if (this->_config.find("upload_folder") != this->_config.end())
+		this->_path += this->_config["upload_folder"];
 	if (this->_path[_path.size() - 1 ] != '/')
-		this->_path += '/';
+		this->_path += "/";
 	this->_path += this->_fileName;
 }
 
@@ -53,7 +55,7 @@ int Response::HandlePath()
 	int			status;
 	std::memset(&path_stat, 0, sizeof(path_stat));
 	status = stat(this->_path.c_str(), &path_stat);
-	if ((status && this->_methode.compare("POST")) || (status && !this->_methode.compare("POST") && this->_config.find("upload_folder") == this->_config.end()))
+	if (status && this->_methode.compare("POST"))
 		return (setStatus("404"), 0);
 	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
@@ -102,10 +104,12 @@ void Response::postMethode()
 	std::string status;
 	struct stat path_stat;
 
-	if (this->_body.empty())//check if useless
+	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
+		if (this->_config.find("upload_folder") == this->_config.end())
+			return (setStatus("500"), setErrorPage());
 		setStatus("201");
 		this->_responseBody = "Resource succesfully created";
 	}
@@ -116,34 +120,28 @@ void Response::postMethode()
 	}
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
-	// std::cout << "this->_fileName= " << this->_fileName << std::endl;
-	// std::cout << "this->_path= " << this->_path << std::endl;
-	std::cout << "filename= " << this->_fileName << std::endl;
-	std::cout << "path= " << this->_path << std::endl;
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
 	ofs << this->_body;
-	// ofs.close();
 	setResponse();
 }
 
 void Response::deleteMethode()
 {
 	if (std::remove(this->_path.c_str()))
-	{
-		std::cout << "here it's forbiden\n";
 		return (setStatus("403"), setErrorPage());
-	}
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }
 
-void Response::autoIndex()//rework
+void Response::autoIndex()
 {
 	DIR *dir;
 	struct dirent *ent;
 	std::string path, filename, index_page = "<!DOCTYPE html>\n<html>\n<head>\n<title>Page Title</title>\n</head>\n<body>\n\n<h1>Index of ";
 	path = this->_path.substr(_ogRoot.size() + 1);
+	while (path[path.size() - 1] == '/')
+		path = path.substr(0, path.size() - 1);
 	index_page += path + "/" + "</h1>";
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{

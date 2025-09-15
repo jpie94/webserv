@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 13:54:41 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/09 19:31:54 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,10 @@ void Request::parsRequest()
 {
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
-	if (this->_responseStatus == "200")
-		resolvePath();
+	resolvePath();
 	this->printconfig();
-	if (this->_responseStatus == "200")
-		parsHeaders(msg);
-	if (this->_responseStatus == "200")
-		checkRequest();
+	parsHeaders(msg);
+	checkRequest();
 }
 
 void Request::parsRequestLine(std::string &msg)
@@ -46,9 +43,6 @@ void Request::parsRequestLine(std::string &msg)
 	msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
-	// std::cout << "_methode= " << this->_methode << std::endl;
-	// std::cout << "_path= " << this->_path << std::endl;
-	// std::cout << "_protocol= " << this->_protocol << std::endl;
 }
 
 void Request::parsHeaders(std::string &msg)
@@ -77,8 +71,6 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] += " " + value;
 		else
 			this->_headers[key] = value;
-		// std::cout << "key= " << key << std::endl;
-		// std::cout << "value= " << value << std::endl;
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
@@ -99,23 +91,17 @@ void Request::parsBody()
 		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
 	else
 		msg.clear();
-	// std::cout << "body1= " << msg << std::endl;
-	// std::cout << "status= " << this->_responseStatus << std::endl;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
-		// std::cout << "msg.size()= " << msg.size() << std::endl;
-		// std::cout << "body_len= " << this->_body_len << std::endl;
-		if (msg[msg.size() - 1] == '\n')
+		if (!msg.empty() && msg[msg.size() - 1] == '\n')
 			msg.erase(msg.size() - 1);
-		if (msg[msg.size() - 1] == '\r')
+		if (msg[!msg.empty() && msg.size() - 1] == '\r')
 			msg.erase(msg.size() - 1);
-		// std::cout << "body2= " << msg << std::endl;
 		this->_body = msg;
-		// std::cout << "body at the end of parsBody()= " << this->_body << std::endl;
 	}
 }
 
@@ -167,11 +153,11 @@ int	Request::parsPart(std::string& msg, std::string& bound, std::string& endboun
 	if (endpos == std::string::npos || pos == endpos)	
 		return (1);
 	part = msg.substr(pos + bound.size());
-	msg = msg.substr(part.size() + bound.size());
 	pos = part.find(bound);
-	part = part.substr(0, pos);
-	std::cout << "part= " <<  part << std::endl;
-	std::cout << "msg= " << msg << std::endl;
+	part = part.substr(2, pos - 2);
+	msg = msg.substr(part.size() + bound.size());
+	// std::cout << "part= " <<  part << std::endl;
+	// std::cout << "msg= " << msg << std::endl;
 	std::istringstream ss(part);
 	std::getline(ss, line, '\n');
 	while (!line.empty() && line.find(':') != std::string::npos)
@@ -189,13 +175,15 @@ int	Request::parsPart(std::string& msg, std::string& bound, std::string& endboun
 		if (this->_headers.find(key) != this->_headers.end())
 			this->_headers[key] += " " + value;
 		else
-			this->_headers[key] = value;
-		std::cout << "key= " << key << std::endl;
-		std::cout << "value= " << value << std::endl;
+			this->_headers[key] = value;//try to get all the name= in Content-disposition
+		// std::cout << "key= " << key << std::endl;
+		// std::cout << "value= " << value << std::endl;
+		std::cout << "name= " << getName(value) << std::endl;//search all the "name=" in Content-disposition
 		std::getline(ss, line, '\n');
 	}
 	part = part.substr(count);
-	std::cout << "bodypart= " << part << std::endl;
+	part = trim_white_spaces(part);
+	// std::cout << "bodypart= " << part << std::endl;
 	return (0);
 	
 }
@@ -208,11 +196,13 @@ void	Request::parsMultipart()
 	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
 	removeQuotes(bound);
 	bound = "--" + bound;
+	endbound = bound + "--";
 	pos = findCRLFCRLF(msg);
 	if (pos != std::string::npos)
 		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
 	else
 		msg.clear();
+	std::cout << "msg1= " << msg << std::endl;
 	while (pos!= std::string::npos)
 		if (parsPart(msg, bound, endbound))
 			return;
