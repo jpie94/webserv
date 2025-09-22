@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/22 08:47:03 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/22 10:03:05 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI()
 {
 	this->_timeout = std::time(0);
 }
@@ -45,13 +45,13 @@ Client &Client::operator=(Client const &rhs)
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
 	this->_index = index;
 	this->_timeout = std::time(0);
-	printconfig();
+	// printconfig();
 }
 
 Client::~Client() {}
@@ -74,12 +74,12 @@ int	Client::checkTimeout()
 void	Client::makeResponse()
 {
 	this->_response = new Response(*this->_request);
-	if (this->_CGI)
-	{
-		std::ofstream test (this->_CGI->get_FD_Out());
-		std::ifstream lol(this->_CGI->get_FD_Out());
-	}
-		this->_response->respon = std::string
+	// if (this->_CGI)
+	// {
+	// 	std::ofstream test (this->_CGI->get_FD_Out());
+	// 	std::ifstream lol(this->_CGI->get_FD_Out());
+	// }
+	// 	this->_response->respon = std::string
 	//construire la reponse a partir du CGI, mettre directement le resultat dans la reponse
 	
 	this->_response->callMethode();
@@ -134,10 +134,13 @@ void Client::handle_request()
 			{
 				try
 				{
+					std::cout << "OUI" << std::endl;
 					this->_CGI = new CGI(*this->_request);
+					std::cout << "RE OUI" << std::endl;
 				}
 				catch (std::exception &e)
 				{
+					std::cout << e.what() << std::endl;
 					return(this->_request->setStatus("500"), makeResponse());
 				}
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
@@ -156,7 +159,7 @@ void Client::handle_request()
 			}
 			if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 			{
-				if (this->_CGI == NULL)
+				if (this->_request->getCGI() == false)
 					makeResponse();
 				else
 					close(this->_CGI->get_FD_In());

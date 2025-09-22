@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/18 15:41:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/22 15:25:46 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ CGI &CGI::operator=(const CGI &rhs)
 {
 	if (this != &rhs)
 	{
-		for (int i = 0; i < 18; i++)
-			this->_varEnv[i] = rhs._varEnv[i];
+		this->_varEnv = rhs._varEnv;
 		this->_In = rhs._In;
 		this->_Out = rhs._Out;
 		this->_PID = rhs._PID;
@@ -39,8 +38,12 @@ CGI &CGI::operator=(const CGI &rhs)
 CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
-	newProcess();
-		//new pipe dabord, fork ensuite, puis dup2 dans l enfant;
+	int i = 0;
+	while (this->_varEnv[i])
+	{
+		std::cout << this->_varEnv[i] <<std::endl;
+		i++;
+	}
 }
 
 CGI::~CGI() {}
@@ -49,24 +52,51 @@ CGI::~CGI() {}
 
 void	CGI::fillVarEnv()
 {
-	this->_varEnv[0] = "AUTH_TYPE =";
-	this->_varEnv[1] = const_cast<char *> (std::string("CONTENT_LENGTH = " + this->_headers["CONTENT_LENGTH"]).c_str());
-	this->_varEnv[2] = const_cast<char *> (std::string("CONTENT_TYPE = " + this->_headers["CONTENT_TYPE"]).c_str());
-	this->_varEnv[3] = const_cast<char *> (std::string("GATEWAY_INTERFACE = CGI/1.1").c_str());
-	this->_varEnv[4] = const_cast<char *> (std::string("PATH_INFO = " + this->_path.substr(this->_path.rfind("/"))).c_str());
-	this->_varEnv[5] = const_cast<char *> (std::string("PATH_TRANSLATED = " + _ogRoot + this->_path.substr(this->_path.rfind("/"))).c_str());
-	this->_varEnv[6] = const_cast<char *> (std::string("QUERY_STRING = " + this->_path.substr(this->_path.rfind("?"))).c_str());
-	this->_varEnv[7] = const_cast<char *> (std::string("REMOTE_ADDR = " + this->_headers["REMOTE_ADDR"]).c_str());
-	this->_varEnv[8] = const_cast<char *> (std::string("REMOTE_HOST = " + this->_headers["REMOTE_HOST"]).c_str());
-	this->_varEnv[9] = const_cast<char *> (std::string("REMOTE_IDENT = " + this->_headers["REMOTE_IDENT"]).c_str());
-	this->_varEnv[10] = const_cast<char *> (std::string("REMOTE_USER = " + this->_headers["REMOTE_USER"]).c_str());
-	this->_varEnv[11] = const_cast<char *> (std::string("REQUEST_METHOD = " + this->_methode).c_str());
-	this->_varEnv[12] = const_cast<char *> (std::string("SCRIPT_NAME = " + this->_path).c_str());
-	this->_varEnv[13] = const_cast<char *> (std::string("SERVER_NAME = " + this->_config["server_name"]).c_str());
-	this->_varEnv[14] = const_cast<char *> (std::string("SERVER_PORT = " + this->_config["listen"]).c_str());
-	this->_varEnv[15] = const_cast<char *> (std::string("SERVER_PROTOCOL = " + this->_protocol).c_str());
-	this->_varEnv[16] = "webserv";
-	this->_varEnv[17] = NULL;
+	std::vector<std::string> tempEnv;
+	tempEnv.push_back("AUTH_TYPE=");
+	tempEnv.push_back("CONTENT_LENGTH=" + this->_headers["CONTENT-LENGTH"]);
+	tempEnv.push_back("CONTENT_TYPE=" + this->_headers["CONTENT-TYPE"]);
+	tempEnv.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	std::cout << tempEnv.back() << std::endl;
+	tempEnv.push_back("PATH_INFO =" + this->getPathInfo());
+	tempEnv.push_back("PATH_TRANSLATED=" + _ogRoot + this->getPathInfo());
+	tempEnv.push_back("QUERY_STRING=" + this->getQuerryString());
+	tempEnv.push_back("REMOTE_ADDR=" + this->_config["server_name"]); // j arrive pas a recuperer l ip a partir de la socket, j ai besoin de inet_ntop et cest pas une fonction autorisee
+	tempEnv.push_back("REMOTE_HOST="); // je peux pas le recuperer donc toujours set a null
+	tempEnv.push_back("REMOTE_IDENT="); //Depend du AUTH_TYPE, pas gere pas notre serveur
+	tempEnv.push_back("REMOTE_USER="); //Depend du AUTH_TYPE, pas gere pas notre serveur
+	tempEnv.push_back("REQUEST_METHOD=" + this->_methode); 
+	tempEnv.push_back("SCRIPT_NAME=" + this->_path);
+	tempEnv.push_back("SERVER_NAME=" + this->_config["server_name"]);
+	tempEnv.push_back("SERVER_PORT=" + this->_config["listen"]);
+	tempEnv.push_back("SERVER_PROTOCOL= " + this->_protocol);
+	tempEnv.push_back("SERVER_SOFTWARE=webserv");
+	this->_varEnv = new char*[tempEnv.size() + 1];
+	for(size_t i = 0; i < tempEnv.size(); i ++)
+	{
+		this->_varEnv[i] = new char[tempEnv[i].length() + 1];
+		std::memcpy(this->_varEnv[i], tempEnv[i].c_str(), tempEnv[i].length() + 1);
+	}
+	this->_varEnv[tempEnv.size()] = NULL;	
+}
+
+std::string CGI::getPathInfo()
+{
+	std::string pInfo;
+	pInfo = this->_path;
+	size_t pos = pInfo.find(this->_filename);
+	filename = temp.substr(pos + 1, this->_path.size() - pos - 1);
+}
+
+std::string CGI::getQuerryString()
+{
+	std::string qString;
+	size_t pos = this->_path.rfind("?");
+	if (pos != std::string::npos)
+		qString = this->_path.substr(pos + 1);
+	else
+		qString = "";
+	return(qString);
 }
 
 void	CGI::newProcess()
@@ -75,8 +105,7 @@ void	CGI::newProcess()
 	int CtoP[2];
 	pipe(PtoC);
 	pipe(CtoP);
-	int pid = fork(); // renvoie le PID de l enfant qu il vient de creer 
-	//stocker le PID du process enfant 
+	int pid = fork();
 	this->_In = PtoC[1];
 	this->_Out = CtoP[0];
 	this->_PID = pid;
