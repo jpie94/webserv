@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 17:52:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/22 08:47:03 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Response.hpp"
+#include "CGI.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
@@ -73,6 +74,14 @@ int	Client::checkTimeout()
 void	Client::makeResponse()
 {
 	this->_response = new Response(*this->_request);
+	if (this->_CGI)
+	{
+		std::ofstream test (this->_CGI->get_FD_Out());
+		std::ifstream lol(this->_CGI->get_FD_Out());
+	}
+		this->_response->respon = std::string
+	//construire la reponse a partir du CGI, mettre directement le resultat dans la reponse
+	
 	this->_response->callMethode();
 	_pfds[this->_index].events = POLLOUT;
 	this->_count = 0;
@@ -84,6 +93,7 @@ int Client::clientRecv()
 
 	std::memset(buffer, 0, sizeof(buffer));
 	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 4096, 0);
+	this->_buff = buffer;
 	if (bytes_read < 0)
 	{
 		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
@@ -118,16 +128,40 @@ void Client::handle_request()
 	{
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
-		std::map<std::string, std::string> headers = this->_request->getHeaders();
-		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
-			this->_request->parsMultipart();
-		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
-			this->_request->parsBody();
-		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-			this->_request->parsChunkedBody();
-		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
-			makeResponse();
-	}
+		if (this->_request->getCGI() == true)
+		{
+			if (this->_CGI == NULL)
+			{
+				try
+				{
+					this->_CGI = new CGI(*this->_request);
+				}
+				catch (std::exception &e)
+				{
+					return(this->_request->setStatus("500"), makeResponse());
+				}
+				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
+			}
+			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+		} 
+		else 
+		{
+			std::map<std::string, std::string> headers = this->_request->getHeaders();
+			if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
+				this->_request->parsMultipart();
+			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
+				this->_request->parsBody();
+			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
+				this->_request->parsChunkedBody();
+			}
+			if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+			{
+				if (this->_CGI == NULL)
+					makeResponse();
+				else
+					close(this->_CGI->get_FD_In());
+			}
+		}
 }
 
 void	Client::send_answer()

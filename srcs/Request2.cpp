@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 19:31:54 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/17 12:27:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void Request::parsRequest()
 	this->printconfig();
 	parsHeaders(msg);
 	checkRequest();
+	check_cgi();
 }
 
 void Request::parsRequestLine(std::string &msg)
@@ -87,19 +88,19 @@ void Request::parsBody()
 
 	size_t pos = findCRLFCRLF(msg);
 
-	if (pos != std::string::npos)
+	if (pos != std::string::npos) // Du coup on a deja pos, on pourrait eviter de refaire un find et juste ecrire pos + 4
 		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
 	else
-		msg.clear();
+		msg.clear();	
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
-		if (!msg.empty() && msg[msg.size() - 1] == '\n')
+		if (!msg.empty() && msg[msg.size() - 1] == '\n') // Je comprends pas pk le /R/N est supprime ici
 			msg.erase(msg.size() - 1);
-		if (msg[!msg.empty() && msg.size() - 1] == '\r')
+		if (msg[!msg.empty() && msg.size() - 1] == '\r')// C est chelou le corchet la
 			msg.erase(msg.size() - 1);
 		this->_body = msg;
 	}
@@ -288,4 +289,27 @@ void 	Request::printURIConfig()
 	std::cout << "REQUESTED URI CONFIG = " << this->_path << std::endl; 
 	for (std::map<std::string, std::string>::iterator it = _config.begin(); it != _config.end(); it++)
 		std::cout << it->first << " " << it->second << std::endl;
+}
+
+void	Request::check_cgi()
+{
+	std::string filename, extension, temp;
+	temp = this->_path;
+	size_t pos = temp.rfind("?");
+	if (pos != std::string::npos)
+		temp = temp.substr(0, pos);
+	pos = temp.rfind("/");
+	if (pos != std::string::npos)
+		filename = temp.substr(pos + 1, this->_path.size() - pos - 1);
+	pos = filename.rfind(".");
+	if (pos != std::string::npos)
+		extension = filename.substr(pos, filename.size() - pos);
+	std::map<std::string, std::string>::iterator it = this->_cgi.find(extension);
+	if (it != this->_cgi.end())
+	{
+		this->_isCGI = true;
+		this->_CGIinterpret = it->second;
+	}
+	else 
+		this->_isCGI = false;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 13:54:51 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/18 10:59:49 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void Webserv::runWebserv()
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
 			if (_pfds[j].fd && _clients[_pfds[j].fd] && _clients[_pfds[j].fd]->checkTimeout())
 				break;
+		//faire une boucle de waitpid et faire make response si c est fini 
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
 			throw_error("Error in runWebserv : polling failed !");

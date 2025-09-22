@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 15:37:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/17 12:30:03 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
 {
@@ -27,6 +27,8 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_isCGI = rhs._isCGI;
+		this->_CGIinterpret = rhs._CGIinterpret;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
 		this->_cgi = rhs._cgi;
@@ -45,7 +47,7 @@ Request &Request::operator=(const Request &rhs)
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGIinterpret() {}
 
 Request::~Request() {}
 
@@ -100,4 +102,9 @@ void Request::setStatus(std::string const &str)
 std::string	Request::getRecieved() const
 {
 	return (this->_recieved);
+}
+
+bool	Request::getCGI() const
+{
+	return (this->_isCGI);
 }
