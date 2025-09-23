@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 11:30:05 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/23 12:42:52 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	CGI::fillVarEnv()
 	tempEnv.push_back("SERVER_PORT=" + this->_config["listen"]);
 	tempEnv.push_back("SERVER_PROTOCOL= " + this->_protocol);
 	tempEnv.push_back("SERVER_SOFTWARE=webserv");
-	this->_varEnv = new char*[tempEnv.size() + 1];
+	this->_varEnv = new char*[tempEnv.size() + 1]; // On sait deja combien de variables on doit y mettre, on peut eviter un new en mettant [17]
 	for(size_t i = 0; i < tempEnv.size(); i ++)
 	{
 		this->_varEnv[i] = new char[tempEnv[i].length() + 1];
@@ -112,7 +112,7 @@ void	CGI::newProcess()
 void	CGI::executeCGI()
 {
 	char * args[2];
-	args[0] = const_cast<char *>(this->_path.c_str());
+	args[0] = const_cast<char *>(std::string(this->_CGI_bin_path + this->_CGI_script).c_str());
 	args[1] = NULL;
 	execve(this->_CGIinterpret.c_str(), args, this->_varEnv);
 }
