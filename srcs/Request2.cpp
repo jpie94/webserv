@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/17 12:27:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/23 11:20:30 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,22 +293,50 @@ void 	Request::printURIConfig()
 
 void	Request::check_cgi()
 {
-	std::string filename, extension, temp;
+	std::string temp, extension;
 	temp = this->_path;
-	size_t pos = temp.rfind("?");
+	size_t pos = temp.find(_ogRoot);
+	if (pos != std::string::npos)
+		temp = temp.substr(_ogRoot.size() + 1);
+	pos = temp.find("/");
 	if (pos != std::string::npos)
 		temp = temp.substr(0, pos);
-	pos = temp.rfind("/");
-	if (pos != std::string::npos)
-		filename = temp.substr(pos + 1, this->_path.size() - pos - 1);
-	pos = filename.rfind(".");
-	if (pos != std::string::npos)
-		extension = filename.substr(pos, filename.size() - pos);
-	std::map<std::string, std::string>::iterator it = this->_cgi.find(extension);
-	if (it != this->_cgi.end())
+	if (temp == "cgi-bin")
 	{
-		this->_isCGI = true;
-		this->_CGIinterpret = it->second;
+		this->_CGI_bin_path = _ogRoot + "/" + temp + "/";
+		temp = this->_path.substr(_CGI_bin_path.size());
+		pos = temp.find("/");
+		if (pos != std::string::npos)
+		{
+			this->_CGI_pathInfo = temp.substr(pos + 1);
+			this->_CGI_script = temp.substr(0, pos);
+			pos = _CGI_pathInfo.find("?");
+			if (pos != std::string::npos)
+			{
+				this->_CGI_querry = this-> _CGI_pathInfo.substr(pos + 1);
+				this->_CGI_pathInfo = this->_CGI_pathInfo.substr(0, pos);
+			}
+		}
+		else 
+		{
+			pos = temp.find("?");
+			if (pos != std::string::npos)
+			{
+				this->_CGI_querry = temp.substr(pos + 1);
+				this->_CGI_script= temp.substr(0, pos);
+			}
+		}
+		pos = this->_CGI_script.rfind(".");
+		if (pos != std::string::npos)
+			extension = this->_CGI_script.substr(pos, this->_CGI_script.size() - pos);
+		std::map<std::string, std::string>::iterator it = this->_cgi.find(extension);
+		if (it != this->_cgi.end())
+		{
+			this->_CGIinterpret = it->second;
+			this->_isCGI = true;
+		}
+		else
+			return (setStatus("500"));
 	}
 	else 
 		this->_isCGI = false;

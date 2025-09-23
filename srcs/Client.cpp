@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/22 10:03:05 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/23 10:02:13 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,9 +134,7 @@ void Client::handle_request()
 			{
 				try
 				{
-					std::cout << "OUI" << std::endl;
 					this->_CGI = new CGI(*this->_request);
-					std::cout << "RE OUI" << std::endl;
 				}
 				catch (std::exception &e)
 				{

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/22 15:25:46 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/23 11:30:05 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,16 +57,18 @@ void	CGI::fillVarEnv()
 	tempEnv.push_back("CONTENT_LENGTH=" + this->_headers["CONTENT-LENGTH"]);
 	tempEnv.push_back("CONTENT_TYPE=" + this->_headers["CONTENT-TYPE"]);
 	tempEnv.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	std::cout << tempEnv.back() << std::endl;
-	tempEnv.push_back("PATH_INFO =" + this->getPathInfo());
-	tempEnv.push_back("PATH_TRANSLATED=" + _ogRoot + this->getPathInfo());
-	tempEnv.push_back("QUERY_STRING=" + this->getQuerryString());
+	tempEnv.push_back("PATH_INFO=" + this->_CGI_pathInfo);
+	if(this->_CGI_pathInfo != "")
+		tempEnv.push_back("PATH_TRANSLATED=" + _ogRoot + "/" + this->_CGI_pathInfo);
+	else
+		tempEnv.push_back("PATH_TRANSLATED=");
+	tempEnv.push_back("QUERY_STRING=" + this->_CGI_querry);
 	tempEnv.push_back("REMOTE_ADDR=" + this->_config["server_name"]); // j arrive pas a recuperer l ip a partir de la socket, j ai besoin de inet_ntop et cest pas une fonction autorisee
 	tempEnv.push_back("REMOTE_HOST="); // je peux pas le recuperer donc toujours set a null
 	tempEnv.push_back("REMOTE_IDENT="); //Depend du AUTH_TYPE, pas gere pas notre serveur
 	tempEnv.push_back("REMOTE_USER="); //Depend du AUTH_TYPE, pas gere pas notre serveur
 	tempEnv.push_back("REQUEST_METHOD=" + this->_methode); 
-	tempEnv.push_back("SCRIPT_NAME=" + this->_path);
+	tempEnv.push_back("SCRIPT_NAME=" + this->_CGI_bin_path + this->_CGI_script);
 	tempEnv.push_back("SERVER_NAME=" + this->_config["server_name"]);
 	tempEnv.push_back("SERVER_PORT=" + this->_config["listen"]);
 	tempEnv.push_back("SERVER_PROTOCOL= " + this->_protocol);
@@ -78,25 +80,6 @@ void	CGI::fillVarEnv()
 		std::memcpy(this->_varEnv[i], tempEnv[i].c_str(), tempEnv[i].length() + 1);
 	}
 	this->_varEnv[tempEnv.size()] = NULL;	
-}
-
-std::string CGI::getPathInfo()
-{
-	std::string pInfo;
-	pInfo = this->_path;
-	size_t pos = pInfo.find(this->_filename);
-	filename = temp.substr(pos + 1, this->_path.size() - pos - 1);
-}
-
-std::string CGI::getQuerryString()
-{
-	std::string qString;
-	size_t pos = this->_path.rfind("?");
-	if (pos != std::string::npos)
-		qString = this->_path.substr(pos + 1);
-	else
-		qString = "";
-	return(qString);
 }
 
 void	CGI::newProcess()

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/17 12:30:03 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/23 11:29:00 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGIinterpret() {}
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
 {
@@ -28,6 +28,10 @@ Request &Request::operator=(const Request &rhs)
 	if (this != &rhs)
 	{
 		this->_isCGI = rhs._isCGI;
+		this->_CGI_bin_path = rhs._CGI_bin_path;
+		this->_CGI_script = rhs._CGI_script;
+		this->_CGI_pathInfo = rhs._CGI_pathInfo;
+		this->_CGI_querry = rhs._CGI_querry;
 		this->_CGIinterpret = rhs._CGIinterpret;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
@@ -47,7 +51,7 @@ Request &Request::operator=(const Request &rhs)
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGIinterpret() {}
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::~Request() {}
 
