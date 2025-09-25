@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 12:53:13 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 16:39:40 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_CGI = rhs._CGI;
 		this->_buff = rhs._buff;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 		this->_server_fd = rhs._server_fd;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
@@ -75,16 +76,11 @@ int	Client::checkTimeout()
 void	Client::makeResponse()
 {
 	this->_response = new Response(*this->_request);
-	// if (this->_CGI)
-	// {
-	// 	std::ofstream test (this->_CGI->get_FD_Out());
-	// 	std::ifstream lol(this->_CGI->get_FD_Out());
-	// }
-	// 	this->_response->respon = std::string
-	//construire la reponse a partir du CGI, mettre directement le resultat dans la reponse
-	
-	this->_response->callMethode();
-	_pfds[this->_index].events = POLLOUT;
+	if (!this->_CGI)
+		this->_response->callMethode();
+	else
+		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
+	_pfds[this->_index].events = POLLOUT;	
 	this->_count = 0;
 }
 
@@ -129,7 +125,7 @@ void Client::handle_request()
 	{
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
-		if (this->_request->getCGI() == true)
+		if (this->_request->get_isCGI() == true)
 		{
 			if (this->_CGI == NULL)
 			{
@@ -148,47 +144,66 @@ void Client::handle_request()
 			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 				this->_request->parsChunkedBody();
 			}
-			if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
-				makeResponse();
 		}
+		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+			makeResponse();
+}
+
+void	Client::getCGIoutput()
+{
+	char buffer[4096];
+	std::memset(buffer, 0, sizeof(buffer));
+	int i = read(this->_CGI->get_FD_Out(), buffer, 4096);
+	this->_CGIoutput += buffer;
+	if (i == 0)
+	{
+		this->_response->setResponseMsg(this->_CGIoutput);
+		this->_request->set_isCGIFalse();
+		std::cout << "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << std::endl;
+	}
 }
 
 void	Client::send_answer()
 {
-	size_t msg_len = this->_response->getResponseMsg().size();
-	if (!msg_len)
+	if (this->_request->get_isCGI() == true)
+		getCGIoutput();
+	else
 	{
-		_pfds[this->_index].events = POLLIN;
-		this->_count = 0;
-		this->_recieved.clear();
-		clearClient();
-		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
-	}
-	size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
-	if (sent < 0)
-	{
-		std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
-		this->erase_client();
-	}
-	this->_count += sent;
-	if (this->_count == msg_len)
-	{
-		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
-			&& this->_request->getHeaders()["CONNECTION"] == "close")
+		size_t msg_len = this->_response->getResponseMsg().size();
+		if (!msg_len)
 		{
-			std::cout << "connection close ---> erase client...\n";
-			clearClient();
-			this->erase_client();
-			return;
-		}
-		else
-		{
-			std::cout << this->_response->getResponseMsg() << std::endl;	
 			_pfds[this->_index].events = POLLIN;
 			this->_count = 0;
 			this->_recieved.clear();
 			clearClient();
-			this->_timeout = std::time(0);
+			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
+		}
+		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
+		if (sent < 0)
+		{
+			std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
+			this->erase_client();
+		}
+		this->_count += sent;
+		if (this->_count == msg_len)
+		{
+			if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
+				&& this->_request->getHeaders()["CONNECTION"] == "close")
+			{
+				std::cout << "connection close ---> erase client...\n";
+				clearClient();
+				this->erase_client();
+				return;
+			}
+			else
+			{
+				std::cout << this->_response->getResponseMsg() << std::endl;	
+				_pfds[this->_index].events = POLLIN;
+				this->_count = 0;
+				this->_recieved.clear();
+				clearClient();
+				this->_timeout = std::time(0);
+			}
 		}
 	}
 }
@@ -207,4 +222,9 @@ void Client::clearClient()
 		delete this->_CGI;
 		this->_CGI = 0;	
 	}
+}
+
+CGI*	Client::getCGI() const
+{
+	return(this->_CGI);
 }

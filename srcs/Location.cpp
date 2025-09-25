@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 12:46:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 15:30:02 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ Location &Location::operator=(Location const &rhs)
 	{
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 	}	
 	return (*this);
 }

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 11:14:53 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 16:31:55 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ Request &Request::operator=(const Request &rhs)
 		this->_CGIinterpret = rhs._CGIinterpret;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 		this->_server_fd = rhs._server_fd;
 		this->_ogRoot = rhs._ogRoot;
 		this->_headers = rhs._headers;
@@ -108,12 +108,18 @@ std::string	Request::getRecieved() const
 	return (this->_recieved);
 }
 
-bool	Request::getCGI() const
+bool	Request::get_isCGI() const
 {
 	return (this->_isCGI);
+}
+
+void	Request::set_isCGIFalse()
+{
+	this->_isCGI = false;
 }
 
 std::string	Request::getStatus() const
 {
 	return (this->_responseStatus);
 }
+

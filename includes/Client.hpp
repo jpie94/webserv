@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/18 15:45:54 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 14:44:14 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Client : public Server
 		size_t			_count;
 		std::string 	_recieved;
 		std::string 	_buff;
+		std::string 	_CGIoutput;
 		std::time_t		_timeout;
 		Request*		_request;
 		Response*		_response;
@@ -40,6 +41,8 @@ class Client : public Server
 						Client(const Client &);
 		Client			&operator=(const Client &);
 		virtual			~Client();
+		/* Getters */
+		CGI*			getCGI() const;
 		/* Member Functions */
 		void			send_answer();
 		void			handle_request();
@@ -47,6 +50,7 @@ class Client : public Server
 		void			clearClient();
 		void			makeResponse();
 		int				checkTimeout();
+		void			getCGIoutput();
 	//	std::time_t		getTimeout() const;
 };
 

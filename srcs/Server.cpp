@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 13:58:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 15:29:46 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ Server	&Server::operator=(Server const& rhs)
 	{
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 		this->_fd = rhs._fd;
 		for(std::map<std::string, Location*>::const_iterator it = rhs._locations.begin(); it != rhs._locations.end(); it++)
 			this->_locations[it->first] = new Location(*it->second);
@@ -119,7 +119,7 @@ void	Server::GetCGIConfig(std::string value)
 	ss >> extension >> path >> check;
 	if (!check.empty())
 		throw_error(std::string("Error in configuration file : wrong cgi directive (" + extension + ")").c_str());
-	this->_cgi[extension] = path;
+	this->_cgis[extension] = path;
 }
 void	Server::GetErrorPageConfig(std::string value)
 {
@@ -222,7 +222,7 @@ std::map<std::string, Location*>	Server::getLocations()
 
 std::map<std::string, std::string>	Server::getCgi()
 {
-	return(this->_cgi);
+	return(this->_cgis);
 }
 
 std::map<std::string, std::string>	Server::getErrPage()
@@ -249,9 +249,9 @@ void	Server::printconfig()
 		std::cout << BOLD << RED << "______ERROR CONFIGURATION :"<< RESET << std::endl;
 	for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); it++)
 		std::cout << RED << "______Error : " << RED << it->first << " " << it->second << RESET  << std::endl;
-	if(!this->_cgi.empty())
+	if(!this->_cgis.empty())
 		std::cout << BOLD << PURPLE << "______CGI CONFIGURATION :"<< RESET << std::endl;
-	for (std::map<std::string, std::string>::iterator it = _cgi.begin(); it != _cgi.end(); it++)
+	for (std::map<std::string, std::string>::iterator it = _cgis.begin(); it != _cgis.end(); it++)
 		std::cout << PURPLE << "______CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	if(!this->_locations.empty())
 		std::cout << BOLD << CYAN << "***************LOCATIONS**************"<< RESET << std::endl;
@@ -264,9 +264,9 @@ void	Server::printconfig()
 			std::cout << BOLD << RED << "____________ERROR CONFIGURATION :"<< RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = ploc->second->_error_pages.begin(); it != ploc->second->_error_pages.end(); it++)
 			std::cout << RED << "____________Error : " << RED << it->first << " " << it->second << RESET   << std::endl;
-		if(!ploc->second->_cgi.empty())
+		if(!ploc->second->_cgis.empty())
 			std::cout << BOLD << PURPLE << "____________CGI CONFIGURATION:"<< RESET << std::endl;
-		for (std::map<std::string, std::string>::iterator it = ploc->second->_cgi.begin(); it != ploc->second->_cgi.end(); it++)
+		for (std::map<std::string, std::string>::iterator it = ploc->second->_cgis.begin(); it != ploc->second->_cgis.end(); it++)
 			std::cout <<PURPLE << "____________CGI : " << PURPLE << it->first << " " << it->second << RESET  << std::endl;
 	}
 }

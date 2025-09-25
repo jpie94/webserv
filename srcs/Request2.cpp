@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 13:10:52 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 15:30:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,7 +262,7 @@ void Request::resolvePath()
 					this->_config[itLoc->first] = itLoc->second;
 			}
 			if (!MapLoc->second->getCgi().empty())
-				this->_cgi = MapLoc->second->getCgi();
+				this->_cgis = MapLoc->second->getCgi();
 			if (!MapLoc->second->getErrPage().empty())
 				this->_error_pages = MapLoc->second->getErrPage();
 	 	}
@@ -344,8 +344,8 @@ void	Request::checkCGIExt()
 	if (pos != std::string::npos)
 	{
 		std::string extension = this->_CGI_script.substr(pos, this->_CGI_script.size() - pos);
-		std::map<std::string, std::string>::iterator it = this->_cgi.find(extension);
-		if (it != this->_cgi.end())
+		std::map<std::string, std::string>::iterator it = this->_cgis.find(extension);
+		if (it != this->_cgis.end())
 		{
 			this->_CGIinterpret = it->second;
 			this->_isCGI = true;
