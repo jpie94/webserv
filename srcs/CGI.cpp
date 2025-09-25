@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 10:46:41 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 11:45:37 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,21 @@ CGI &CGI::operator=(const CGI &rhs)
 CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
-	// newProcess();
-	int i = 0;
-	while (this->_varEnv[i])
+	try
 	{
-		std::cout << this->_varEnv[i] <<std::endl;
-		i++;
+		newProcess();
 	}
+	catch (std::exception &e)
+	{
+		setStatus("500");
+		return ;
+	}
+	// int i = 0;
+	// while (this->_varEnv[i])
+	// {
+	// 	std::cout << this->_varEnv[i] <<std::endl;
+	// 	i++;
+	// }
 }
 
 CGI::~CGI() {}
@@ -87,58 +95,79 @@ void	CGI::newProcess()
 {
 	int PtoC[2];
 	int CtoP[2];
-	pipe(PtoC);
-	pipe(CtoP);
+	if (pipe(PtoC))
+		throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : pipe PtoC failed : ") + std::strerror(errno)).c_str());
+	if (pipe(CtoP))
+		throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : pipe CtoP failed : ") + std::strerror(errno)).c_str());
 	int pid = fork();
+	if (pid == -1)
+		throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : fork failed : ") + std::strerror(errno)).c_str());
 	this->_In = PtoC[1];
 	this->_Out = CtoP[0];
 	this->_PID = pid;
 	if (pid == 0)
 	{		
-		close(PtoC[1]);
-		close(CtoP[0]);
+		if (close(PtoC[1]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close PtoC[1] failed in child: ") + std::strerror(errno)).c_str());
+		if (close(CtoP[0]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close CtoP[0] failed in child: ") + std::strerror(errno)).c_str());
 		dup2(PtoC[0], STDIN_FILENO);
 		dup2(CtoP[1], STDOUT_FILENO);
-		close(PtoC[0]);
-		close(CtoP[1]);
+		if (close(PtoC[0]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close PtoC[1] failed in child: ") + std::strerror(errno)).c_str());
+		if (close(CtoP[1]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close CtoP[1] failed in child: ") + std::strerror(errno)).c_str());
 		executeCGI();
 	}
 	else
 	{
-		close(PtoC[0]);
-		close(CtoP[1]);
+		if (close(PtoC[0]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close PtoC[0] failed in parent: ") + std::strerror(errno)).c_str());
+		if (close(CtoP[1]) < 0)
+			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close CtoP[1] failed in parent: ") + std::strerror(errno)).c_str());
 	}
 }
 
 void	CGI::executeCGI()
 {
+	std::string script = this->_CGI_bin_path + this->_CGI_script;
 	char * args[2];
-	args[0] = const_cast<char *>(std::string(this->_CGI_bin_path + this->_CGI_script).c_str());
+	args[0] = new char[script.length() + 1];
+	std::memcpy(args[0], script.c_str(), script.length() + 1);
 	args[1] = NULL;
-	execve(this->_CGIinterpret.c_str(), args, this->_varEnv);
+	if(execve(this->_CGIinterpret.c_str(), args, this->_varEnv))
+	{
+		delete[] args[0];
+		exit(-1);
+	}
+	delete[] args[0];
 }
 /*****************	GETTERS		*******************/
 
-int CGI::get_FD_In ()
+int CGI::get_FD_In () const
 {
 	return(this->_In);	
 }
 
-int	CGI::get_FD_Out ()
+int	CGI::get_FD_Out () const
 {
 	return(this->_Out);	
 }
 
-int	CGI::get_PID ()
+int	CGI::get_PID () const
 {
 	return(this->_PID);	
 }
 
-void	CGI::clear_CGI()
+void	CGI::clear_CGI() const
 {
 	for(int i = 0; i < 18; i ++)
 	{
 		if(this->_varEnv[i] != NULL)
 			delete[] this->_varEnv[i];
 	}
+	if (close (this->_In) < 0)
+		throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _In failed : ") + std::strerror(errno)).c_str());
+	if (close (this->_Out) < 0)
+		throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _Out failed : ") + std::strerror(errno)).c_str());
 }

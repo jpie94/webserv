@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 10:46:49 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 11:35:09 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,10 @@ class CGI : public Request
 		void		newProcess();
 		void		executeCGI();
 		/* Getters & setters*/
-		int 		get_FD_In();
-		int 		get_FD_Out();
-		int 		get_PID();
-		void		clear_CGI();
+		int 		get_FD_In() const;
+		int 		get_FD_Out() const;
+		int 		get_PID() const;
+		void		clear_CGI() const;
 };
 
 #endif

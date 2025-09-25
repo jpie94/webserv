@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 13:08:10 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 11:15:12 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Request : public Client
 		size_t								getRequestLineLen() const;
 		std::string							getRecieved() const;
 		bool								getCGI() const;
+		std::string							getStatus() const;
 		/* Member Functions */
 		void								parsRequest();
 		void								parsRequestLine(std::string &);

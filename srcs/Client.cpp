@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 10:38:25 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 11:27:14 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,18 +132,12 @@ void Client::handle_request()
 		{
 			if (this->_CGI == NULL)
 			{
-				try
-				{
-					this->_CGI = new CGI(*this->_request);
-				}
-				catch (std::exception &e)
-				{
-					std::cout << e.what() << std::endl;
-					return(this->_request->setStatus("500"), makeResponse());
-				}
+				this->_CGI = new CGI(*this->_request);
+				if (this->_request->getStatus() == "500")
+					return(makeResponse());
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
 			}
-			// write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		} 
 		else 
 		{
@@ -156,12 +150,7 @@ void Client::handle_request()
 				this->_request->parsChunkedBody();
 			}
 			if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
-			{
-				if (this->_request->getCGI() == false)
-					makeResponse();
-				// else
-				// 	close(this->_CGI->get_FD_In());
-			}
+				makeResponse();
 		}
 }
 

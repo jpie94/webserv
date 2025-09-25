@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 11:29:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 11:14:53 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,4 +111,9 @@ std::string	Request::getRecieved() const
 bool	Request::getCGI() const
 {
 	return (this->_isCGI);
+}
+
+std::string	Request::getStatus() const
+{
+	return (this->_responseStatus);
 }
