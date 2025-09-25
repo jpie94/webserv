@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 12:42:52 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 10:46:41 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ CGI &CGI::operator=(const CGI &rhs)
 {
 	if (this != &rhs)
 	{
-		this->_varEnv = rhs._varEnv;
+		for(int i = 0; i < 18; i ++)
+			this->_varEnv[i] = rhs._varEnv[i];
 		this->_In = rhs._In;
 		this->_Out = rhs._Out;
 		this->_PID = rhs._PID;
@@ -38,6 +39,7 @@ CGI &CGI::operator=(const CGI &rhs)
 CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
+	// newProcess();
 	int i = 0;
 	while (this->_varEnv[i])
 	{
@@ -73,7 +75,6 @@ void	CGI::fillVarEnv()
 	tempEnv.push_back("SERVER_PORT=" + this->_config["listen"]);
 	tempEnv.push_back("SERVER_PROTOCOL= " + this->_protocol);
 	tempEnv.push_back("SERVER_SOFTWARE=webserv");
-	this->_varEnv = new char*[tempEnv.size() + 1]; // On sait deja combien de variables on doit y mettre, on peut eviter un new en mettant [17]
 	for(size_t i = 0; i < tempEnv.size(); i ++)
 	{
 		this->_varEnv[i] = new char[tempEnv[i].length() + 1];
@@ -123,12 +124,21 @@ int CGI::get_FD_In ()
 	return(this->_In);	
 }
 
-int CGI::get_FD_Out ()
+int	CGI::get_FD_Out ()
 {
 	return(this->_Out);	
 }
 
-int CGI::get_PID ()
+int	CGI::get_PID ()
 {
 	return(this->_PID);	
+}
+
+void	CGI::clear_CGI()
+{
+	for(int i = 0; i < 18; i ++)
+	{
+		if(this->_varEnv[i] != NULL)
+			delete[] this->_varEnv[i];
+	}
 }

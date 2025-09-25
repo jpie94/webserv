@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/23 10:02:13 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 10:38:25 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void Client::handle_request()
 				}
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
 			}
-			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+			// write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		} 
 		else 
 		{
@@ -159,8 +159,8 @@ void Client::handle_request()
 			{
 				if (this->_request->getCGI() == false)
 					makeResponse();
-				else
-					close(this->_CGI->get_FD_In());
+				// else
+				// 	close(this->_CGI->get_FD_In());
 			}
 		}
 }
@@ -213,4 +213,10 @@ void Client::clearClient()
 	if (this->_response)
 		delete this->_response;
 	this->_response = 0;
+	if (this->_CGI)
+	{
+		this->_CGI->clear_CGI();
+		delete this->_CGI;
+		this->_CGI = 0;	
+	}
 }

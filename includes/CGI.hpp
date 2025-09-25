@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/23 11:33:53 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 10:46:49 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 class CGI : public Request
 {
 	private:
-		char **			_varEnv;
+		char*			_varEnv[18];
 		int				_In;
 		int				_Out;
 		int				_PID;
@@ -40,9 +40,10 @@ class CGI : public Request
 		void		newProcess();
 		void		executeCGI();
 		/* Getters & setters*/
-		int 		get_FD_In ();
-		int 		get_FD_Out ();
-		int 		get_PID ();
+		int 		get_FD_In();
+		int 		get_FD_Out();
+		int 		get_PID();
+		void		clear_CGI();
 };
 
 #endif
