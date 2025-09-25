@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 11:27:14 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 12:31:41 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_buff = rhs._buff;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
 		this->_cgi = rhs._cgi;
