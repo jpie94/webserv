@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 11:45:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 12:52:50 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,7 @@ CGI &CGI::operator=(const CGI &rhs)
 CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
-	try
-	{
-		newProcess();
-	}
-	catch (std::exception &e)
-	{
-		setStatus("500");
-		return ;
-	}
+	newProcess();
 	// int i = 0;
 	// while (this->_varEnv[i])
 	// {

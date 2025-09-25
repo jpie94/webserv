@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 12:31:41 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 12:53:13 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,8 +134,6 @@ void Client::handle_request()
 			if (this->_CGI == NULL)
 			{
 				this->_CGI = new CGI(*this->_request);
-				if (this->_request->getStatus() == "500")
-					return(makeResponse());
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
 			}
 			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
