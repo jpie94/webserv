@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 16:44:50 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/26 11:49:13 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ CGI &CGI::operator=(const CGI &rhs)
 {
 	if (this != &rhs)
 	{
-		for(int i = 0; i < 18; i ++)
+		for(int i = 0; i < 18; i++)
 			this->_varEnv[i] = rhs._varEnv[i];
 		this->_In = rhs._In;
 		this->_Out = rhs._Out;
@@ -75,7 +75,7 @@ void	CGI::fillVarEnv()
 	tempEnv.push_back("SERVER_PORT=" + this->_config["listen"]);
 	tempEnv.push_back("SERVER_PROTOCOL= " + this->_protocol);
 	tempEnv.push_back("SERVER_SOFTWARE=webserv");
-	for(size_t i = 0; i < tempEnv.size(); i ++)
+	for(size_t i = 0; i < tempEnv.size(); i++)
 	{
 		this->_varEnv[i] = new char[tempEnv[i].length() + 1];
 		std::memcpy(this->_varEnv[i], tempEnv[i].c_str(), tempEnv[i].length() + 1);
@@ -158,7 +158,7 @@ int	CGI::get_PID () const
 
 void	CGI::clear_CGI() const
 {
-	for(int i = 0; i < 18; i ++)
+	for(int i = 0; i < 18; i++)
 	{
 		if(this->_varEnv[i] != NULL)
 			delete[] this->_varEnv[i];
