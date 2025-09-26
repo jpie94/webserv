@@ -3,19 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 17:52:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/25 16:39:40 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Response.hpp"
+#include "CGI.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI()
 {
 	this->_timeout = std::time(0);
 }
@@ -29,9 +30,11 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_CGI = rhs._CGI;
+		this->_buff = rhs._buff;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 		this->_server_fd = rhs._server_fd;
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
@@ -44,13 +47,13 @@ Client &Client::operator=(Client const &rhs)
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
 	this->_index = index;
 	this->_timeout = std::time(0);
-	printconfig();
+	// printconfig();
 }
 
 Client::~Client() {}
@@ -73,8 +76,11 @@ int	Client::checkTimeout()
 void	Client::makeResponse()
 {
 	this->_response = new Response(*this->_request);
-	this->_response->callMethode();
-	_pfds[this->_index].events = POLLOUT;
+	if (!this->_CGI)
+		this->_response->callMethode();
+	else
+		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
+	_pfds[this->_index].events = POLLOUT;	
 	this->_count = 0;
 }
 
@@ -84,6 +90,7 @@ int Client::clientRecv()
 
 	std::memset(buffer, 0, sizeof(buffer));
 	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 4096, 0);
+	this->_buff = buffer;
 	if (bytes_read < 0)
 	{
 		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
@@ -118,54 +125,85 @@ void Client::handle_request()
 	{
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
-		std::map<std::string, std::string> headers = this->_request->getHeaders();
-		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
-			this->_request->parsMultipart();
-		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
-			this->_request->parsBody();
-		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-			this->_request->parsChunkedBody();
+		if (this->_request->get_isCGI() == true)
+		{
+			if (this->_CGI == NULL)
+			{
+				this->_CGI = new CGI(*this->_request);
+				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
+			}
+			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+		} 
+		else 
+		{
+			std::map<std::string, std::string> headers = this->_request->getHeaders();
+			if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
+				this->_request->parsMultipart();
+			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
+				this->_request->parsBody();
+			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
+				this->_request->parsChunkedBody();
+			}
+		}
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 			makeResponse();
+}
+
+void	Client::getCGIoutput()
+{
+	char buffer[4096];
+	std::memset(buffer, 0, sizeof(buffer));
+	int i = read(this->_CGI->get_FD_Out(), buffer, 4096);
+	this->_CGIoutput += buffer;
+	if (i == 0)
+	{
+		this->_response->setResponseMsg(this->_CGIoutput);
+		this->_request->set_isCGIFalse();
+		std::cout << "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << std::endl;
 	}
 }
 
 void	Client::send_answer()
 {
-	size_t msg_len = this->_response->getResponseMsg().size();
-	if (!msg_len)
+	if (this->_request->get_isCGI() == true)
+		getCGIoutput();
+	else
 	{
-		_pfds[this->_index].events = POLLIN;
-		this->_count = 0;
-		this->_recieved.clear();
-		clearClient();
-		return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
-	}
-	size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
-	if (sent < 0)
-	{
-		std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
-		this->erase_client();
-	}
-	this->_count += sent;
-	if (this->_count == msg_len)
-	{
-		if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
-			&& this->_request->getHeaders()["CONNECTION"] == "close")
+		size_t msg_len = this->_response->getResponseMsg().size();
+		if (!msg_len)
 		{
-			std::cout << "connection close ---> erase client...\n";
-			clearClient();
-			this->erase_client();
-			return;
-		}
-		else
-		{
-			std::cout << this->_response->getResponseMsg() << std::endl;	
 			_pfds[this->_index].events = POLLIN;
 			this->_count = 0;
 			this->_recieved.clear();
 			clearClient();
-			this->_timeout = std::time(0);
+			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
+		}
+		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
+		if (sent < 0)
+		{
+			std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
+			this->erase_client();
+		}
+		this->_count += sent;
+		if (this->_count == msg_len)
+		{
+			if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
+				&& this->_request->getHeaders()["CONNECTION"] == "close")
+			{
+				std::cout << "connection close ---> erase client...\n";
+				clearClient();
+				this->erase_client();
+				return;
+			}
+			else
+			{
+				std::cout << this->_response->getResponseMsg() << std::endl;	
+				_pfds[this->_index].events = POLLIN;
+				this->_count = 0;
+				this->_recieved.clear();
+				clearClient();
+				this->_timeout = std::time(0);
+			}
 		}
 	}
 }
@@ -178,4 +216,15 @@ void Client::clearClient()
 	if (this->_response)
 		delete this->_response;
 	this->_response = 0;
+	if (this->_CGI)
+	{
+		this->_CGI->clear_CGI();
+		delete this->_CGI;
+		this->_CGI = 0;	
+	}
+}
+
+CGI*	Client::getCGI() const
+{
+	return(this->_CGI);
 }

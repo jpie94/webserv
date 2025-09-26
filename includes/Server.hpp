@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/09 13:48:47 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 15:28:30 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Server : public Webserv
 	protected:
 		std::map<std::string, std::string>							_config;
 		std::map<std::string, std::string>							_error_pages;
-		std::map<std::string, std::string>							_cgi;
+		std::map<std::string, std::string>							_cgis;
 	public :
 		/* Canonical Form + Paramtric constructor */
 											Server();

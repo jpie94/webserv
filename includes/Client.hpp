@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/08 17:09:33 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/25 14:44:14 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 class Response;
 class Request;
 class Location;
+class CGI;
 
 class Client : public Server
 {
@@ -26,9 +27,12 @@ class Client : public Server
 		int				_server_fd;
 		size_t			_count;
 		std::string 	_recieved;
+		std::string 	_buff;
+		std::string 	_CGIoutput;
 		std::time_t		_timeout;
 		Request*		_request;
 		Response*		_response;
+		CGI*			_CGI;
 
 	public:
 		/* Canonical Form + Paramtric constructor */
@@ -37,6 +41,8 @@ class Client : public Server
 						Client(const Client &);
 		Client			&operator=(const Client &);
 		virtual			~Client();
+		/* Getters */
+		CGI*			getCGI() const;
 		/* Member Functions */
 		void			send_answer();
 		void			handle_request();
@@ -44,6 +50,7 @@ class Client : public Server
 		void			clearClient();
 		void			makeResponse();
 		int				checkTimeout();
+		void			getCGIoutput();
 	//	std::time_t		getTimeout() const;
 };
 

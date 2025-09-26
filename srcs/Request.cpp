@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 15:37:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/25 16:31:55 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
 {
@@ -27,9 +27,15 @@ Request &Request::operator=(const Request &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_isCGI = rhs._isCGI;
+		this->_CGI_bin_path = rhs._CGI_bin_path;
+		this->_CGI_script = rhs._CGI_script;
+		this->_CGI_pathInfo = rhs._CGI_pathInfo;
+		this->_CGI_querry = rhs._CGI_querry;
+		this->_CGIinterpret = rhs._CGIinterpret;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
-		this->_cgi = rhs._cgi;
+		this->_cgis = rhs._cgis;
 		this->_server_fd = rhs._server_fd;
 		this->_ogRoot = rhs._ogRoot;
 		this->_headers = rhs._headers;
@@ -45,7 +51,7 @@ Request &Request::operator=(const Request &rhs)
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200") {}
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::~Request() {}
 
@@ -101,3 +107,19 @@ std::string	Request::getRecieved() const
 {
 	return (this->_recieved);
 }
+
+bool	Request::get_isCGI() const
+{
+	return (this->_isCGI);
+}
+
+void	Request::set_isCGIFalse()
+{
+	this->_isCGI = false;
+}
+
+std::string	Request::getStatus() const
+{
+	return (this->_responseStatus);
+}
+

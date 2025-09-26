@@ -6,7 +6,7 @@
 #    By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/09/08 12:12:44 by jpiech           ###   ########.fr        #
+#    Updated: 2025/09/22 09:40:10 by jpiech           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,8 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/Response.cpp \
 	$(SRCS_DIR)/Response2.cpp \
 	$(SRCS_DIR)/Signals.cpp \
-	$(SRCS_DIR)/Utils.cpp
+	$(SRCS_DIR)/Utils.cpp \
+	$(SRCS_DIR)/CGI.cpp 
 
 OBJ_DIR = obj
 
@@ -62,5 +63,5 @@ fclean: clean
 re: fclean all
 
 vlg : 
-	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./$(NAME) ./conf/test_config.txt
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./$(NAME) ./conf/1.conf
 .PHONY: all clean fclean re

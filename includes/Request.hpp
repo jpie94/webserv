@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 16:14:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/25 16:31:40 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,12 @@ class Request : public Client
 		std::string							_protocol;
 		std::string							_responseStatus;
 		std::string							_ogRoot;
+		bool								_isCGI;
+		std::string							_CGI_bin_path;
+		std::string							_CGI_script;
+		std::string							_CGI_pathInfo;
+		std::string							_CGI_querry;
+		std::string							_CGIinterpret;
 
 	public:
 		/* Canonical Form + Paramtric constructor */
@@ -51,6 +57,8 @@ class Request : public Client
 		size_t								getHeadersLen() const;
 		size_t								getRequestLineLen() const;
 		std::string							getRecieved() const;
+		bool								get_isCGI() const;
+		std::string							getStatus() const;
 		/* Member Functions */
 		void								parsRequest();
 		void								parsRequestLine(std::string &);
@@ -66,6 +74,10 @@ class Request : public Client
 		void 								printURIConfig();
 		void								parsMultipart();
 		int									parsPart(std::string&, std::string&, std::string&);
+		void								check_cgi();
+		void								getCgiScript();
+		void								checkCGIExt();
+		void								set_isCGIFalse();
 };
 
 #endif
