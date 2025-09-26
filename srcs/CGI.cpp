@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/26 11:49:13 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/26 16:55:12 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,8 @@ void	CGI::newProcess()
 			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close PtoC[1] failed in child: ") + std::strerror(errno)).c_str());
 		if (close(CtoP[0]) < 0)
 			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close CtoP[0] failed in child: ") + std::strerror(errno)).c_str());
-		dup2(STDIN_FILENO, PtoC[0]);
-		dup2(STDOUT_FILENO, CtoP[1]);
+		dup2(PtoC[0], STDIN_FILENO);
+		dup2(CtoP[1], STDOUT_FILENO);
 		if (close(PtoC[0]) < 0)
 			throw std::runtime_error(std::string(std::string("Error in CGI::newProcess : close PtoC[1] failed in child: ") + std::strerror(errno)).c_str());
 		if (close(CtoP[1]) < 0)
@@ -123,21 +123,8 @@ void	CGI::newProcess()
 void	CGI::executeCGI()
 {
 	std::string script = this->_CGI_bin_path + this->_CGI_script;
-	std::string path = this->_CGIinterpret;
-	char * args[3];
-	args[0] = new char[path.length() + 1];
-	std::memcpy(args[0], path.c_str(), path.length() + 1);
-	args[1] = new char[script.length() + 1];
-	std::memcpy(args[1], script.c_str(), script.length() + 1);
-	args[2] = NULL;
-	if(execve(this->_CGIinterpret.c_str(), args, this->_varEnv))
-	{
-		delete[] args[0];
-		delete[] args[1];
-		exit(-1);
-	}
-	delete[] args[0];
-	delete[] args[1];
+	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
+	execve(execArg[0], execArg, this->_varEnv);
 }
 /*****************	GETTERS		*******************/
 

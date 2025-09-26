@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 16:39:40 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/26 16:53:56 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	Client::makeResponse()
 	if (!this->_CGI)
 		this->_response->callMethode();
 	else
-		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
+		close(this->_CGI->get_FD_In());
 	_pfds[this->_index].events = POLLOUT;	
 	this->_count = 0;
 }
@@ -159,7 +159,6 @@ void	Client::getCGIoutput()
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);
 		this->_request->set_isCGIFalse();
-		std::cout << "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << std::endl;
 	}
 }
 
@@ -197,7 +196,7 @@ void	Client::send_answer()
 			}
 			else
 			{
-				std::cout << this->_response->getResponseMsg() << std::endl;	
+				// std::cout << this->_response->getResponseMsg() << std::endl;	
 				_pfds[this->_index].events = POLLIN;
 				this->_count = 0;
 				this->_recieved.clear();
