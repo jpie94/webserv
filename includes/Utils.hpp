@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 19:05:44 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/26 15:37:03 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <sstream>
 #include <string>
+#include <stdlib.h>
 
 std::string	i_to_string(int value);
 
@@ -32,6 +33,8 @@ void		trim_CRLF(std::string &str);
 
 void		removeQuotes(std::string& str);
 
-std::string	getName(std::string& str);
+std::string	getName(const std::string& str, const std::string& key);
+
+std::string	generateRandomName();
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 16:39:40 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 19:28:14 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,6 @@ void	Client::makeResponse()
 		this->_response->callMethode();
 	else
 		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
-	_pfds[this->_index].events = POLLOUT;	
 	this->_count = 0;
 }
 
@@ -109,6 +108,7 @@ int Client::clientRecv()
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
 	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
@@ -138,7 +138,10 @@ void Client::handle_request()
 		{
 			std::map<std::string, std::string> headers = this->_request->getHeaders();
 			if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
-				this->_request->parsMultipart();
+			{
+				if (headers.find("CONTENT-LENGTH") != headers.end() && this->_count >= this->_request->getBodyLen())
+					this->_request->parsMultipart();
+			}
 			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 				this->_request->parsBody();
 			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")

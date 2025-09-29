@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 15:30:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 19:28:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,10 @@ void Request::parsHeaders(std::string &msg)
 		msg = msg.substr(count + 1);
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
+	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
+		std::cout << "content-l= " << this->_body_len << std::endl;
+	}
 }
 
 void Request::parsBody()
@@ -144,49 +147,178 @@ void	Request::parsChunkedBody()
 	}
 }
 
-int	Request::parsPart(std::string& msg, std::string& bound, std::string& endbound)
+// int	Request::parsPart(std::string& msg, std::string& bound, std::string& endbound)
+// {
+// 	size_t pos, endpos, count = 0;
+// 	std::string part, line, key, value;
+// 	std::map<std::string, std::string> partHeaders;
+// 	pos = msg.find(bound);
+// 	endpos = msg.find(endbound);
+// 	if (endpos == std::string::npos || pos == endpos)	
+// 		return (1);
+// 	part = msg.substr(pos + bound.size());
+// 	pos = part.find(bound);
+// 	part = part.substr(2, pos - 2);
+// 	msg = msg.substr(part.size() + bound.size());
+// 	// std::cout << "part= " <<  part << std::endl;
+// 	// std::cout << "msg= " << msg << std::endl;
+// 	std::istringstream ss(part);
+// 	std::getline(ss, line, '\n');
+// 	while (!line.empty() && line.find(':') != std::string::npos)
+// 	{
+// 		count += line.size() + 1;
+// 		line = trim_white_spaces(line);
+// 		if (line.empty())
+// 			break;
+// 		pos = line.find(':');
+// 		if (!line.empty() && pos == std::string::npos)
+// 			return (std::cout << "400 Error -> 9\n", setStatus("400"), 1);
+// 		key = trim_white_spaces(line.substr(0, pos));
+// 		strCapitalizer(key);
+// 		value = trim_white_spaces(line.substr(pos + 1));
+// 		if (this->_headers.find(key) != this->_headers.end())
+// 			this->_headers[key] += " " + value;
+// 		else
+// 			this->_headers[key] = value;//try to get all the name= in Content-disposition
+// 		// std::cout << "key= " << key << std::endl;
+// 		// std::cout << "value= " << value << std::endl;
+// 		std::cout << "name= " << getName(value, "name=") << std::endl;//search all the "name=" in Content-disposition
+// 		std::getline(ss, line, '\n');
+// 	}
+// 	part = part.substr(count);
+// 	part = trim_white_spaces(part);
+// 	// std::cout << "bodypart= " << part << std::endl;
+// 	return (0);
+// }
+
+size_t find_substring(const std::string &str, const std::string &substr)
 {
-	size_t pos, endpos, count = 0;
-	std::string part, line, key, value;
-	std::map<std::string, std::string> partHeaders;
-	pos = msg.find(bound);
-	endpos = msg.find(endbound);
-	if (endpos == std::string::npos || pos == endpos)	
-		return (1);
-	part = msg.substr(pos + bound.size());
-	pos = part.find(bound);
-	part = part.substr(2, pos - 2);
-	msg = msg.substr(part.size() + bound.size());
-	// std::cout << "part= " <<  part << std::endl;
-	// std::cout << "msg= " << msg << std::endl;
-	std::istringstream ss(part);
-	std::getline(ss, line, '\n');
-	while (!line.empty() && line.find(':') != std::string::npos)
-	{
-		count += line.size() + 1;
-		line = trim_white_spaces(line);
-		if (line.empty())
-			break;
-		pos = line.find(':');
-		if (!line.empty() && pos == std::string::npos)
-			return (std::cout << "400 Error -> 9\n", setStatus("400"), 1);
-		key = trim_white_spaces(line.substr(0, pos));
-		strCapitalizer(key);
-		value = trim_white_spaces(line.substr(pos + 1));
-		if (this->_headers.find(key) != this->_headers.end())
-			this->_headers[key] += " " + value;
-		else
-			this->_headers[key] = value;//try to get all the name= in Content-disposition
-		// std::cout << "key= " << key << std::endl;
-		// std::cout << "value= " << value << std::endl;
-		std::cout << "name= " << getName(value) << std::endl;//search all the "name=" in Content-disposition
-		std::getline(ss, line, '\n');
-	}
-	part = part.substr(count);
-	part = trim_white_spaces(part);
-	// std::cout << "bodypart= " << part << std::endl;
+	if (substr.empty() || str.size() < substr.size())
+		return (std::string::npos);
+	for (size_t i = 0; i <= str.size() - substr.size(); ++i)
+		if (std::memcmp(&str[i], &substr[0], substr.size()) == 0)
+			return (i);
+	return (std::string::npos);
+}
+
+int	Request::extractPart(std::string &msg, const std::string &bound, const std::string &endbound, std::string &part, size_t &sep_pos)
+{
+	size_t start = find_substring(msg, bound);
+	size_t end = find_substring(msg, endbound);
+	if (start == end)// end == std::string::npos ||
+		return (std::cout << "start= " << start << ", end= " << end << std::endl, 1);
+	part = msg.substr(start + bound.size());
+	std::cout << "start= " << start << std::endl;
+	std::cout << "part.size()= " << part.size() << std::endl;
+	if (part.size() >= 2 && part[0] == '-' && part[1] == '-')
+		return (std::cout << "error 1" << std::endl, 1);
+	if (part.size() >= 2 && part[0] == '\r' && part[1] == '\n')
+		part = part.substr(2);
+	sep_pos = find_substring(part, bound);
+	if (sep_pos == std::string::npos)
+		return (std::cout << "error 2" << std::endl, setStatus("400"), 1);
+	part = part.substr(0, sep_pos);
+	msg = (part.size() + bound.size() < msg.size() ? msg.substr(sep_pos + bound.size()) : std::string());
 	return (0);
-	
+}
+
+// int	Request::extractPart(std::string& msg, std::string& bound, std::string& endbound, std::string& part, size_t& sep_pos)
+// {
+// 	size_t start = msg.find(bound);
+// 	size_t end = msg.find(endbound);
+
+// 	if (end == std::string::npos || start == end)
+//         	return (/*std::cout << "start= " << start << ", end= " << end << std::endl, */1);
+// 	part = msg.substr(start + bound.size());
+// 	if (part.substr(0, 2) == "--")
+// 		return (std::cout << "ok 2" << std::endl, 1);
+// 	if (part.substr(0, 2) == CRLF)
+// 		part = part.substr(2);
+// 	//std::cout << "part00= " << part << std::endl;
+// 	sep_pos = part.find(bound);
+// 	if (sep_pos == std::string::npos)
+// 		return (std::cout << "400 Error -> 9\n", setStatus("400"), 1);
+// 	//std::cout << "sep_pos00= " << sep_pos << std::endl;
+// 	part = part.substr(0, sep_pos);
+// 	msg = msg.substr(sep_pos + bound.size());
+// 	//std::cout << "msg2= " << msg << std::endl;
+// 	return (0);
+// }
+
+std::map<std::string, std::string>	Request::makeHeadersMap(std::string& part, size_t& sep_pos)
+{
+	std::map<std::string, std::string> headers_map;
+	std::string header_line;
+
+	sep_pos = part.find(CRLFCRLF);
+	std::string headers_block = part.substr(0, sep_pos);
+	std::istringstream headers_ss(headers_block);
+	//std::cout << "hblock= " << headers_block << std::endl;
+	while (std::getline(headers_ss, header_line))
+	{
+		//std::cout << "line= " << header_line << std::endl;
+		header_line = trim_white_spaces(header_line);
+		if (header_line.empty())
+			break;
+		size_t colon = header_line.find(':');
+		if (colon == std::string::npos)
+			return (std::cout << "400 Error -> 10\n", setStatus("400"), std::map<std::string, std::string>());
+		std::string key = trim_white_spaces(header_line.substr(0, colon));
+		strCapitalizer(key);
+		std::string value = trim_white_spaces(header_line.substr(colon + 1));
+		headers_map[key] = value;
+	}
+	return (headers_map);
+}
+
+int	Request::handleContent(std::map<std::string, std::string>& headers_map, std::string& body_part)
+{
+	std::string name = getName(headers_map["CONTENT-DISPOSITION"], "name=");
+	std::string filename = getName(headers_map["CONTENT-DISPOSITION"], "filename=");
+	if (name.empty())
+		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
+	if (!filename.empty())
+	{
+		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName();
+		std::ofstream file(tmp_path.c_str(), std::ios::binary);
+		if (!file.is_open())
+			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
+		file << body_part;
+		file.close();
+		this->_files[name] = tmp_path;
+	}
+	else
+	{
+		std::ofstream csv("/tmp/form_data.csv", std::ios::app);
+		if (!csv.is_open())
+			return (setStatus("500"), 1);
+		body_part = trim_white_spaces(body_part);
+		if (body_part.find(',') != std::string::npos)
+			body_part = "\"" + body_part + "\"";
+		csv << name << "," << body_part << "\n";
+		csv.close();
+	}
+	return (0);
+}
+
+int Request::parsPart(std::string& msg, std::string& bound, std::string& endbound)
+{
+	std::string part;
+	size_t	sep_pos;
+
+	if (extractPart(msg, bound, endbound, part, sep_pos))
+		return (std::cout << "error 0" << std::endl, 1);
+	std::cout << "part= " << part << std::endl;
+	 std::cout << "sep_pos= " << sep_pos << std::endl;
+	std::map<std::string, std::string> headers_map = makeHeadersMap(part, sep_pos);
+	for (std::map<std::string, std::string>::iterator it = headers_map.begin(); it != headers_map.end(); ++it)
+		std::cout << it->first << " : " << it->second << std::endl;
+	if (headers_map.find("CONTENT-DISPOSITION") == headers_map.end())
+		return (std::cout << "400 Error -> 12\n", setStatus("400"), 1);
+	std::string body_part = part.substr(sep_pos + 4);
+	if (handleContent(headers_map, body_part))
+		return (std::cout << "error 4" << std::endl, 1);
+	return (0);
 }
 
 void	Request::parsMultipart()
@@ -206,7 +338,10 @@ void	Request::parsMultipart()
 	std::cout << "msg1= " << msg << std::endl;
 	while (pos!= std::string::npos)
 		if (parsPart(msg, bound, endbound))
+		{
+			std::cerr << "parsPart failed !" << std::endl;
 			return;
+		}
 }
 
 void Request::checkRequest()
@@ -353,4 +488,11 @@ void	Request::checkCGIExt()
 		}
 	}
 	return (this->_isCGI=false, setStatus("500"));
+}
+
+void Request::clearTmpFiles()
+{
+	for (std::map<std::string, std::string>::iterator it = _files.begin(); it != _files.end(); ++it)
+		std::remove(it->second.c_str());
+	_files.clear();
 }

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 19:32:32 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/29 16:39:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,22 +77,34 @@ void	trim_CRLF(std::string &str)
 	}
 }
 
-void	removeQuotes(std::string& str)
+void removeQuotes(std::string& str)
 {
-	if ((str[0] == '\"' && str[str.size() - 1] == '\"') || (str[0] == '\'' && str[str.size() - 1] == '\''))
+	if (str.size() >= 2 && ((str[0] == '"' && str[str.size() - 1] == '"')
+		|| (str[0] == '\'' && str[str.size() - 1] == '\'')))
 		str = str.substr(1, str.size() - 2);
 }
 
-std::string	getName(std::string& str)
+std::string getName(const std::string& str, const std::string& key)
 {
-	size_t	pos = str.rfind("name=");
+	size_t	pos = str.find(key);
+
 	if (pos == std::string::npos)
-	{
-		str = "";
 		return ("");
-	}
-	std::string res = str.substr(pos + 6);
-	if (res[res.size() - 1] == '\'' || res[res.size() - 1] == '\"')
-		res = res.substr(0, res.size() - 1);
-	return (res);
+	std::string	name = str.substr(pos + key.size());
+	size_t	sep = name.find(';');
+	if (sep != std::string::npos)
+		name = name.substr(0, sep);
+	removeQuotes(name);
+	return (name);
+}
+
+std::string generateRandomName()
+{
+	size_t	len = 10;
+	std::string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	std::string result;
+	std::srand(time(0));
+	for (size_t i = 0; i < len; ++i)
+		result += chars[std::rand() % chars.size()];
+	return (result);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 16:31:40 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 18:20:33 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Request : public Client
 		size_t								_request_line_len;
 		size_t								_body_len;
 		std::map<std::string, std::string>	_headers;
+		static std::map<std::string, std::string>	_files;//name->tmp_path pour gere les fichiers temporaires
 		std::string							_body;
 		std::string							_methode;
 		std::string							_path;
@@ -78,6 +79,10 @@ class Request : public Client
 		void								getCgiScript();
 		void								checkCGIExt();
 		void								set_isCGIFalse();
+		int	extractPart(std::string &msg, const std::string &bound, const std::string &endbound, std::string &part, size_t &sep_pos);
+		std::map<std::string, std::string>	makeHeadersMap(std::string& part, size_t& sep_pos);
+		int	handleContent(std::map<std::string, std::string>& headers_map, std::string& body_part);
+		void clearTmpFiles();
 };
 
 #endif
