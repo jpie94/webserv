@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/26 16:55:12 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 11:01:42 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,8 +150,8 @@ void	CGI::clear_CGI() const
 		if(this->_varEnv[i] != NULL)
 			delete[] this->_varEnv[i];
 	}
-	if (close (this->_In) < 0)
-		throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _In failed : ") + std::strerror(errno)).c_str());
+	// if (close (this->_In) < 0)
+	// 	throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _In failed : ") + std::strerror(errno)).c_str());
 	if (close (this->_Out) < 0)
 		throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _Out failed : ") + std::strerror(errno)).c_str());
 }

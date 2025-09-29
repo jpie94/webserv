@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/26 16:53:56 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 11:06:50 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,10 @@ void	Client::getCGIoutput()
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);
 		this->_request->set_isCGIFalse();
+		this->_CGIoutput.clear();
+		this->_CGI->clear_CGI();
+		delete this->_CGI;
+		this->_CGI = NULL;	
 	}
 }
 
@@ -196,7 +200,6 @@ void	Client::send_answer()
 			}
 			else
 			{
-				// std::cout << this->_response->getResponseMsg() << std::endl;	
 				_pfds[this->_index].events = POLLIN;
 				this->_count = 0;
 				this->_recieved.clear();
@@ -215,12 +218,12 @@ void Client::clearClient()
 	if (this->_response)
 		delete this->_response;
 	this->_response = 0;
-	if (this->_CGI)
-	{
-		this->_CGI->clear_CGI();
-		delete this->_CGI;
-		this->_CGI = 0;	
-	}
+	// if (this->_CGI)
+	// {
+	// 	this->_CGI->clear_CGI();
+	// 	delete this->_CGI;
+	// 	this->_CGI = 0;	
+	// }
 }
 
 CGI*	Client::getCGI() const
