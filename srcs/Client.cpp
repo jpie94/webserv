@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/29 11:06:50 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 15:45:16 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete()
 {
 	this->_timeout = std::time(0);
 }
@@ -30,6 +30,7 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_execComplete = rhs._execComplete;
 		this->_CGI = rhs._CGI;
 		this->_buff = rhs._buff;
 		this->_config = rhs._config;
@@ -47,7 +48,7 @@ Client &Client::operator=(Client const &rhs)
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
@@ -71,6 +72,35 @@ int	Client::checkTimeout()
 		return (1);
 	}
 	return (0);
+}
+
+int Client::checkStatusCGI()
+{
+	int	x = 0;
+	if(this->_CGI)
+	{
+		waitpid(this->_CGI->get_PID(), &x, WNOHANG);
+		if (x == 0)
+			return(0);
+		if (WIFEXITED(x))
+			x = WEXITSTATUS(x);
+		else if (WIFSIGNALED(x))
+			x = WTERMSIG(x) + 128;
+		this->_execComplete = true;
+		std::cout << "STATUS D EXECVE = " << x << "pour le PID" << this->_CGI->get_PID() << std::endl;
+		if (x != this->_CGI->get_PID())
+		{
+			this->_request->set_isCGIFalse();
+			this->_CGIoutput.clear();
+			this->_CGI->clear_CGI();
+			delete this->_CGI;
+			this->_CGI = NULL;		
+			this->_request->setStatus("500");
+			makeResponse();
+			return(1);			
+		}
+	}
+	return(0);
 }
 
 void	Client::makeResponse()
@@ -130,6 +160,7 @@ void Client::handle_request()
 			if (this->_CGI == NULL)
 			{
 				this->_CGI = new CGI(*this->_request);
+				this->_execComplete = false;
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
 			}
 			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
@@ -146,7 +177,11 @@ void Client::handle_request()
 			}
 		}
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+		{
+			if(this->_CGI && this->_execComplete == false)
+				return ;
 			makeResponse();
+		}
 }
 
 void	Client::getCGIoutput()
@@ -155,6 +190,7 @@ void	Client::getCGIoutput()
 	std::memset(buffer, 0, sizeof(buffer));
 	int i = read(this->_CGI->get_FD_Out(), buffer, 4096);
 	this->_CGIoutput += buffer;
+	this->_timeout = std::time(0);
 	if (i == 0)
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 11:01:42 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/29 14:58:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ void	CGI::newProcess()
 	this->_In = PtoC[1];
 	this->_Out = CtoP[0];
 	this->_PID = pid;
+	std::cout << "PID DU PROCESS A EXECVE: " << this->_PID << std::endl;
 	if (pid == 0)
 	{		
 		if (close(PtoC[1]) < 0)
@@ -122,9 +123,11 @@ void	CGI::newProcess()
 
 void	CGI::executeCGI()
 {
+	std::cerr << "je suis un enfant" << std::endl;
 	std::string script = this->_CGI_bin_path + this->_CGI_script;
 	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
 	execve(execArg[0], execArg, this->_varEnv);
+	exit(1);
 }
 /*****************	GETTERS		*******************/
 
