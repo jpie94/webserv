@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 16:39:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/30 18:44:43 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,16 @@ size_t	findCRLF(std::string str)
 		if (str[i] == '\r' && str[i + 1] && str[i + 1] == '\n')
 			return (i);
 	}
+	return (std::string::npos);
+}
+
+size_t find_mem(char* &str, const std::string &substr, size_t len)
+{
+	if (str && substr.empty() || len < substr.size())
+		return (std::string::npos);
+	for (size_t i = 0; i <= len - substr.size(); ++i)
+		if (std::memcmp(&str[i], &substr[0], substr.size()) == 0)
+			return (i);
 	return (std::string::npos);
 }
 
@@ -107,4 +117,23 @@ std::string generateRandomName()
 	for (size_t i = 0; i < len; ++i)
 		result += chars[std::rand() % chars.size()];
 	return (result);
+}
+
+char*	memjoin(char* str1, char* str2, size_t str1_len, size_t str2_len)
+{
+	char *tmp = NULL;
+	if (str1)
+	{
+		tmp = new char[str1_len];
+		std::memcpy(tmp, str1, str1_len);
+		free (str1);
+	}
+	str1 = new char[str1_len + str2_len];
+	if (tmp)
+	{
+		std::memcpy(str1, tmp, str1_len);
+		delete [] tmp;
+	}
+	std::memcpy(&str1[str1_len], str2, str2_len);
+	return (str1);
 }

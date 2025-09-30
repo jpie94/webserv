@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/29 19:28:14 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:03:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,20 @@ void	Client::makeResponse()
 		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
 	this->_count = 0;
 }
+void	Client::add_to_recieved(const char* str)
+{
+	std::ifstream::pos_type size;
+	char * memblock;
+	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
+	
+	size = iss.tellg();
+	memblock = new char [size];
+	iss.seekg (0, std::ios::beg);
+	iss.read (memblock, size);
+	this->_recieved += iss.str();
+	std::cout << "size recieved= " << this->_recieved.size() << std::endl;
+	delete[] memblock;
+}
 
 int Client::clientRecv()
 {
@@ -104,24 +118,27 @@ int Client::clientRecv()
 		this->erase_client();
 		return (1);
 	}
-	this->_recieved += buffer;
+	//this->_ss_recv.write(buffer, bytes_read);
+	//this->_recieved += buffer;
+	add_to_recieved(buffer);
+	// this->_rcv_bin = memjoin(this->_rcv_bin, buffer, this->_count, bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
 void Client::handle_request()
 {
-	if (this->_recieved.size() == 0)
+	if (this->_count == 0)
 		this->_request = new Request(*this);
 	if (this->clientRecv())
 		return;
 	if (!this->_request)
 		return;
 	this->_request->setRecieved(this->_recieved);
-	if (this->_recieved.size() && findCRLFCRLF(this->_recieved) != std::string::npos)
+	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
 	{
 		if (this->_request->getProtocol() != "HTTP/1.1")
 			this->_request->parsRequest();
@@ -130,7 +147,7 @@ void Client::handle_request()
 			if (this->_CGI == NULL)
 			{
 				this->_CGI = new CGI(*this->_request);
-				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
+				this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
 			}
 			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		} 
