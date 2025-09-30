@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 15:07:15 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/30 15:23:32 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,12 @@ void Webserv::runWebserv()
 	// 		it->second->printconfig();
 	while (1)
 	{
-		std::cerr << "JE SUIS LE DEBUT DE LA BOUCLE DU SERVEUR" << std::endl;
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
 		{
 			if (_pfds[j].fd && _clients[_pfds[j].fd] && _clients[_pfds[j].fd]->checkTimeout())
-				break;
-			if (_pfds[j].fd && _clients[_pfds[j].fd] && _clients[_pfds[j].fd]->checkStatusCGI())
-			{
-				std::cout << " CA A FAILLLLLL" << std::endl;
-				break;				
-			}
+				break;			
+			if (_pfds[j].fd && _clients[_pfds[j].fd])
+				_clients[_pfds[j].fd]->checkStatusCGI();
 		}
 		status = poll(_pfds.data(), _pfds.size(), 2000);
 		if (status < 0)
@@ -40,26 +36,16 @@ void Webserv::runWebserv()
 			std::cout << "Waiting for connection..." << std::endl;
 			continue;
 		}
-		std::cout << "CEST QUOI LE STATUS : " << status << std::endl;
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
 		{
 			// if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
 			// 		continue;
 			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
-			{
-				std::cerr << "JE RENTRE DANS ADDCLIENT" << std::endl;
 				_servers[_pfds[j].fd]->add_client_to_pollfds();
-			}
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())
-			{
-				std::cerr << "JE RENTRE DANS HANDLE REQUEST" << std::endl;
 				_clients[_pfds[j].fd]->handle_request();
-			}
 			else if ((_pfds[j].revents & POLLOUT) && _clients.find(_pfds[j].fd) != _clients.end())
-			{
-				std::cerr << "JE RENTRE sendanswer" << std::endl;
 				_clients[_pfds[j].fd]->send_answer();
-			}
 		}
 	}
 }

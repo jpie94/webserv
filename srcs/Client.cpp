@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/29 15:45:16 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/30 16:57:23 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
 {
 	this->_timeout = std::time(0);
 }
@@ -30,6 +30,8 @@ Client &Client::operator=(Client const &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_pipeReadingComplete = rhs._pipeReadingComplete;
+		this->_pipeWritingComplete = rhs._pipeWritingComplete;
 		this->_execComplete = rhs._execComplete;
 		this->_CGI = rhs._CGI;
 		this->_buff = rhs._buff;
@@ -48,7 +50,7 @@ Client &Client::operator=(Client const &rhs)
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
@@ -67,49 +69,47 @@ int	Client::checkTimeout()
 	if (diff > 30.0)
 	{
 		std::cout  << BOLD << PURPLE << "Client " << this->_fd << " got timeout !\n" << RESET;
-		clearClient();
-		erase_client();
+		if (this->_CGI)
+		{
+				kill(this->_CGI->get_PID(), SIGINT);
+				this->clearCGI();
+				this->_request->setStatus("504");
+				this->_execComplete = 1;
+				makeResponse();
+		}
+		else
+		{
+			clearClient();
+			erase_client();
+		}
 		return (1);
 	}
 	return (0);
 }
 
-int Client::checkStatusCGI()
+void Client::checkStatusCGI()
 {
-	int	x = 0;
-	if(this->_CGI)
+	int	status, exec = 0;
+	if(this->_CGI && !this->_execComplete)
 	{
-		waitpid(this->_CGI->get_PID(), &x, WNOHANG);
-		if (x == 0)
-			return(0);
-		if (WIFEXITED(x))
-			x = WEXITSTATUS(x);
-		else if (WIFSIGNALED(x))
-			x = WTERMSIG(x) + 128;
-		this->_execComplete = true;
-		std::cout << "STATUS D EXECVE = " << x << "pour le PID" << this->_CGI->get_PID() << std::endl;
-		if (x != this->_CGI->get_PID())
+		exec = waitpid(this->_CGI->get_PID(), &status, WNOHANG);
+		if (exec != 0)
 		{
-			this->_request->set_isCGIFalse();
-			this->_CGIoutput.clear();
-			this->_CGI->clear_CGI();
-			delete this->_CGI;
-			this->_CGI = NULL;		
-			this->_request->setStatus("500");
+			if (status != 0)
+			{
+				this->clearCGI();
+				this->_request->setStatus("500");
+			}
+			this->_execComplete = 1;
 			makeResponse();
-			return(1);			
-		}
 	}
-	return(0);
+	}
 }
-
 void	Client::makeResponse()
 {
 	this->_response = new Response(*this->_request);
 	if (!this->_CGI)
 		this->_response->callMethode();
-	else
-		close(this->_CGI->get_FD_In());
 	_pfds[this->_index].events = POLLOUT;	
 	this->_count = 0;
 }
@@ -160,10 +160,10 @@ void Client::handle_request()
 			if (this->_CGI == NULL)
 			{
 				this->_CGI = new CGI(*this->_request);
-				this->_execComplete = false;
 				this->_buff = _buff.substr(findCRLFCRLF(this->_buff) + 4);
 			}
 			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+			this->_timeout = std::time(0);
 		} 
 		else 
 		{
@@ -178,9 +178,14 @@ void Client::handle_request()
 		}
 		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 		{
-			if(this->_CGI && this->_execComplete == false)
-				return ;
-			makeResponse();
+			if (this->_CGI)
+			{
+				this->_pipeWritingComplete = 1;
+				if (close (this->_CGI->get_FD_In()) < 0)
+					throw std::runtime_error(std::string(std::string("Error in handle_request : close _CGI _In failed : ") + std::strerror(errno)).c_str());
+			}
+			else
+				makeResponse();
 		}
 }
 
@@ -194,11 +199,10 @@ void	Client::getCGIoutput()
 	if (i == 0)
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);
-		this->_request->set_isCGIFalse();
-		this->_CGIoutput.clear();
-		this->_CGI->clear_CGI();
-		delete this->_CGI;
-		this->_CGI = NULL;	
+		this->_pipeReadingComplete = 1;
+		if (close (this->_CGI->get_FD_Out()) < 0)
+			throw std::runtime_error(std::string(std::string("Error in getCGIoutput : close _CGI _Out failed : ") + std::strerror(errno)).c_str());
+		this->clearCGI();
 	}
 }
 
@@ -254,12 +258,29 @@ void Client::clearClient()
 	if (this->_response)
 		delete this->_response;
 	this->_response = 0;
-	// if (this->_CGI)
-	// {
-	// 	this->_CGI->clear_CGI();
-	// 	delete this->_CGI;
-	// 	this->_CGI = 0;	
-	// }
+	if (this->_CGI)
+		this->clearCGI(); 
+}
+
+void	Client::clearCGI()
+{
+	this->_CGIoutput.clear();
+	this->_CGI->clear_CGIenv();
+	if(!this->_pipeWritingComplete)
+		if (close (this->_CGI->get_FD_In()) < 0)
+			throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _In failed : ") + std::strerror(errno)).c_str());
+	if(!this->_pipeReadingComplete)	
+	{
+		if (close (this->_CGI->get_FD_Out()) < 0)
+			throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _Out failed : ") + std::strerror(errno)).c_str());
+	}
+	delete this->_CGI;
+	this->_CGI = NULL;	
+	this->_execComplete = 0;
+	this->_pipeWritingComplete = 0;
+	this->_pipeReadingComplete = 0;	
+	if(this->_request)
+		this->_request->set_isCGIFalse();
 }
 
 CGI*	Client::getCGI() const

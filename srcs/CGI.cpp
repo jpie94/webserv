@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 14:58:59 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/30 15:10:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,12 @@ CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
 	newProcess();
-	int i = 0;
-	while (this->_varEnv[i])
-	{
-		std::cout << this->_varEnv[i] <<std::endl;
-		i++;
-	}
+	// int i = 0;
+	// while (this->_varEnv[i])
+	// {
+	// 	std::cout << this->_varEnv[i] <<std::endl;
+	// 	i++;
+	// }
 }
 
 CGI::~CGI() {}
@@ -97,7 +97,6 @@ void	CGI::newProcess()
 	this->_In = PtoC[1];
 	this->_Out = CtoP[0];
 	this->_PID = pid;
-	std::cout << "PID DU PROCESS A EXECVE: " << this->_PID << std::endl;
 	if (pid == 0)
 	{		
 		if (close(PtoC[1]) < 0)
@@ -123,11 +122,13 @@ void	CGI::newProcess()
 
 void	CGI::executeCGI()
 {
-	std::cerr << "je suis un enfant" << std::endl;
 	std::string script = this->_CGI_bin_path + this->_CGI_script;
 	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
-	execve(execArg[0], execArg, this->_varEnv);
-	exit(1);
+	if (execve(execArg[0], execArg, this->_varEnv) == -1)
+		{
+			std::cerr << "EXECVE FAILED IN CHILD" << std::endl;
+			exit(1);			
+		}
 }
 /*****************	GETTERS		*******************/
 
@@ -146,15 +147,11 @@ int	CGI::get_PID () const
 	return(this->_PID);	
 }
 
-void	CGI::clear_CGI() const
+void	CGI::clear_CGIenv()
 {
 	for(int i = 0; i < 18; i++)
 	{
 		if(this->_varEnv[i] != NULL)
 			delete[] this->_varEnv[i];
 	}
-	// if (close (this->_In) < 0)
-	// 	throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _In failed : ") + std::strerror(errno)).c_str());
-	if (close (this->_Out) < 0)
-		throw std::runtime_error(std::string(std::string("Error in clear_CGI : close _Out failed : ") + std::strerror(errno)).c_str());
 }
