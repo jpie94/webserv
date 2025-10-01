@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 15:10:59 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/01 10:15:10 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void	CGI::executeCGI()
 	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
 	if (execve(execArg[0], execArg, this->_varEnv) == -1)
 		{
-			std::cerr << "EXECVE FAILED IN CHILD" << std::endl;
+			std::cerr << "Error in CGI::executeCGI : execve failed for " + this->_CGI_script << std::endl;
 			exit(1);			
 		}
 }
@@ -150,8 +150,6 @@ int	CGI::get_PID () const
 void	CGI::clear_CGIenv()
 {
 	for(int i = 0; i < 18; i++)
-	{
 		if(this->_varEnv[i] != NULL)
 			delete[] this->_varEnv[i];
-	}
 }

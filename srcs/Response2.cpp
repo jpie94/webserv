@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/09 17:49:33 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/01 10:21:02 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,6 @@ void Response::autoIndex()
 			index_page += "</a><br>\n";
 
 		}
-
 		index_page += "</p>\n</body>\n</html>\n";
 		if (closedir(dir) < 0)
 			return ((void)(std::cout << "500 Error -> 3\n"),setStatus("500"), setErrorPage());
@@ -209,6 +208,7 @@ void Response::callMethode()
 		if (!methodes[i].compare(this->_methode))
 			(void)((this->*f[i])());
 }
+
 void Response::setErrorPage()
 {
 	std::ostringstream os;
