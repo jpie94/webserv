@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 18:44:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/01 14:01:44 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,12 @@ size_t	findCRLF(std::string str)
 	return (std::string::npos);
 }
 
-size_t find_mem(char* &str, const std::string &substr, size_t len)
+size_t find_mem(char* &str1, const std::string &str2, size_t len)
 {
-	if (str && substr.empty() || len < substr.size())
+	if (str1 && (str2.empty() || len < str2.size()))
 		return (std::string::npos);
-	for (size_t i = 0; i <= len - substr.size(); ++i)
-		if (std::memcmp(&str[i], &substr[0], substr.size()) == 0)
+	for (size_t i = 0; i <= len - str2.size(); ++i)
+		if (std::memcmp(&str1[i], &str2[0], str2.size()) == 0)
 			return (i);
 	return (std::string::npos);
 }
@@ -119,21 +119,37 @@ std::string generateRandomName()
 	return (result);
 }
 
-char*	memjoin(char* str1, char* str2, size_t str1_len, size_t str2_len)
+char*	memjoin(char* str1, char* str2, size_t str1_len, size_t sep_len)
 {
 	char *tmp = NULL;
 	if (str1)
 	{
 		tmp = new char[str1_len];
 		std::memcpy(tmp, str1, str1_len);
-		free (str1);
+		delete [] str1;
 	}
-	str1 = new char[str1_len + str2_len];
+	str1 = new char[str1_len + sep_len];
 	if (tmp)
 	{
 		std::memcpy(str1, tmp, str1_len);
 		delete [] tmp;
 	}
-	std::memcpy(&str1[str1_len], str2, str2_len);
+	std::memcpy(&str1[str1_len], str2, sep_len);
 	return (str1);
+}
+
+char*	submem(char* &str1, const std::string &sep, size_t len)
+{
+	char*	dest = NULL;
+	size_t	pos = find_mem(str1, sep, len);
+	size_t	sep_len = sep.size();
+
+	if (pos == std::string::npos)
+		return (str1);
+	if (pos + sep_len < len)
+	{
+		dest = new char[len - pos - sep_len];
+		std::memcpy(dest, &str1[pos + sep_len], len - pos - sep_len);
+	}
+	return (dest);
 }

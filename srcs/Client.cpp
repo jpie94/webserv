@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/30 19:03:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:40:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI()
+Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _rcv_bin(NULL), _request(), _response(), _CGI()
 {
 	this->_timeout = std::time(0);
 }
@@ -43,11 +43,12 @@ Client &Client::operator=(Client const &rhs)
 		this->_request = rhs._request;
 		this->_response = rhs._response;
 		this->_timeout = rhs._timeout;
+		this->_rcv_bin = rhs._rcv_bin;
 	}
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _rcv_bin(NULL), _request(), _response(), _CGI()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
@@ -82,20 +83,20 @@ void	Client::makeResponse()
 		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
 	this->_count = 0;
 }
-void	Client::add_to_recieved(const char* str)
-{
-	std::ifstream::pos_type size;
-	char * memblock;
-	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
+// void	Client::add_to_recieved(const char* str)
+// {
+// 	std::ifstream::pos_type size;
+// 	char * memblock;
+// 	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
 	
-	size = iss.tellg();
-	memblock = new char [size];
-	iss.seekg (0, std::ios::beg);
-	iss.read (memblock, size);
-	this->_recieved += iss.str();
-	std::cout << "size recieved= " << this->_recieved.size() << std::endl;
-	delete[] memblock;
-}
+// 	size = iss.tellg();
+// 	memblock = new char [size];
+// 	iss.seekg (0, std::ios::beg);
+// 	iss.read (memblock, size);
+// 	this->_recieved += iss.str();
+// 	std::cout << "size recieved= " << this->_recieved.size() << std::endl;
+// 	delete[] memblock;
+// }
 
 int Client::clientRecv()
 {
@@ -119,12 +120,13 @@ int Client::clientRecv()
 		return (1);
 	}
 	//this->_ss_recv.write(buffer, bytes_read);
-	//this->_recieved += buffer;
-	add_to_recieved(buffer);
-	// this->_rcv_bin = memjoin(this->_rcv_bin, buffer, this->_count, bytes_read);
+	this->_recieved += buffer;
+	// add_to_recieved(buffer);
 	this->_count += bytes_read;
+	this->_rcv_bin = memjoin(this->_rcv_bin, buffer, this->_count, bytes_read);
+	std::cout << "this->_rcv_bin= " << this->_rcv_bin << std::endl;
 	this->_timeout = std::time(0);
-	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
@@ -137,7 +139,7 @@ void Client::handle_request()
 		return;
 	if (!this->_request)
 		return;
-	this->_request->setRecieved(this->_recieved);
+	this->_request->setRecieved(this->_recieved, this->_rcv_bin, this->_count);
 	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
 	{
 		if (this->_request->getProtocol() != "HTTP/1.1")
@@ -159,7 +161,7 @@ void Client::handle_request()
 				if (headers.find("CONTENT-LENGTH") != headers.end() && this->_count >= this->_request->getBodyLen())
 					this->_request->parsMultipart();
 			}
-			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
+			/*else*/if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 				this->_request->parsBody();
 			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 				this->_request->parsChunkedBody();

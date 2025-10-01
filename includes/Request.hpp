@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 19:15:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:18:54 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,18 +72,18 @@ class Request : public Client
 		int									parsChunk(std::string&);
 		void								checkRequest();
 		void								setStatus(std::string const &str);
-		void								setRecieved(std::string& str);
+		void								setRecieved(std::string& str, char* &str_bin, size_t count);
 		void								addChunktoBody(std::string str);
 		void 								printURIConfig();
 		void								parsMultipart();
-		int									parsPart(char* &, std::string&, std::string&);
+		int									parsPart(char* &, std::string&);
 		void								check_cgi();
 		void								getCgiScript();
 		void								checkCGIExt();
 		void								set_isCGIFalse();
-		int									extractPart(char* &msg, const std::string &bound, const std::string &endbound, char* &part, size_t &sep_pos);
+		int									extractPart(char* &msg, const std::string &bound, char* &part, size_t &sep_pos);
 		std::map<std::string, std::string>	makeHeadersMap(char* &part, size_t& sep_pos);
-		int									handleContent(std::map<std::string, std::string>& headers_map, std::string& body_part);
+		int									handleContent(std::map<std::string, std::string>& headers_map, char* &body_part);
 		void 								clearTmpFiles();
 };
 
