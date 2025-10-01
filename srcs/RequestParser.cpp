@@ -162,7 +162,7 @@ int	Request::extractPart(char* &msg, const std::string &bound, char* &part, size
 		part = submem(part, CRLF, this->_part_size);
 		this->_part_size -= (pos + 2);
 	}
-	sep_pos = find_mem(part, bound, sizeof(part));
+	sep_pos = find_mem(part, bound, this->_part_size);
 	if (sep_pos == std::string::npos)
 		return (std::cout << "error 2" << std::endl, setStatus("400"), 1);
 	part = submem(part, bound, this->_part_size);
@@ -198,11 +198,10 @@ std::map<std::string, std::string>	Request::makeHeadersMap(char* &part, size_t& 
 	return (headers_map);
 }
 
-int	Request::handleContent(std::map<std::string, std::string>& headers_map, char* &body_part)
+int	Request::handleContent(std::map<std::string, std::string>& headers_map, char* &body_part, size_t body_len)
 {
 	std::string name = getName(headers_map["CONTENT-DISPOSITION"], "name=");
 	std::string filename = getName(headers_map["CONTENT-DISPOSITION"], "filename=");
-	std::string body_str (body_part);
 	if (name.empty())
 		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
 	if (!filename.empty())
@@ -211,7 +210,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, char
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
-		file << body_part;
+		file.write(body_part, body_len);
 		file.close();
 		this->_files[name] = tmp_path;
 	}
@@ -244,9 +243,9 @@ int Request::parsPart(char* &msg, std::string& bound)
 	if (headers_map.find("CONTENT-DISPOSITION") == headers_map.end())
 		return (std::cout << "400 Error -> 12\n", setStatus("400"), 1);
 	char* body_part = submem(part, bound, this->_part_size);
-	if (handleContent(headers_map, body_part))
+	if (handleContent(headers_map, body_part, this->_part_size - bound.size() - find_mem(part, bound, this->_part_size)));
 		return (std::cout << "error 4" << std::endl, 1);
-	if (!part)
+	if (part)
 		delete [] part;
 	return (0);
 }
@@ -272,22 +271,22 @@ void	Request::parsMultipart()
 	 std::cout << "msg size 1= " << this->_msg_size << std::endl;
 	if (pos != std::string::npos)
 	{
-		msg = submem(msg, CRLFCRLF, this->_msg_size);
+		msg = submem(msg, CRLFCRLF, this->_msg_size);//free msg1
 		this->_msg_size -= (pos + 4); 
 	}
 	std::cout << "msg1= " << msg << std::endl;
 	std::cout << "msg size 2= " << this->_msg_size << std::endl;
-	while (pos!= std::string::npos)
+	while (pos != std::string::npos)
 	{
 		if (parsPart(msg, bound))
 		{
 			std::cerr << "parsPart failed !" << std::endl;
 			return (delete [] msg);
 		}
+		pos = find_mem(msg, bound, this->_msg_size);
 	}
 	return (delete [] msg);
 }
-
 // void	Request::addChunktoBody(std::string str)
 // {
 // 	std::ifstream::pos_type size;
