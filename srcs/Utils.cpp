@@ -42,13 +42,25 @@ size_t	findCRLF(std::string str)
 	return (std::string::npos);
 }
 
-size_t find_mem(char* &str1, const std::string &str2, size_t len)
+/*size_t find_mem(char* &str1, const std::string &str2, size_t len)
 {
 	if (str1 && (str2.empty() || len < str2.size()))
 		return (std::string::npos);
 	for (size_t i = 0; i <= len - str2.size(); ++i)
 		if (std::memcmp(&str1[i], &str2[0], str2.size()) == 0)
 			return (i);
+	return (std::string::npos);
+}*/
+
+size_t	find_mem(const char* str1, const std::string& str2, size_t len)
+{
+	if (!str1 || str2.empty() || len < str2.size())
+		return (std::string::npos);
+	for (size_t i = 0; i <= len - str2.size(); ++i)
+	{
+		if (std::memcmp(&str1[i], str2.data(), str2.size()) == 0)
+			return (i);
+	}
 	return (std::string::npos);
 }
 
@@ -119,7 +131,7 @@ std::string generateRandomName()
 	return (result);
 }
 
-char*	memjoin(char* str1, char* str2, size_t str1_len, size_t sep_len)
+/*char*	memjoin(char* str1, char* str2, size_t str1_len, size_t sep_len)
 {
 	char *tmp = NULL;
 	if (str1)
@@ -136,9 +148,22 @@ char*	memjoin(char* str1, char* str2, size_t str1_len, size_t sep_len)
 	}
 	std::memcpy(&str1[str1_len], str2, sep_len);
 	return (str1);
+}*/
+
+char*	memjoin(char* str1, const char* str2, size_t str1_len, size_t str2_len)
+{
+	if (!str2 || str2_len == 0)
+		return (str1);
+	char*	res = new char[str1_len + str2_len];
+	if (str1 && str1_len > 0)
+		std::memcpy(res, str1, str1_len);
+	std::memcpy(res + str1_len, str2, str2_len);
+	if (str1)
+		delete[] str1;
+	return (res);
 }
 
-char*	submem(char* &str1, const std::string &sep, size_t len)
+/*char*	submem(char* &str1, const std::string &sep, size_t len)
 {
 	char*	dest = NULL;
 	size_t	pos = find_mem(str1, sep, len);
@@ -151,5 +176,25 @@ char*	submem(char* &str1, const std::string &sep, size_t len)
 		dest = new char[len - pos - sep_len];
 		std::memcpy(dest, &str1[pos + sep_len], len - pos - sep_len);
 	}
+	return (dest);
+}*/
+
+char*	submem(const char* str1, const std::string& sep, size_t len, size_t& dest_len)
+{
+	size_t pos = find_mem(str1, sep, len);
+	if (pos == std::string::npos)
+	{
+		dest_len = 0;
+		return (NULL);
+	}
+	size_t sep_len = sep.size();
+	if (pos + sep_len >= len)
+	{
+		dest_len = 0;
+		return (NULL);
+	}
+	dest_len = len - pos - sep_len;
+	char* dest = new char[dest_len];
+	std::memcpy(dest, &str1[pos + sep_len], dest_len);
 	return (dest);
 }
