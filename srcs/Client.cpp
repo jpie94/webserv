@@ -122,9 +122,9 @@ int Client::clientRecv()
 	//this->_ss_recv.write(buffer, bytes_read);
 	this->_recieved += buffer;
 	// add_to_recieved(buffer);
-	this->_count += bytes_read;
 	this->_rcv_bin = memjoin(this->_rcv_bin, buffer, this->_count, bytes_read);
 	std::cout << "this->_rcv_bin= " << this->_rcv_bin << std::endl;
+	this->_count += bytes_read;
 	this->_timeout = std::time(0);
 	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	std::cout << "bytes recieved= " << this->_count << std::endl;
