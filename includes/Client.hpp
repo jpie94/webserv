@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 14:44:14 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/30 16:58:58 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,9 @@ class Client : public Server
 		Request*		_request;
 		Response*		_response;
 		CGI*			_CGI;
+		int				_execComplete;
+		int				_pipeReadingComplete;
+		int				_pipeWritingComplete;
 
 	public:
 		/* Canonical Form + Paramtric constructor */
@@ -48,9 +51,11 @@ class Client : public Server
 		void			handle_request();
 		int				clientRecv();
 		void			clearClient();
+		void			clearCGI();
 		void			makeResponse();
 		int				checkTimeout();
 		void			getCGIoutput();
+		void			checkStatusCGI();
 	//	std::time_t		getTimeout() const;
 };
 

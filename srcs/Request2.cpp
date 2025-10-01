@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 15:30:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/09/26 16:56:33 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,11 @@ void	Request::check_cgi()
 
 void 	Request::getCgiScript()
 {
-	std::string temp = this->_path.substr(_CGI_bin_path.size());
+	std::string temp;
+	if (this->_path.size() >= _CGI_bin_path.size())
+		temp = this->_path.substr(_CGI_bin_path.size());
+	else
+		temp = this->_path.substr(_CGI_bin_path.size() - 1);
 	size_t pos = temp.find("?");
 	if (pos != std::string::npos)
 	{

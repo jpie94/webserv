@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:21:13 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 15:28:30 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/01 10:12:50 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ class Location;
 class Server : public Webserv
 {
 	private: 
-		std::map<std::string, Location*>							_locations;	
+		std::map<std::string, Location*>	_locations;	
 	protected:
-		std::map<std::string, std::string>							_config;
-		std::map<std::string, std::string>							_error_pages;
-		std::map<std::string, std::string>							_cgis;
+		std::map<std::string, std::string>	_config;
+		std::map<std::string, std::string>	_error_pages;
+		std::map<std::string, std::string>	_cgis;
 	public :
 		/* Canonical Form + Paramtric constructor */
 											Server();

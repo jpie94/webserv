@@ -96,6 +96,7 @@ body = f"""\
 content_length = len(body)
 
 # Imprimer les en-têtes HTTP et le contenu HTML
+print(f"HTTP/1.1 200 OK\r")
 print(f"Content-Type: text/html\r")
 print(f"Content-Length: {content_length}\r")
 print("\r")  # Ligne vide pour séparer les en-têtes du corps
