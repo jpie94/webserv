@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/30 16:57:23 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/01 10:43:20 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ int	Client::checkTimeout()
 				kill(this->_CGI->get_PID(), SIGINT);
 				this->clearCGI();
 				this->_request->setStatus("504");
-				this->_execComplete = 1;
 				makeResponse();
 		}
 		else
@@ -95,12 +94,12 @@ void Client::checkStatusCGI()
 		exec = waitpid(this->_CGI->get_PID(), &status, WNOHANG);
 		if (exec != 0)
 		{
+			this->_execComplete = 1;
 			if (status != 0)
 			{
 				this->clearCGI();
 				this->_request->setStatus("500");
 			}
-			this->_execComplete = 1;
 			makeResponse();
 	}
 	}
