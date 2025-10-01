@@ -27,7 +27,7 @@ class Client : public Server
 		int				_server_fd;
 		size_t			_count;
 		std::string 	_recieved;
-		char*			_rcv_bin;
+		char*			_rcv_bin;//try with std::vector<char>
 		std::string 	_buff;
 		std::string 	_CGIoutput;
 		std::time_t		_timeout;
