@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 14:59:53 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:11:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ void Request::parsBody()
 
 	size_t pos = findCRLFCRLF(msg);
 
-	if (pos != std::string::npos) // Du coup on a deja pos, on pourrait eviter de refaire un find et juste ecrire pos + 4
-		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
+	if (pos != std::string::npos)
+		msg = msg.substr(pos + 4);
 	else
 		msg.clear();	
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
@@ -98,9 +98,9 @@ void Request::parsBody()
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
-		if (!msg.empty() && msg[msg.size() - 1] == '\n') // Je comprends pas pk le /R/N est supprime ici
+		if (!msg.empty() && msg[msg.size() - 1] == '\n')// Je comprends pas pk le /R/N est supprime ici
 			msg.erase(msg.size() - 1);
-		if (msg[!msg.empty() && msg.size() - 1] == '\r')// C est chelou le corchet la
+		if (msg.empty() && msg[msg.size() - 1] == '\r')
 			msg.erase(msg.size() - 1);
 		this->_body = msg;
 	}
@@ -120,7 +120,7 @@ int	Request::parsChunk(std::string &msg)
 	chunk_len = std::strtol(msg.c_str(), &endpos, 16);
 	pos = findCRLF(msg);
 	if (pos == std::string::npos)
-		return (setStatus("404"), 1);
+		return (std::cout << "400 Error 123\n", setStatus("404"), 1);
 	chunk = msg.substr(pos + 2, chunk_len);
 	this->_body += chunk;
 	msg = msg.substr(pos + chunk_len + 4);
@@ -148,27 +148,21 @@ int	Request::extractPart(std::vector<char>& msg, const std::string &bound, std::
 {
 	size_t pos = find_mem(msg, bound);
 	part = std::vector<char>(msg.begin() + pos + bound.size(), msg.end());
-	//std::cout << "extract part= ";
-	//printVect(part);
 	if (part.size() >= 2 && part[0] == '-' && part[1] == '-')
 		return (1);
 	if (part.size() >= 2 && part.data()[0] == '\r' && part.data()[1] == '\n')
 	{
 		pos = find_mem(part, CRLF);
 		part.erase(part.begin(), part.begin() + pos + 2);
-		//std::cout << "extract part2= ";
-		//printVect(part);
 	}
 	sep_pos = find_mem(part, bound);
 	if (sep_pos == std::string::npos)
-		return (std::cout << "error 2" << std::endl, setStatus("400"), 1);
+		return (std::cout << "400 error 2000" << std::endl, setStatus("400"), 1);
 	part.erase(part.begin() + sep_pos, part.end());
 	if (part.size() + bound.size() < msg.size())
 		msg.erase(msg.begin(), msg.begin() + part.size());
 	else
 		msg.clear();
-	//std::cout << "extract part MSG= ";
-	//printVect(msg);
 	return (0);
 }
 
@@ -181,11 +175,8 @@ std::map<std::string, std::string>	Request::makeHeadersMap(std::vector<char> par
 	part.erase(part.begin() + sep_pos, part.end());;
 	part.push_back('\0');
 	std::istringstream headers_ss(part.data());
-	std::cout << "hblock= ";
-	printVect(part);
 	while (std::getline(headers_ss, header_line))
 	{
-		//std::cout << "line= " << header_line << std::endl;
 		header_line = trim_white_spaces(header_line);
 		if (header_line.empty())
 			break;
@@ -239,9 +230,6 @@ int Request::parsPart(std::vector<char>& msg, std::string& bound)
 
 	if (extractPart(msg, bound, part, sep_pos))
 		return (1);
-	std::cout << "part= ";
-	printVect(part);
-	//std::cout << "sep_pos= " << sep_pos << std::endl;
 	std::map<std::string, std::string> headers_map = makeHeadersMap(part, sep_pos);
 	for (std::map<std::string, std::string>::iterator it = headers_map.begin(); it != headers_map.end(); ++it)
 		std::cout << it->first << " : " << it->second << std::endl;
@@ -249,8 +237,6 @@ int Request::parsPart(std::vector<char>& msg, std::string& bound)
 		return (std::cout << "400 Error -> 12\n", setStatus("400"), 1);
 	sep_pos = find_mem(part, CRLFCRLF);
 	part.erase(part.begin(), part.begin() + sep_pos + 4);
-	std::cout << "part2= ";
-	printVect(part);
 	if (handleContent(headers_map, part))
 		return (std::cout << "error 4" << std::endl, 1);
 	return (0);
@@ -258,8 +244,6 @@ int Request::parsPart(std::vector<char>& msg, std::string& bound)
 
 void	Request::parsMultipart()
 {
-	//std::cout << "parsMultipart->rcv_binary= ";
-	//printVect(this->_rcv_binary);
 	std::string	bound;
 	size_t pos = this->_headers["CONTENT-TYPE"].find("boundary=");
 	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
@@ -268,31 +252,11 @@ void	Request::parsMultipart()
 	pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos != std::string::npos)
 		this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
-	// std::cout << "msg1= ";
-	// printVect(this->_rcv_binary);
-	//size_t pos2 = pos;
 	while (pos != std::string::npos)
 	{
 		if (parsPart(this->_rcv_binary, bound))
 			break;
 		pos = find_mem(this->_rcv_binary, bound);
-		// if (pos2 == pos)
-		// 	break;
-		// pos2 = pos;
 	}
 	this->_body_len = this->_count - this->_request_line_len - this->_headers_len;
 }
-// void	Request::addChunktoBody(std::string str)
-// {
-// 	std::ifstream::pos_type size;
-// 	char * memblock;
-// 	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
-	
-// 	size = iss.tellg();
-// 	memblock = new char [size];
-// 	iss.seekg (0, std::ios::beg);
-// 	iss.read (memblock, size);
-// 	this->_body += iss.str();
-// 	delete[] memblock;
-// }
-

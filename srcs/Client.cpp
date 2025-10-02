@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/02 15:21:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:06:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,20 +84,6 @@ void	Client::makeResponse()
 	this->_count = 0;
 	_pfds[this->_index].events = POLLOUT;
 }
-// void	Client::add_to_recieved(const char* str)
-// {
-// 	std::ifstream::pos_type size;
-// 	char * memblock;
-// 	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
-	
-// 	size = iss.tellg();
-// 	memblock = new char [size];
-// 	iss.seekg (0, std::ios::beg);
-// 	iss.read (memblock, size);
-// 	this->_recieved += iss.str();
-// 	std::cout << "size recieved= " << this->_recieved.size() << std::endl;
-// 	delete[] memblock;
-// }
 
 int Client::clientRecv()
 {
@@ -120,17 +106,12 @@ int Client::clientRecv()
 		this->erase_client();
 		return (1);
 	}
-	//this->_ss_recv.write(buffer, bytes_read);
 	this->_recieved += buffer;
-	// add_to_recieved(buffer);
-	//this->_rcv_binary = memjoin(this->_rcv_bin, buffer, this->_count, bytes_read);
 	this->_rcv_binary.insert(this->_rcv_binary.end(), buffer, buffer + bytes_read);
-	//std::cout << "clientRcv->_rcv_binary= ";
-	//printVect(this->_rcv_binary);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
 	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
-	std::cout << "bytes recieved= " << this->_count << std::endl;
+	//std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
@@ -160,7 +141,12 @@ void Client::handle_request()
 		{
 			std::map<std::string, std::string> headers = this->_request->getHeaders();
 			if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
+			{
+				if (headers.find("CONTENT-LENGTH") != headers.end() && this->_count >= this->_request->getBodyLen())
 					this->_request->parsMultipart();
+				else if (headers.find("CONTENT-LENGTH") == headers.end())
+					this->_request->parsMultipart();
+			}
 			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 				this->_request->parsBody();
 			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
@@ -181,7 +167,6 @@ void	Client::getCGIoutput()
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);
 		this->_request->set_isCGIFalse();
-		std::cout << "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << std::endl;
 	}
 }
 
@@ -192,7 +177,6 @@ void	Client::send_answer()
 	else
 	{
 		size_t msg_len = this->_response->getResponseMsg().size();
-		std::cout << "msg_len= " << msg_len << std::endl;
 		if (!msg_len)
 		{
 			_pfds[this->_index].events = POLLIN;

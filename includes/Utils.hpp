@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 11:19:22 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:06:31 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,6 @@ std::string	getName(const std::string& str, const std::string& key);
 
 std::string	generateRandomName();
 
-// char*	memjoin(char* str1, char* str2, size_t str1_len, size_t str2_len);
-
-// char*	submem(char* &str1, const std::string &str2, size_t len);
-void	printVect(std::vector<char>&);
+void	printVect(std::vector<char>&);//del
 
 #endif
