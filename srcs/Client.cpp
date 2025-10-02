@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/02 16:17:21 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 17:27:03 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void Client::checkStatusCGI()
 				this->_request->setStatus("500");
 			}
 			makeResponse();
-	}
+		}
 	}
 }
 void	Client::makeResponse()
@@ -114,6 +114,37 @@ void	Client::makeResponse()
 		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
 	this->_count = 0;
 	_pfds[this->_index].events = POLLOUT;
+}
+
+void	Client::parserDispatcher()
+{
+	if (this->_request->getProtocol() != "HTTP/1.1")
+		this->_request->parsRequest();
+	if (this->_request->get_isCGI() == true)
+	{
+		if (this->_CGI == NULL)
+		{
+			this->_CGI = new CGI(*this->_request);
+			this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
+		}
+		write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+		this->_timeout = std::time(0);
+	} 
+	else 
+	{
+		std::map<std::string, std::string> headers = this->_request->getHeaders();
+		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
+		{
+			if (headers.find("CONTENT-LENGTH") != headers.end() && this->_count >= this->_request->getBodyLen())
+				this->_request->parsMultipart();
+			else if (headers.find("CONTENT-LENGTH") == headers.end())
+				this->_request->parsMultipart();
+		}
+		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
+			this->_request->parsBody();
+		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
+			this->_request->parsChunkedBody();
+	}
 }
 
 int Client::clientRecv()
@@ -156,46 +187,18 @@ void Client::handle_request()
 		return;
 	this->_request->setRecieved(this->_recieved, this->_rcv_binary);
 	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
+		parserDispatcher();
+	if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 	{
-		if (this->_request->getProtocol() != "HTTP/1.1")
-			this->_request->parsRequest();
-		if (this->_request->get_isCGI() == true)
+		if (this->_CGI)
 		{
-			if (this->_CGI == NULL)
-			{
-				this->_CGI = new CGI(*this->_request);
-				this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
-			}
-			write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
-			this->_timeout = std::time(0);
-		} 
-		else 
-		{
-			std::map<std::string, std::string> headers = this->_request->getHeaders();
-			if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
-			{
-				if (headers.find("CONTENT-LENGTH") != headers.end() && this->_count >= this->_request->getBodyLen())
-					this->_request->parsMultipart();
-				else if (headers.find("CONTENT-LENGTH") == headers.end())
-					this->_request->parsMultipart();
-			}
-			else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
-				this->_request->parsBody();
-			else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-				this->_request->parsChunkedBody();
-			}
+			this->_pipeWritingComplete = 1;
+			if (close (this->_CGI->get_FD_In()) < 0)
+				throw std::runtime_error(std::string(std::string("Error in handle_request : close _CGI _In failed : ") + std::strerror(errno)).c_str());
 		}
-		if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
-		{
-			if (this->_CGI)
-			{
-				this->_pipeWritingComplete = 1;
-				if (close (this->_CGI->get_FD_In()) < 0)
-					throw std::runtime_error(std::string(std::string("Error in handle_request : close _CGI _In failed : ") + std::strerror(errno)).c_str());
-			}
-			else
-				makeResponse();
-		}
+		else
+			makeResponse();
+	}
 }
 
 void	Client::getCGIoutput()
@@ -213,6 +216,27 @@ void	Client::getCGIoutput()
 		if (close (this->_CGI->get_FD_Out()) < 0)
 			throw std::runtime_error(std::string(std::string("Error in getCGIoutput : close _CGI _Out failed : ") + std::strerror(errno)).c_str());
 		this->clearCGI();
+	}
+}
+
+void	Client::resetClient()
+{
+	if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
+		&& this->_request->getHeaders()["CONNECTION"] == "close")
+	{
+		std::cout << "connection close ---> erase client...\n";
+		clearClient();
+		this->erase_client();
+		return;
+	}
+	else
+	{
+		_pfds[this->_index].events = POLLIN;
+		this->_count = 0;
+		this->_recieved.clear();
+		this->_rcv_binary.clear();
+		clearClient();
+		this->_timeout = std::time(0);
 	}
 }
 
@@ -239,25 +263,7 @@ void	Client::send_answer()
 		}
 		this->_count += sent;
 		if (this->_count == msg_len)
-		{
-			if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
-				&& this->_request->getHeaders()["CONNECTION"] == "close")
-			{
-				std::cout << "connection close ---> erase client...\n";
-				clearClient();
-				this->erase_client();
-				return;
-			}
-			else
-			{
-				_pfds[this->_index].events = POLLIN;
-				this->_count = 0;
-				this->_recieved.clear();
-				this->_rcv_binary.clear();
-				clearClient();
-				this->_timeout = std::time(0);
-			}
-		}
+			resetClient();
 	}
 }
 
@@ -296,5 +302,5 @@ void	Client::clearCGI()
 
 CGI*	Client::getCGI() const
 {
-	return(this->_CGI);
+	return (this->_CGI);
 }

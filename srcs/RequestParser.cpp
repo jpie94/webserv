@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:19:10 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 17:08:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ void Request::parsRequest()
 
 void Request::parsRequestLine(std::string &msg)
 {
-	std::istringstream ss(msg);
-	std::string line, tmp;
+	std::istringstream	ss(msg);
+	std::string			line, tmp;
 
 	std::getline(ss, line, '\n');
 	this->_request_line_len += line.size() + 1;
@@ -98,7 +98,7 @@ void Request::parsBody()
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
 		if (!msg.empty() && msg[msg.size() - 1] == '\n')// Je comprends pas pk le /R/N est supprime ici
-			msg.erase(msg.size() - 1);
+			msg.erase(msg.size() - 1);/*                   Parce que c'est pas vraiment une partie du body, c'est une limite*/
 		if (msg.empty() && msg[msg.size() - 1] == '\r')
 			msg.erase(msg.size() - 1);
 		this->_body = msg;
@@ -146,12 +146,16 @@ void	Request::parsChunkedBody()
 int	Request::extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos)
 {
 	size_t pos = find_mem(msg, bound);
+	if (pos == std::string::npos)
+		return(std::cout << "400 error 3000" << std::endl, setStatus("400"), 1);
 	part = std::vector<char>(msg.begin() + pos + bound.size(), msg.end());
 	if (part.size() >= 2 && part[0] == '-' && part[1] == '-')
 		return (1);
 	if (part.size() >= 2 && part.data()[0] == '\r' && part.data()[1] == '\n')
 	{
 		pos = find_mem(part, CRLF);
+		if (pos == std::string::npos)
+			return(std::cout << "400 error 4000" << std::endl, setStatus("400"), 1);
 		part.erase(part.begin(), part.begin() + pos + 2);
 	}
 	sep_pos = find_mem(part, bound);
@@ -171,6 +175,8 @@ std::map<std::string, std::string>	Request::makeHeadersMap(std::vector<char> par
 	std::string header_line;
 
 	sep_pos = find_mem(part, CRLFCRLF);
+	if (sep_pos == std::string::npos)
+		return (std::cout << "400 error 5000" << std::endl, setStatus("400"), std::map<std::string, std::string>());
 	part.erase(part.begin() + sep_pos, part.end());;
 	part.push_back('\0');
 	std::istringstream headers_ss(part.data());
@@ -198,7 +204,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
 	if (!filename.empty())
 	{
-		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName();
+		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName();//better without _ogRoot??
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
@@ -210,7 +216,8 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 	{
 		body_part.push_back('\0');
 		std::string body_str(body_part.data());
-		std::ofstream csv("/tmp/form_data.csv", std::ios::app);
+		std::string tmp_path = _ogRoot + "/tmp/form_data.csv";
+		std::ofstream csv(tmp_path.c_str(), std::ios::app);
 		if (!csv.is_open())
 			return (setStatus("500"), 1);
 		body_str = trim_white_spaces(body_str);
@@ -230,11 +237,11 @@ int Request::parsPart(std::vector<char>& msg, std::string& bound)
 	if (extractPart(msg, bound, part, sep_pos))
 		return (1);
 	std::map<std::string, std::string> headers_map = makeHeadersMap(part, sep_pos);
-	for (std::map<std::string, std::string>::iterator it = headers_map.begin(); it != headers_map.end(); ++it)
-		std::cout << it->first << " : " << it->second << std::endl;
 	if (headers_map.find("CONTENT-DISPOSITION") == headers_map.end())
 		return (std::cout << "400 Error -> 12\n", setStatus("400"), 1);
 	sep_pos = find_mem(part, CRLFCRLF);
+	if (sep_pos == std::string::npos)
+		return(std::cout << "400 error 6000" << std::endl, setStatus("400"), 1);
 	part.erase(part.begin(), part.begin() + sep_pos + 4);
 	if (handleContent(headers_map, part))
 		return (std::cout << "error 4" << std::endl, 1);
@@ -249,8 +256,9 @@ void	Request::parsMultipart()
 	removeQuotes(bound);
 	bound = "--" + bound;
 	pos = find_mem(this->_rcv_binary, CRLFCRLF);
-	if (pos != std::string::npos)
-		this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	if (pos == std::string::npos)
+		return;
+	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
 	while (pos != std::string::npos)
 	{
 		if (parsPart(this->_rcv_binary, bound))

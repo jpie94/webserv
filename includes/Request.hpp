@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 14:22:52 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:20:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,8 @@ class Request : public Client
 		size_t								_headers_len;
 		size_t								_request_line_len;
 		size_t								_body_len;
-		// size_t								_msg_size;
-		// size_t								_part_size;
 		std::map<std::string, std::string>	_headers;
-		static std::map<std::string, std::string>	_files;//name->tmp_path pour gere les fichiers temporaires
+		static std::map<std::string, std::string>	_files;
 		std::string							_body;
 		std::string							_methode;
 		std::string							_path;

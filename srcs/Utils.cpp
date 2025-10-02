@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:07:00 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:48:40 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils.hpp"
 
-std::string	i_to_string(int value)
+std::string	int_to_string(int value)
 {
 	std::ostringstream	oss;
 	oss << value;
@@ -116,12 +116,11 @@ std::string getName(const std::string& str, const std::string& key)
 std::string generateRandomName()
 {
 	size_t	len = 10;
-	std::string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	std::string result;
+	std::string res, chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	std::srand(time(0));
 	for (size_t i = 0; i < len; ++i)
-		result += chars[std::rand() % chars.size()];
-	return (result);
+		res += chars[std::rand() % chars.size()];
+	return (res);
 }
 /*del avant final push*/
 void	printVect(std::vector<char>& v)

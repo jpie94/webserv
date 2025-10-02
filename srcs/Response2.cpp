@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:19:04 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 17:32:13 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,19 +132,22 @@ void Response::postMethode()
 
 void Response::postMultipart()
 {
+	std::string	field_name, tmp_path, ext, final_path;
+	size_t		pos;
+
 	if (!this->_files.empty())
 	{
 		std::string upload_dir = _ogRoot + this->_config["upload_folder"];
-		if (upload_dir.empty())
-			upload_dir = _ogRoot + "/uploads";
+		if (upload_dir == _ogRoot)
+			upload_dir += "/uploads";
 		mkdir(upload_dir.c_str(), 0777);
 		for (std::map<std::string, std::string>::iterator it = this->_files.begin(); it != this->_files.end(); ++it)
 		{
-			std::string field_name = it->first;
-			std::string tmp_path = it->second;
-			size_t	pos = it->first.find(".");
-			std::string ext = it->first.substr(pos);
-			std::string final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName() + ext;
+			field_name = it->first;
+			tmp_path = it->second;
+			pos = it->first.find(".");
+			ext = it->first.substr(pos);
+			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName() + ext;
 			std::ifstream src(tmp_path.c_str(), std::ios::binary);
 			std::ofstream dst(final_path.c_str(), std::ios::binary);
 			if (!src.is_open() || !dst.is_open())
@@ -224,7 +227,7 @@ void Response::setResponse()
 	this->_response_msg += "\r\nServer: Webserv\r\n";
 	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
 	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-	this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
+	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLFCRLF;
 	this->_response_msg += this->_responseBody;
 }
 
