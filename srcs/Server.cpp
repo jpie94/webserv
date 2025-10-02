@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 15:29:46 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/01 10:19:33 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ void	Server::GetCGIConfig(std::string value)
 		throw_error(std::string("Error in configuration file : wrong cgi directive (" + extension + ")").c_str());
 	this->_cgis[extension] = path;
 }
+
 void	Server::GetErrorPageConfig(std::string value)
 {
 	std::string code, uri, check;

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 16:32:26 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/01 10:18:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,6 @@ std::string Response::getFileExt(std::string value) const
 			return (it->first);
 	return ("");
 }
-
 
 std::string Response::getTimeStr() const
 {

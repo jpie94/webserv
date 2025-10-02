@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/02 10:51:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:14:49 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ class Client : public Server
 		Request*		_request;
 		Response*		_response;
 		CGI*			_CGI;
-		//std::stringstream	_ss_recv;
+		int				_execComplete;
+		int				_pipeReadingComplete;
+		int				_pipeWritingComplete;
 
 	public:
 		/* Canonical Form + Paramtric constructor */
@@ -50,9 +52,11 @@ class Client : public Server
 		void			handle_request();
 		int				clientRecv();
 		void			clearClient();
+		void			clearCGI();
 		void			makeResponse();
 		int				checkTimeout();
 		void			getCGIoutput();
+		void			checkStatusCGI();
 	//	std::time_t		getTimeout() const;
 		void			add_to_recieved(std::vector<char> str);
 };

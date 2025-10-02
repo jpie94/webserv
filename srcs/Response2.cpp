@@ -6,11 +6,12 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 15:09:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:19:04 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "Location.hpp"
 
 void	Response::generateFileName(struct stat path_stat)
 {
@@ -192,7 +193,6 @@ void Response::autoIndex()
 			index_page += "</a><br>\n";
 
 		}
-
 		index_page += "</p>\n</body>\n</html>\n";
 		if (closedir(dir) < 0)
 			return ((void)(std::cout << "500 Error -> 3\n"),setStatus("500"), setErrorPage());
@@ -245,6 +245,7 @@ void Response::callMethode()
 			(void)((this->*f[i])());
 	clearTmpFiles();
 }
+
 void Response::setErrorPage()
 {
 	std::ostringstream os;

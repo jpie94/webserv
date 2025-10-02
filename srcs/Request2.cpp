@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 18:52:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:18:29 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,11 @@ void	Request::check_cgi()
 
 void 	Request::getCgiScript()
 {
-	std::string temp = this->_path.substr(_CGI_bin_path.size());
+	std::string temp;
+	if (this->_path.size() >= _CGI_bin_path.size())
+		temp = this->_path.substr(_CGI_bin_path.size());
+	else
+		temp = this->_path.substr(_CGI_bin_path.size() - 1);
 	size_t pos = temp.find("?");
 	if (pos != std::string::npos)
 	{

@@ -6,12 +6,11 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:11:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:19:10 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include "Location.hpp"
 
 void Request::parsRequest()
 {

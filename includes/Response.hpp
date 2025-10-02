@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/26 16:30:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:18:01 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,9 @@ class Response : public Request
 		std::string	getPath() const;
 		int			expandPath(struct stat);
 		void		generateFileName(struct stat);
-		void								setResponseMsg(std::string output);
-		void postMultipart();
+		void		setResponseMsg(std::string output);
+		void 		postMultipart();
+		void		setResponseMsg(std::string output);
 };
 
 #endif
