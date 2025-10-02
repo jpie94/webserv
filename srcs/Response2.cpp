@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 17:05:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 15:09:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ void Response::postMethode()
 
 	std::map<std::string, std::string> headers = Request::getHeaders();
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
-		return(postMultipart());
+		return (postMultipart());
 	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)

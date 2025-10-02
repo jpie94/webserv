@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/01 15:36:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 14:59:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,14 +75,11 @@ void Request::parsHeaders(std::string &msg)
 		std::getline(ss, line, '\n');
 	}
 	msg = ss.str();
-	if (count + 1 <= this->_msg_size)
+	if (count + 1 <= msg.size())
 		msg = msg.substr(count + 1);
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
-	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
-		std::cout << "content-l= " << this->_body_len << std::endl;
-	}
 }
 
 void Request::parsBody()
@@ -101,10 +98,10 @@ void Request::parsBody()
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 				return ((void)setStatus("413"));
-		if (!msg.empty() && msg[this->_msg_size - 1] == '\n') // Je comprends pas pk le /R/N est supprime ici
-			msg.erase(this->_msg_size - 1);
-		if (msg[!msg.empty() && this->_msg_size - 1] == '\r')// C est chelou le corchet la
-			msg.erase(this->_msg_size - 1);
+		if (!msg.empty() && msg[msg.size() - 1] == '\n') // Je comprends pas pk le /R/N est supprime ici
+			msg.erase(msg.size() - 1);
+		if (msg[!msg.empty() && msg.size() - 1] == '\r')// C est chelou le corchet la
+			msg.erase(msg.size() - 1);
 		this->_body = msg;
 	}
 }
@@ -147,43 +144,48 @@ void	Request::parsChunkedBody()
 	}
 }
 
-int	Request::extractPart(char* &msg, const std::string &bound, char* &part, size_t &sep_pos)
+int	Request::extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos)
 {
-	size_t pos = find_mem(msg, bound, this->_msg_size);
-	part = submem(msg, bound, this->_msg_size);
-	this->_part_size -= (pos + bound.size());
-	std::cout << "start= " << pos << std::endl;
-	std::cout << "this->_part_size= " << this->_part_size << std::endl;
-	if (this->_part_size >= 2 && part[0] == '-' && part[1] == '-')
-		return (std::cout << "error 1" << std::endl, 1);
-	if (this->_part_size >= 2 && part[0] == '\r' && part[1] == '\n')
+	size_t pos = find_mem(msg, bound);
+	part = std::vector<char>(msg.begin() + pos + bound.size(), msg.end());
+	//std::cout << "extract part= ";
+	//printVect(part);
+	if (part.size() >= 2 && part[0] == '-' && part[1] == '-')
+		return (1);
+	if (part.size() >= 2 && part.data()[0] == '\r' && part.data()[1] == '\n')
 	{
-		pos = find_mem(part, CRLF, this->_part_size);
-		part = submem(part, CRLF, this->_part_size);
-		this->_part_size -= (pos + 2);
+		pos = find_mem(part, CRLF);
+		part.erase(part.begin(), part.begin() + pos + 2);
+		//std::cout << "extract part2= ";
+		//printVect(part);
 	}
-	sep_pos = find_mem(part, bound, this->_part_size);
+	sep_pos = find_mem(part, bound);
 	if (sep_pos == std::string::npos)
 		return (std::cout << "error 2" << std::endl, setStatus("400"), 1);
-	part = submem(part, bound, this->_part_size);
-	this->_part_size -= (sep_pos - bound.size());
-	msg = (this->_part_size + bound.size() < this->_msg_size ? submem(msg, bound, this->_msg_size) : NULL);
-	this->_msg_size = (this->_part_size + bound.size() < this->_msg_size ? this->_msg_size - sep_pos - bound.size() : 0);
+	part.erase(part.begin() + sep_pos, part.end());
+	if (part.size() + bound.size() < msg.size())
+		msg.erase(msg.begin(), msg.begin() + part.size());
+	else
+		msg.clear();
+	//std::cout << "extract part MSG= ";
+	//printVect(msg);
 	return (0);
 }
 
-std::map<std::string, std::string>	Request::makeHeadersMap(char* &part, size_t& sep_pos)
+std::map<std::string, std::string>	Request::makeHeadersMap(std::vector<char> part, size_t& sep_pos)
 {
 	std::map<std::string, std::string> headers_map;
 	std::string header_line;
 
-	sep_pos = find_mem(part, CRLFCRLF, this->_part_size);
-	char* headers_block = submem(part,CRLFCRLF, this->_part_size);
-	std::istringstream headers_ss(headers_block);
-	std::cout << "hblock= " << headers_block << std::endl;
+	sep_pos = find_mem(part, CRLFCRLF);
+	part.erase(part.begin() + sep_pos, part.end());;
+	part.push_back('\0');
+	std::istringstream headers_ss(part.data());
+	std::cout << "hblock= ";
+	printVect(part);
 	while (std::getline(headers_ss, header_line))
 	{
-		std::cout << "line= " << header_line << std::endl;
+		//std::cout << "line= " << header_line << std::endl;
 		header_line = trim_white_spaces(header_line);
 		if (header_line.empty())
 			break;
@@ -198,7 +200,7 @@ std::map<std::string, std::string>	Request::makeHeadersMap(char* &part, size_t& 
 	return (headers_map);
 }
 
-int	Request::handleContent(std::map<std::string, std::string>& headers_map, char* &body_part, size_t body_len)
+int	Request::handleContent(std::map<std::string, std::string>& headers_map, std::vector<char>& body_part)
 {
 	std::string name = getName(headers_map["CONTENT-DISPOSITION"], "name=");
 	std::string filename = getName(headers_map["CONTENT-DISPOSITION"], "filename=");
@@ -210,12 +212,14 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, char
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
-		file.write(body_part, body_len);
+		file.write(body_part.data(), body_part.size());
 		file.close();
 		this->_files[name] = tmp_path;
 	}
 	else
 	{
+		body_part.push_back('\0');
+		std::string body_str(body_part.data());
 		std::ofstream csv("/tmp/form_data.csv", std::ios::app);
 		if (!csv.is_open())
 			return (setStatus("500"), 1);
@@ -228,64 +232,55 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, char
 	return (0);
 }
 
-int Request::parsPart(char* &msg, std::string& bound)
+int Request::parsPart(std::vector<char>& msg, std::string& bound)
 {
-	char* part = NULL;
+	std::vector<char> part;
 	size_t	sep_pos;
 
 	if (extractPart(msg, bound, part, sep_pos))
-		return (std::cout << "error 0" << std::endl, 1);
-	std::cout << "part= " << part << std::endl;
-	std::cout << "sep_pos= " << sep_pos << std::endl;
+		return (1);
+	std::cout << "part= ";
+	printVect(part);
+	//std::cout << "sep_pos= " << sep_pos << std::endl;
 	std::map<std::string, std::string> headers_map = makeHeadersMap(part, sep_pos);
 	for (std::map<std::string, std::string>::iterator it = headers_map.begin(); it != headers_map.end(); ++it)
 		std::cout << it->first << " : " << it->second << std::endl;
 	if (headers_map.find("CONTENT-DISPOSITION") == headers_map.end())
 		return (std::cout << "400 Error -> 12\n", setStatus("400"), 1);
-	char* body_part = submem(part, bound, this->_part_size);
-	if (handleContent(headers_map, body_part, this->_part_size - bound.size() - find_mem(part, bound, this->_part_size)));
+	sep_pos = find_mem(part, CRLFCRLF);
+	part.erase(part.begin(), part.begin() + sep_pos + 4);
+	std::cout << "part2= ";
+	printVect(part);
+	if (handleContent(headers_map, part))
 		return (std::cout << "error 4" << std::endl, 1);
-	if (part)
-		delete [] part;
 	return (0);
 }
 
 void	Request::parsMultipart()
 {
-	this->_msg_size = this->_count;
-	this->_part_size = this->_msg_size;
-	char*	msg = new char [this->_count];
-	if (!msg)
-		return ((void)(std::cerr << "Error malloc in parsMultipart\n"));
-	std::cout << "rcv_bin= " << this->_rcv_bin << std::endl;
-	std::memcpy(msg, this->_rcv_bin, this->_msg_size);
-	std::cout << "msg= " << msg << std::endl;
+	//std::cout << "parsMultipart->rcv_binary= ";
+	//printVect(this->_rcv_binary);
 	std::string	bound;
 	size_t pos = this->_headers["CONTENT-TYPE"].find("boundary=");
-
 	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
 	removeQuotes(bound);
 	bound = "--" + bound;
-	pos = find_mem(msg, CRLFCRLF, this->_msg_size);
-	std::cout << "recieved size= " << this->_count << std::endl;
-	 std::cout << "msg size 1= " << this->_msg_size << std::endl;
+	pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos != std::string::npos)
-	{
-		msg = submem(msg, CRLFCRLF, this->_msg_size);//free msg1
-		this->_msg_size -= (pos + 4); 
-	}
-	std::cout << "msg1= " << msg << std::endl;
-	std::cout << "msg size 2= " << this->_msg_size << std::endl;
+		this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	// std::cout << "msg1= ";
+	// printVect(this->_rcv_binary);
+	//size_t pos2 = pos;
 	while (pos != std::string::npos)
 	{
-		if (parsPart(msg, bound))
-		{
-			std::cerr << "parsPart failed !" << std::endl;
-			return (delete [] msg);
-		}
-		pos = find_mem(msg, bound, this->_msg_size);
+		if (parsPart(this->_rcv_binary, bound))
+			break;
+		pos = find_mem(this->_rcv_binary, bound);
+		// if (pos2 == pos)
+		// 	break;
+		// pos2 = pos;
 	}
-	return (delete [] msg);
+	this->_body_len = this->_count - this->_request_line_len - this->_headers_len;
 }
 // void	Request::addChunktoBody(std::string str)
 // {

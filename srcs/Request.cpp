@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/01 15:39:02 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 12:38:58 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ std::map<std::string, std::string>	Request::_files;
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _msg_size(), _part_size(), _body(), _methode(), _path(),
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(),
 _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
@@ -50,13 +50,11 @@ Request &Request::operator=(const Request &rhs)
 		this->_body_len = rhs._body_len;
 		this->_headers_len = rhs._headers_len;
 		this->_request_line_len = rhs._request_line_len;
-		this->_msg_size = rhs._msg_size;
-		this->_part_size = rhs._part_size;
 	}
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _msg_size(), _part_size(), _body(), _methode(),
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(),
 _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::~Request() {}
@@ -68,13 +66,10 @@ std::string Request::getProtocol() const
 	return (this->_protocol);
 }
 
-void Request::setRecieved(std::string& str, char* &str_bin, size_t count)
+void Request::setRecieved(std::string& str, std::vector<char>& bin_vect)
 {
-	this->_count =  count;
 	this->_recieved = str;
-	this->_rcv_bin = new char [this->_count];
-	std::memcpy(this->_rcv_bin, str_bin, this->_count);
-	std::cout << "set rcv_bin= " << this->_rcv_bin << std::endl;
+	this->_rcv_binary = bin_vect;
 }
 
 std::string Request::getBody() const

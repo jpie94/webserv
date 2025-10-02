@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/30 18:59:10 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/02 10:51:47 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Client : public Server
 		int				_server_fd;
 		size_t			_count;
 		std::string 	_recieved;
-		char*			_rcv_bin;//try with std::vector<char>
+		std::vector<char>	_rcv_binary;
 		std::string 	_buff;
 		std::string 	_CGIoutput;
 		std::time_t		_timeout;
@@ -54,7 +54,7 @@ class Client : public Server
 		int				checkTimeout();
 		void			getCGIoutput();
 	//	std::time_t		getTimeout() const;
-		void			add_to_recieved(const char* str);
+		void			add_to_recieved(std::vector<char> str);
 };
 
 #endif
