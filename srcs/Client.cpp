@@ -110,8 +110,6 @@ void	Client::makeResponse()
 	this->_response = new Response(*this->_request);
 	if (!this->_CGI)
 		this->_response->callMethode();
-	else
-		this->_CGIoutput += "HTTP/1.1 200 OK\r\n";
 	this->_count = 0;
 	_pfds[this->_index].events = POLLOUT;
 }
