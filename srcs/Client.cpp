@@ -211,7 +211,6 @@ void	Client::getCGIoutput()
 	if (i == 0)
 	{
 		this->_response->setResponseMsg(this->_CGIoutput);
-		this->_request->set_isCGIFalse();
 		this->_pipeReadingComplete = 1;
 		if (close (this->_CGI->get_FD_Out()) < 0)
 			throw std::runtime_error(std::string(std::string("Error in getCGIoutput : close _CGI _Out failed : ") + std::strerror(errno)).c_str());
