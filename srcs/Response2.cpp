@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 16:09:21 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:54:28 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ void Response::getMethode()
 		return (setErrorPage());
 }
 
-void Response::postMethode()
+void Response::postMethode()//post to upload folder??
 {
 	std::string status;
 	struct stat path_stat;
@@ -126,6 +126,7 @@ void Response::postMethode()
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
+	this->_body2.push_back('\0');
 	ofs << this->_body2.data();
 	setResponse();
 }
