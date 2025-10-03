@@ -3,211 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/26 16:56:33 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/02 16:18:29 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Location.hpp"
-
-void Request::parsRequest()
-{
-	std::string key, value, line, msg(this->_recieved);
-	parsRequestLine(msg);
-	resolvePath();
-	this->printconfig();
-	parsHeaders(msg);
-	checkRequest();
-	check_cgi();
-}
-
-void Request::parsRequestLine(std::string &msg)
-{
-	std::istringstream ss(msg);
-	std::string line, tmp;
-
-	std::getline(ss, line, '\n');
-	this->_request_line_len += line.size() + 1;
-	ss.str(line);
-	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
-	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
-		return ((void)(std::cout << "400 Error -> 1\n"), setStatus("400"));
-	if (this->_protocol.compare("HTTP/1.1"))
-		return (setStatus("505"));
-	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
-		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
-	if (this->_path.size() >= 4000)
-		return (setStatus("414"));
-	msg = msg.substr(line.size() + 1);
-	if (!tmp.empty())
-		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
-}
-
-void Request::parsHeaders(std::string &msg)
-{
-	std::istringstream ss(msg);
-	std::string key, value, line;
-	std::size_t count = 0, found = std::string::npos;
-
-	line = ss.str();
-	std::getline(ss, line, '\n');
-	while (!line.empty())
-	{
-		count += line.size() + 1;
-		if (count >= 4000)
-			setStatus("431");
-		line = trim_white_spaces(line);
-		if (line.empty())
-			break;
-		found = line.find(':');
-		if (!line.empty() && found == std::string::npos)
-			return ((void)(std::cout << "400 Error -> 3\n"), setStatus("400"));
-		key = trim_white_spaces(line.substr(0, found));
-		strCapitalizer(key);
-		value = trim_white_spaces(line.substr(found + 1));
-		if (this->_headers.find(key) != this->_headers.end())
-			this->_headers[key] += " " + value;
-		else
-			this->_headers[key] = value;
-		std::getline(ss, line, '\n');
-	}
-	msg = ss.str();
-	if (count + 1 <= msg.size())
-		msg = msg.substr(count + 1);
-	this->_headers_len += count;
-	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
-		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
-}
-
-void Request::parsBody()
-{
-	std::string msg(this->_recieved);
-
-	size_t pos = findCRLFCRLF(msg);
-
-	if (pos != std::string::npos) // Du coup on a deja pos, on pourrait eviter de refaire un find et juste ecrire pos + 4
-		msg = msg.substr(msg.find(CRLFCRLF) + 4);//wrong if body is large enought to be recieved in more than one recv
-	else
-		msg.clear();	
-	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
-	{
-		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
-		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
-			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
-				return ((void)setStatus("413"));
-		if (!msg.empty() && msg[msg.size() - 1] == '\n') // Je comprends pas pk le /R/N est supprime ici
-			msg.erase(msg.size() - 1);
-		if (msg[!msg.empty() && msg.size() - 1] == '\r')// C est chelou le corchet la
-			msg.erase(msg.size() - 1);
-		this->_body = msg;
-	}
-}
-
-int	Request::parsChunk(std::string &msg)
-{
-	std::string	chunk;
-	size_t	pos, chunk_len;
-	char* endpos;
-
-	if (!msg.compare("0\r\n\r\n"))
-	{
-		msg = "";
-		return (1);
-	}
-	chunk_len = std::strtol(msg.c_str(), &endpos, 16);
-	pos = findCRLF(msg);
-	if (pos == std::string::npos)
-		return (setStatus("404"), 1);
-	chunk = msg.substr(pos + 2, chunk_len);
-	this->_body += chunk;
-	msg = msg.substr(pos + chunk_len + 4);
-	return (0);
-}
-
-void	Request::parsChunkedBody()
-{
-	std::string msg(this->_recieved);
-	size_t pos = findCRLFCRLF(msg);
-
-	if (pos != std::string::npos)
-		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
-	else
-		msg.clear();
-	std::string line, chunk;
-	while (msg != "")
-	{
-		if (parsChunk(msg))
-			break;
-	}
-}
-
-int	Request::parsPart(std::string& msg, std::string& bound, std::string& endbound)
-{
-	size_t pos, endpos, count = 0;
-	std::string part, line, key, value;
-	std::map<std::string, std::string> partHeaders;
-	pos = msg.find(bound);
-	endpos = msg.find(endbound);
-	if (endpos == std::string::npos || pos == endpos)	
-		return (1);
-	part = msg.substr(pos + bound.size());
-	pos = part.find(bound);
-	part = part.substr(2, pos - 2);
-	msg = msg.substr(part.size() + bound.size());
-	// std::cout << "part= " <<  part << std::endl;
-	// std::cout << "msg= " << msg << std::endl;
-	std::istringstream ss(part);
-	std::getline(ss, line, '\n');
-	while (!line.empty() && line.find(':') != std::string::npos)
-	{
-		count += line.size() + 1;
-		line = trim_white_spaces(line);
-		if (line.empty())
-			break;
-		pos = line.find(':');
-		if (!line.empty() && pos == std::string::npos)
-			return (std::cout << "400 Error -> 9\n", setStatus("400"), 1);
-		key = trim_white_spaces(line.substr(0, pos));
-		strCapitalizer(key);
-		value = trim_white_spaces(line.substr(pos + 1));
-		if (this->_headers.find(key) != this->_headers.end())
-			this->_headers[key] += " " + value;
-		else
-			this->_headers[key] = value;//try to get all the name= in Content-disposition
-		// std::cout << "key= " << key << std::endl;
-		// std::cout << "value= " << value << std::endl;
-		std::cout << "name= " << getName(value) << std::endl;//search all the "name=" in Content-disposition
-		std::getline(ss, line, '\n');
-	}
-	part = part.substr(count);
-	part = trim_white_spaces(part);
-	// std::cout << "bodypart= " << part << std::endl;
-	return (0);
-	
-}
-
-void	Request::parsMultipart()
-{
-	std::string	bound, endbound, msg(this->_recieved);
-	size_t pos = this->_headers["CONTENT-TYPE"].find("boundary=");
-
-	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
-	removeQuotes(bound);
-	bound = "--" + bound;
-	endbound = bound + "--";
-	pos = findCRLFCRLF(msg);
-	if (pos != std::string::npos)
-		msg = msg.substr(msg.find(CRLFCRLF) + 4 + this->_body.size());
-	else
-		msg.clear();
-	std::cout << "msg1= " << msg << std::endl;
-	while (pos!= std::string::npos)
-		if (parsPart(msg, bound, endbound))
-			return;
-}
 
 void Request::checkRequest()
 {
@@ -270,19 +74,6 @@ void Request::resolvePath()
 	finalPath = _ogRoot + finalPath;
 	this->_path = finalPath;
 }
-// void	Request::addChunktoBody(std::string str)
-// {
-// 	std::ifstream::pos_type size;
-// 	char * memblock;
-// 	std::istringstream iss(str, std::ios::in|std::ios::binary|std::ios::ate);
-	
-// 	size = iss.tellg();
-// 	memblock = new char [size];
-// 	iss.seekg (0, std::ios::beg);
-// 	iss.read (memblock, size);
-// 	this->_body += iss.str();
-// 	delete[] memblock;
-// }
 
 void 	Request::printURIConfig()
 {
@@ -357,4 +148,11 @@ void	Request::checkCGIExt()
 		}
 	}
 	return (this->_isCGI=false, setStatus("500"));
+}
+
+void Request::clearTmpFiles()
+{
+	for (std::map<std::string, std::string>::iterator it = _files.begin(); it != _files.end(); ++it)
+		std::remove(it->second.c_str());
+	_files.clear();
 }

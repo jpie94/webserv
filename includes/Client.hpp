@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/30 16:58:58 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/02 17:27:16 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class Client : public Server
 		int				_server_fd;
 		size_t			_count;
 		std::string 	_recieved;
+		std::vector<char>	_rcv_binary;
 		std::string 	_buff;
 		std::string 	_CGIoutput;
 		std::time_t		_timeout;
@@ -57,6 +58,9 @@ class Client : public Server
 		void			getCGIoutput();
 		void			checkStatusCGI();
 	//	std::time_t		getTimeout() const;
+		void			add_to_recieved(std::vector<char> str);
+		void			parserDispatcher();
+		void			resetClient();
 };
 
 #endif

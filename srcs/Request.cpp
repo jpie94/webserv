@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 16:31:55 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/02 12:38:58 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 #include "Response.hpp"
 #include "Client.hpp"
 
+std::map<std::string, std::string>	Request::_files;
+
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(),
+_protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
 {
@@ -51,7 +54,8 @@ Request &Request::operator=(const Request &rhs)
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(),
+_path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::~Request() {}
 
@@ -62,9 +66,10 @@ std::string Request::getProtocol() const
 	return (this->_protocol);
 }
 
-void Request::setRecieved(std::string &str)
+void Request::setRecieved(std::string& str, std::vector<char>& bin_vect)
 {
 	this->_recieved = str;
+	this->_rcv_binary = bin_vect;
 }
 
 std::string Request::getBody() const

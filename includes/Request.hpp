@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/25 16:31:40 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/02 16:20:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Request : public Client
 		size_t								_request_line_len;
 		size_t								_body_len;
 		std::map<std::string, std::string>	_headers;
+		static std::map<std::string, std::string>	_files;
 		std::string							_body;
 		std::string							_methode;
 		std::string							_path;
@@ -69,15 +70,19 @@ class Request : public Client
 		int									parsChunk(std::string&);
 		void								checkRequest();
 		void								setStatus(std::string const &str);
-		void								setRecieved(std::string &);
+		void								setRecieved(std::string& str, std::vector<char>& str_bin);
 		void								addChunktoBody(std::string str);
 		void 								printURIConfig();
 		void								parsMultipart();
-		int									parsPart(std::string&, std::string&, std::string&);
+		int									parsPart(std::vector<char>&, std::string&);
 		void								check_cgi();
 		void								getCgiScript();
 		void								checkCGIExt();
 		void								set_isCGIFalse();
+		int									extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos);
+		std::map<std::string, std::string>	makeHeadersMap(std::vector<char> part, size_t& sep_pos);
+		int									handleContent(std::map<std::string, std::string>& headers_map, std::vector<char>& body_part);
+		void 								clearTmpFiles();
 };
 
 #endif

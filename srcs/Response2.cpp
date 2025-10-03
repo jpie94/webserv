@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/01 10:21:02 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/02 17:32:13 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "Location.hpp"
 
 void	Response::generateFileName(struct stat path_stat)
 {
@@ -104,6 +105,9 @@ void Response::postMethode()
 	std::string status;
 	struct stat path_stat;
 
+	std::map<std::string, std::string> headers = Request::getHeaders();
+	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
+		return (postMultipart());
 	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
@@ -124,6 +128,41 @@ void Response::postMethode()
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
 	ofs << this->_body;
 	setResponse();
+}
+
+void Response::postMultipart()
+{
+	std::string	field_name, tmp_path, ext, final_path;
+	size_t		pos;
+
+	if (!this->_files.empty())
+	{
+		std::string upload_dir = _ogRoot + this->_config["upload_folder"];
+		if (upload_dir == _ogRoot)
+			upload_dir += "/uploads";
+		mkdir(upload_dir.c_str(), 0777);
+		for (std::map<std::string, std::string>::iterator it = this->_files.begin(); it != this->_files.end(); ++it)
+		{
+			field_name = it->first;
+			tmp_path = it->second;
+			pos = it->first.find(".");
+			ext = it->first.substr(pos);
+			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName() + ext;
+			std::ifstream src(tmp_path.c_str(), std::ios::binary);
+			std::ofstream dst(final_path.c_str(), std::ios::binary);
+			if (!src.is_open() || !dst.is_open())
+			{
+				this->_responseBody += "Failed to save file: " + field_name + CRLF;
+				continue;
+			}
+			dst << src.rdbuf();
+			src.close();
+			dst.close();
+			std::remove(tmp_path.c_str());
+			this->_responseBody += "File: " + field_name + " saved to " + final_path + CRLF;
+			setResponse();
+		}
+	}
 }
 
 void Response::deleteMethode()
@@ -188,7 +227,7 @@ void Response::setResponse()
 	this->_response_msg += "\r\nServer: Webserv\r\n";
 	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
 	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-	this->_response_msg += "Content-Length: " + i_to_string(this->_responseBody.size()) + CRLFCRLF;
+	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLFCRLF;
 	this->_response_msg += this->_responseBody;
 }
 
@@ -197,16 +236,17 @@ void Response::callMethode()
 	std::string methodes[3] = {"GET", "POST", "DELETE"};
 	void (Response::*f[])(void) = {&Response::getMethode, &Response::postMethode, &Response::deleteMethode};
 	if (this->_responseStatus == "302")
-		return (setRedirect());
+		return (clearTmpFiles(), setRedirect());
 	if (this->_responseStatus != "200")
-		return (setErrorPage());
+		return (clearTmpFiles(), setErrorPage());
 	if (HandlePath())
 		return;
 	if (this->_responseStatus != "200")
-		return (setErrorPage());
+		return (clearTmpFiles(), setErrorPage());
 	for (int i = 0; i < 3; ++i)
 		if (!methodes[i].compare(this->_methode))
 			(void)((this->*f[i])());
+	clearTmpFiles();
 }
 
 void Response::setErrorPage()
