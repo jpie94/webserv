@@ -1,0 +1,5 @@
+2. Test de disponibilité (> 99,5%)
+
+Supposons que ton serveur est accessible sur http://localhost:8080/empty.html.
+
+Exécute un benchmark sans délai avec -b :

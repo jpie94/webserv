@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:20:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 15:58:40 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Request : public Client
 		std::map<std::string, std::string>	_headers;
 		static std::map<std::string, std::string>	_files;
 		std::string							_body;
+		std::vector<char>					_body2;
 		std::string							_methode;
 		std::string							_path;
 		std::string							_protocol;

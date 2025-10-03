@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 12:38:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 15:59:48 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ std::map<std::string, std::string>	Request::_files;
 
 /*****************	CANONICAL	*******************/
 
-Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(),
+Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _body2(), _methode(), _path(),
 _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::Request(const Request &src)
@@ -50,11 +50,12 @@ Request &Request::operator=(const Request &rhs)
 		this->_body_len = rhs._body_len;
 		this->_headers_len = rhs._headers_len;
 		this->_request_line_len = rhs._request_line_len;
+		this->_body2 = rhs._body2;
 	}
 	return (*this);
 }
 
-Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(),
+Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _body2(), _methode(),
 _path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
 
 Request::~Request() {}

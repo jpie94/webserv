@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 17:32:13 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:09:21 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,12 +108,12 @@ void Response::postMethode()
 	std::map<std::string, std::string> headers = Request::getHeaders();
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		return (postMultipart());
-	if (this->_body.empty())
+	if (this->_body2.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
 		if (this->_config.find("upload_folder") == this->_config.end())
-			return (setStatus("500"), setErrorPage());
+			return (std::cout << "Error 500 in PostMethode\n", setStatus("500"), setErrorPage());
 		setStatus("201");
 		this->_responseBody = "Resource succesfully created";
 	}
@@ -126,7 +126,7 @@ void Response::postMethode()
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
-	ofs << this->_body;
+	ofs << this->_body2.data();
 	setResponse();
 }
 

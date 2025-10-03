@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 17:08:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:11:34 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,29 +79,41 @@ void Request::parsHeaders(std::string &msg)
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
+	if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
+		if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
+			return (setStatus("413"));//pas sur que la verif reste pertinante dans parsBody()
 }
 
 void Request::parsBody()
 {
-	std::string msg(this->_recieved);
+	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
+	if (pos == std::string::npos)
+		return;
+	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	// std::string msg(this->_recieved);
 
-	size_t pos = findCRLFCRLF(msg);
+	// size_t pos = findCRLFCRLF(msg);
 
-	if (pos != std::string::npos)
-		msg = msg.substr(pos + 4);
-	else
-		msg.clear();	
+	// if (pos != std::string::npos)
+	// 	msg = msg.substr(pos + 4);
+	// else
+	// 	msg.clear();	
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
 		if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 			if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
-				return ((void)setStatus("413"));
-		if (!msg.empty() && msg[msg.size() - 1] == '\n')// Je comprends pas pk le /R/N est supprime ici
-			msg.erase(msg.size() - 1);/*                   Parce que c'est pas vraiment une partie du body, c'est une limite*/
-		if (msg.empty() && msg[msg.size() - 1] == '\r')
-			msg.erase(msg.size() - 1);
-		this->_body = msg;
+				return (setStatus("413"));
+		// if (!msg.empty() && msg[msg.size() - 1] == '\n')// Je comprends pas pk le /R/N est supprime ici
+		// 	msg.erase(msg.size() - 1);/*                   Parce que c'est pas vraiment une partie du body, c'est une limite*/
+		// if (msg.empty() && msg[msg.size() - 1] == '\r')
+		// 	msg.erase(msg.size() - 1);
+		// this->_body = msg;
+		if (this->_rcv_binary.back() == '\n')
+			this->_rcv_binary.pop_back();
+		if (this->_rcv_binary.back() == '\r')
+			this->_rcv_binary.pop_back();
+		this->_body2 = this->_rcv_binary;
 	}
 }
 
@@ -219,7 +231,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		std::string tmp_path = _ogRoot + "/tmp/form_data.csv";
 		std::ofstream csv(tmp_path.c_str(), std::ios::app);
 		if (!csv.is_open())
-			return (setStatus("500"), 1);
+			return (std::cout << "Error 500 in handleContent\n", setStatus("500"), 1);
 		body_str = trim_white_spaces(body_str);
 		if (body_str.find(',') != std::string::npos)
 			body_str = "\"" + body_str + "\"";
