@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/08 16:10:55 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/03 18:11:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,12 @@ Webserv &Webserv::operator=(Webserv const &rhs)
 	return (*this);
 }
 
-Webserv::Webserv(char *FileName) : _fd(), _index()
+Webserv::Webserv(std::string FileName) : _fd(), _index()
 {
 	std::string Config;
-	if (FileName)
-		Config = ExtractConfig(FileName);
-	else
-		throw_error("Error in Webserv constructor: No default configuration path set yet !");
+	if (FileName.empty())
+		FileName = "conf/1.conf";	
+	Config = ExtractConfig(FileName);
 	if(Config.find("server") == std::string::npos)
 			throw_error(std::string(std::string("Error in Webserv constructor : ") + FileName + " has no server bloc !" ).c_str());
 	while (Config.find("server") != std::string::npos)
@@ -59,12 +58,12 @@ Webserv::~Webserv() {}
 
 /*****************	MEMBER		*******************/
 
-std::string Webserv::ExtractConfig(char *FileName)
+std::string Webserv::ExtractConfig(std::string FileName)
 {
 	std::string Config, line;
-	std::ifstream ConfigFile(FileName);
+	std::ifstream ConfigFile(FileName.c_str());
 	struct stat s;
-	if (stat(FileName, &s) == 0)
+	if (stat(FileName.c_str(), &s) == 0)
 		if(s.st_mode & S_IFDIR)
 			throw_error(std::string(std::string("Error in ExtractConfig : ") + FileName + " is a directory !" ).c_str());
 	if (!ConfigFile.is_open())

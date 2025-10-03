@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/01 14:23:01 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/03 18:12:51 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,10 @@ int	main(int argc, char *argv[])
 			throw std::invalid_argument("Wrong number of arguments, must be 1 or 0");
 		std::signal(SIGINT, sigIntHandler);
 		std::signal(SIGQUIT, sigQuitHandler);
-		Webserv ws(argv[1]);
+		std::string Filename;
+		if (argv[1])
+			Filename = argv[1];
+		Webserv ws(Filename);
 		ws.runWebserv();
 	}
 	catch(const std::exception& e)
