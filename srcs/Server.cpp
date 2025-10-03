@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/01 10:19:33 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/03 17:36:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 	if (Config[i] && Config[i] == '}')
 		Config.erase(it, (i - it + 1));		
 	else
-			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
+			throw_error("Error in configuration file.");
 }
 
 void	Server::GetCGIConfig(std::string value)

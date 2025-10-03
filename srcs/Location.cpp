@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/09/25 15:30:02 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/03 17:38:14 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,5 @@ void	Location::ExtractLocBloc(std::string & Config, size_t & it)
 			Config.erase(it, (i - it + 1));
 		}
 	else
-			throw_error("Error in configuration file : unexpected end of file, expecting '}'.");
+			throw_error("Error in configuration file (location).");
 }
