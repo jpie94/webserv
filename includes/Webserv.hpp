@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/29 11:33:37 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/03 18:10:21 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,14 +56,14 @@ class Webserv
 	public:
 		/* Canonical Form + Paramtric constructor */
 											Webserv();
-											Webserv(char *FileName);
+											Webserv(std::string FileName);
 											Webserv(const Webserv& srcs);
 		Webserv&							operator=(const Webserv& rhs);
 		virtual								~Webserv();
 		/* Member Functions */
 		void								ServerMaker(std::string & Config);
 		void								CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts);
-		std::string							ExtractConfig(char *FileName);
+		std::string							ExtractConfig(std::string Filename);
 		void								throw_error(const char*);
 		void								runWebserv();
 		void								setIndex();
