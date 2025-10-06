@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 13:45:36 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 16:31:55 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 void Request::parsRequest()
 {
-	std::cout << "parsRequest rcv= ";
-	printVect(this->_rcv_binary);
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
 	resolvePath();
@@ -34,9 +32,6 @@ void Request::parsRequestLine(std::string &msg)
 	this->_request_line_len += line.size() + 1;
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
-	std::cout << "methode= " << this->_methode << std::endl;
-	std::cout << "path= " << this->_path << std::endl;
-	std::cout << "protocol= " << this->_protocol << std::endl;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
 		return ((void)(std::cout << "400 Error -> 1\n"), setStatus("400"));
 	if (this->_protocol.compare("HTTP/1.1"))
@@ -201,7 +196,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
 	if (!filename.empty())
 	{
-		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName();//better without _ogRoot??
+		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName(10);//better without _ogRoot??
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open() || file.fail())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);

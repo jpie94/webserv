@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:50:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 15:56:55 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 #include <fcntl.h>
 #include <limits>
 #include "Request.hpp"
-
-#define SERVER_ROOT ""
+#include "Cookies.hpp"
+#include "Utils.hpp"
 
 class Response : public Request
 {
@@ -44,8 +44,6 @@ class Response : public Request
 		std::string getFileType();
 		int			HandlePath();
 		void		callMethode();
-		std::string	getTimeStr() const;
-		std::string	getTime() const;
 		std::string	getFileExt(std::string value) const;
 		void		setResponse();
 		void 		setRedirect();

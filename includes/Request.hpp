@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 12:43:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 15:52:15 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define REQUEST_HPP
 
 #include "Client.hpp"
+#include "Utils.hpp"
 #include <cstdlib>
 #include <dirent.h>
 #include <stdio.h>

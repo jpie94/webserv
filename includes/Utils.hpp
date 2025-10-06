@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:48:45 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 16:31:32 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <cstring>
+#include <ctime>
 
 std::string	int_to_string(int value);
 
@@ -40,8 +41,12 @@ void		removeQuotes(std::string& str);
 
 std::string	getName(const std::string& str, const std::string& key);
 
-std::string	generateRandomName();
+std::string	generateRandomName(unsigned int len);
 
 void		printVect(std::vector<char>&);//del
+
+std::string getTime();
+
+std::string getTimeStr();
 
 #endif

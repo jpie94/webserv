@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:48:40 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 16:37:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,8 @@ std::string getName(const std::string& str, const std::string& key)
 	return (name);
 }
 
-std::string generateRandomName()
+std::string generateRandomName(unsigned int len)
 {
-	size_t	len = 10;
 	std::string res, chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	std::srand(time(0));
 	for (size_t i = 0; i < len; ++i)
@@ -128,4 +127,29 @@ void	printVect(std::vector<char>& v)
 	for(std::vector<char>::iterator it = v.begin(); it != v.end(); ++it)
 		std::cout << *it;
 	std::cout << std::endl;
+}
+
+std::string	getTime()
+{
+    std::time_t now = std::time(NULL);
+    std::tm* t = std::localtime(&now);
+    std::ostringstream oss;
+
+	oss << (t->tm_year + 1900)
+		<< (t->tm_mon + 1 < 10 ? "0" : "") << (t->tm_mon + 1)
+		<< (t->tm_mday < 10 ? "0" : "") << t->tm_mday << "_"
+		<< (t->tm_hour < 10 ? "0" : "") << t->tm_hour
+		<< (t->tm_min < 10 ? "0" : "") << t->tm_min
+		<< (t->tm_sec < 10 ? "0" : "") << t->tm_sec;
+    return (oss.str());
+}
+
+std::string getTimeStr()
+{
+	time_t rawtime;
+
+	std::time(&rawtime);
+	std::tm *gmt = std::gmtime(&rawtime);
+	std::string str = std::asctime(gmt);
+	return (str.erase(str.find_last_not_of("\n") + 1) + " GMT");
 }

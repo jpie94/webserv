@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 13:16:17 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 16:09:31 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ Request::~Request() {}
 
 std::string Request::getProtocol() const
 {
-	std::cout << "getProtocol()\n";
 	return (this->_protocol);
 }
 

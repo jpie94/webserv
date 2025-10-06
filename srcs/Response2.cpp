@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 12:41:59 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 18:29:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,9 +129,10 @@ void Response::postMethode()//post to upload folder??
 	// this->_body.push_back('\0');//try something else
 	// ofs << this->_body.data();
 	ofs.write(this->_body.data(), this->_body.size());
+	ofs.close();
 	setResponse();
 }
-
+ 
 void Response::postMultipart()
 {
 	std::string	field_name, tmp_path, ext, final_path;
@@ -149,7 +150,7 @@ void Response::postMultipart()
 			tmp_path = it->second;
 			pos = it->first.find(".");
 			ext = it->first.substr(pos);
-			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName() + ext;
+			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName(10) + ext;
 			std::ifstream src(tmp_path.c_str(), std::ios::binary);
 			std::ofstream dst(final_path.c_str(), std::ios::binary);
 			if (!src.is_open() || !dst.is_open())
@@ -214,8 +215,8 @@ void Response::setRedirect()
 	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
 	this->_response_msg += " Found ";
 	this->_response_msg += "\r\nServer: Webserv\r\n";
-	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
-	this->_response_msg += "Content-length: 0\r\n";
+	this->_response_msg += "Date: " + getTimeStr() + CRLF;
+	this->_response_msg += "Content-length: 0\r\n"; 
 	this->_response_msg += "Location: " + this->_config["return"] + CRLFCRLF;
 }
 
@@ -227,10 +228,12 @@ void Response::setResponse()
 	if (this->_responseStatus == "201")
 		this->_response_msg += " Created";
 	this->_response_msg += "\r\nServer: Webserv\r\n";
-	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
+	this->_response_msg += "Date: " + getTimeStr() + CRLF;
 	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLFCRLF;
-	this->_response_msg += this->_responseBody;
+	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLF;
+	if (!this->_headers.empty() && this->_headers.find("COOKIE") == this->_headers.end())
+		this->_response_msg += setCookies();
+	this->_response_msg += CRLF + this->_responseBody;
 }
 
 void Response::callMethode()
