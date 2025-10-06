@@ -70,7 +70,7 @@ Host: Webserv
 Content-Type: text
 Content-Length: 19
 
-hello post test
+hello salut hola
 
 
 POST / HTTP/1.1

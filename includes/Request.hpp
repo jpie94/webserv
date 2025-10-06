@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 16:56:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 12:43:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ class Request : public Client
 		size_t								_body_len;
 		std::map<std::string, std::string>	_headers;
 		static std::map<std::string, std::string>	_files;
-		std::string							_body;
-		std::vector<char>					_body2;
+		std::vector<char>					_body;
 		std::string							_methode;
 		std::string							_path;
 		std::string							_protocol;
@@ -53,7 +52,7 @@ class Request : public Client
 		/* Getters */
 		std::string							getPath() const;
 		std::string							getProtocol() const;
-		std::string							getBody() const;
+		std::vector<char>					getBody() const;
 		std::map<std::string, std::string>	getHeaders() const;
 		size_t								getBodyLen() const;
 		size_t								getHeadersLen() const;

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:18:29 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 13:49:41 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,10 @@ void	Request::check_cgi()
 	std::string temp, extension;
 	temp = this->_path;
 	size_t pos = temp.find(_ogRoot);
+	std::cout << "temp= " << temp << std::endl;
+	std::cout << "pos= " << pos << std::endl;
+	if (temp.size() == _ogRoot.size())
+		return;
 	if (pos != std::string::npos)
 		temp = temp.substr(_ogRoot.size() + 1);
 	pos = temp.find("/");
@@ -147,7 +151,7 @@ void	Request::checkCGIExt()
 			return ;
 		}
 	}
-	return (this->_isCGI=false, setStatus("500"));
+	return (std::cout << "500 error CGI 22\n", this->_isCGI=false, setStatus("500"));
 }
 
 void Request::clearTmpFiles()

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 18:10:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 13:45:36 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 void Request::parsRequest()
 {
+	std::cout << "parsRequest rcv= ";
+	printVect(this->_rcv_binary);
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
 	resolvePath();
@@ -32,6 +34,9 @@ void Request::parsRequestLine(std::string &msg)
 	this->_request_line_len += line.size() + 1;
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
+	std::cout << "methode= " << this->_methode << std::endl;
+	std::cout << "path= " << this->_path << std::endl;
+	std::cout << "protocol= " << this->_protocol << std::endl;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
 		return ((void)(std::cout << "400 Error -> 1\n"), setStatus("400"));
 	if (this->_protocol.compare("HTTP/1.1"))
@@ -89,7 +94,7 @@ void Request::parsBody()
 	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos == std::string::npos)
 		return;
-	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
@@ -97,7 +102,8 @@ void Request::parsBody()
 			this->_rcv_binary.pop_back();
 		if (this->_rcv_binary.back() == '\r')
 			this->_rcv_binary.pop_back();
-		this->_body2 = this->_rcv_binary;
+		this->_body = this->_rcv_binary;
+		printVect(this->_body);
 	}
 }
 
@@ -116,7 +122,7 @@ int	Request::parsChunk(std::vector<char>& msg)
 	if (pos == std::string::npos)
 		return (std::cout << "400 Error 123\n", setStatus("404"), 1);
 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
-	this->_body2.insert(this->_body2.end(), chunk.begin(), chunk.end());
+	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
 	msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
 	return (0);
 }
@@ -197,7 +203,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 	{
 		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName();//better without _ogRoot??
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
-		if (!file.is_open())
+		if (!file.is_open() || file.fail())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
 		file.write(body_part.data(), body_part.size());
 		file.close();

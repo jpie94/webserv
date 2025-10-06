@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/03 17:22:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 13:34:03 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void Client::checkStatusCGI()
 			if (status != 0)
 			{
 				this->clearCGI();
+				std::cout << "500 error CGI 1\n";
 				this->_request->setStatus("500");
 			}
 			makeResponse();
@@ -166,12 +167,15 @@ int Client::clientRecv()
 		this->erase_client();
 		return (1);
 	}
+	std::cout << "buffer= " << buffer << std::endl;
 	this->_recieved += buffer;
 	this->_rcv_binary.insert(this->_rcv_binary.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
 	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	//std::cout << "bytes recieved= " << this->_count << std::endl;
+	std::cout << "rev_bin= ";
+	printVect(this->_rcv_binary);
 	return (0);
 }
 
@@ -186,7 +190,8 @@ void Client::handle_request()
 	this->_request->setRecieved(this->_recieved, this->_rcv_binary);
 	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
 		parserDispatcher();
-	if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+	if (this->_request->getRequestLineLen() &&
+		this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 	{
 		if (this->_CGI)
 		{

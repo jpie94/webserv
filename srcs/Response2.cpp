@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 16:54:28 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/06 12:41:59 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void Response::postMethode()//post to upload folder??
 	std::map<std::string, std::string> headers = Request::getHeaders();
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		return (postMultipart());
-	if (this->_body2.empty())
+	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
@@ -126,8 +126,9 @@ void Response::postMethode()//post to upload folder??
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
-	this->_body2.push_back('\0');
-	ofs << this->_body2.data();
+	// this->_body.push_back('\0');//try something else
+	// ofs << this->_body.data();
+	ofs.write(this->_body.data(), this->_body.size());
 	setResponse();
 }
 
