@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 15:52:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/07 16:59:57 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class Request : public Client
 		std::string							_CGI_pathInfo;
 		std::string							_CGI_querry;
 		std::string							_CGIinterpret;
+		std::map<std::string, std::string>	_cookies;
+		std::string							_session_id;
 
 	public:
 		/* Canonical Form + Paramtric constructor */
@@ -61,6 +63,7 @@ class Request : public Client
 		std::string							getRecieved() const;
 		bool								get_isCGI() const;
 		std::string							getStatus() const;
+		void								getCgiScript();
 		/* Member Functions */
 		void								parsRequest();
 		void								parsRequestLine(std::string &);
@@ -77,13 +80,13 @@ class Request : public Client
 		void								parsMultipart();
 		int									parsPart(std::vector<char>&, std::string&);
 		void								check_cgi();
-		void								getCgiScript();
 		void								checkCGIExt();
 		void								set_isCGIFalse();
 		int									extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos);
 		std::map<std::string, std::string>	makeHeadersMap(std::vector<char> part, size_t& sep_pos);
 		int									handleContent(std::map<std::string, std::string>& headers_map, std::vector<char>& body_part);
 		void 								clearTmpFiles();
+		void								parsCookie();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 16:31:55 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:28:46 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ void Request::parsHeaders(std::string &msg)
 	if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 		if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 			return (setStatus("413"));
+	parsCookie();
 }
 
 void Request::parsBody()
@@ -258,4 +259,37 @@ void	Request::parsMultipart()
 		pos = find_mem(this->_rcv_binary, bound);
 	}
 	this->_body_len = this->_count - this->_request_line_len - this->_headers_len;
+}
+
+void Request::parsCookie()
+{
+	if (_headers.find("COOKIE") == _headers.end())
+		return;
+	std::string cookie_header = _headers["COOKIE"];
+	std::istringstream ss(cookie_header);
+	std::string token, key, value;
+	size_t pos;
+	while (std::getline(ss, token, ';'))
+	{
+		pos = token.find('=');
+		if (pos == std::string::npos)
+			continue;
+		key = trim_white_spaces(token.substr(0, pos));
+		value = trim_white_spaces(token.substr(pos + 1));
+		this->_cookies[key] = value;
+	}
+	this->_session_id = _cookies.begin()->first;
+	// std::cout << "this->_session_id= " << this->_session_id << std::endl;
+	for(std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++it)
+		_server_sessions[this->_session_id][it->first] = it->second;
+	// std::cout  << BOLD << CYAN << "Cookies= " << RESET;
+	// for (std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++ it)
+	// 	std::cout << CYAN << it->first << RESET << " -> " << CYAN << it->second << RESET << std::endl;
+	// std::cout << BOLD << PURPLE << "Sessions=\n\n" << RESET;
+	// for(std::map<std::string, std::map<std::string, std::string> >::iterator it1 = _server_sessions.begin(); it1 != _server_sessions.end(); ++it1)
+	// {
+	// 	std::cout  << BOLD << GREEN << "Id= " << it1->first << RESET << std::endl;
+	// 	for(std::map<std::string, std::string>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
+	// 		std::cout << GREEN << it2->first << RESET << " -> " << GREEN << it2->second << RESET << std::endl;
+	// }
 }

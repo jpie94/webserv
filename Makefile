@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/10/06 15:55:06 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/10/07 16:56:18 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,6 @@ SRCS =	$(SRCS_DIR)/main.cpp \
 	$(SRCS_DIR)/RequestParser.cpp \
 	$(SRCS_DIR)/Response.cpp \
 	$(SRCS_DIR)/Response2.cpp \
-	$(SRCS_DIR)/Cookies.cpp \
 	$(SRCS_DIR)/Signals.cpp \
 	$(SRCS_DIR)/Utils.cpp \
 	$(SRCS_DIR)/CGI.cpp 

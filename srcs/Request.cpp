@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 16:09:31 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/07 17:00:16 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ std::map<std::string, std::string>	Request::_files;
 /*****************	CANONICAL	*******************/
 
 Request::Request() : Client(), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(), _path(),
-_protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
+_protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret(),
+_cookies(), _session_id() {}
 
 Request::Request(const Request &src)
 {
@@ -50,12 +51,15 @@ Request &Request::operator=(const Request &rhs)
 		this->_body_len = rhs._body_len;
 		this->_headers_len = rhs._headers_len;
 		this->_request_line_len = rhs._request_line_len;
+		this->_cookies = rhs._cookies;
+		this->_session_id = rhs._session_id;
 	}
 	return (*this);
 }
 
 Request::Request(const Client &client) : Client(client), _headers_len(), _request_line_len(), _body_len(), _body(), _methode(),
-_path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret() {}
+_path(), _protocol(), _responseStatus("200"), _isCGI(), _CGI_bin_path(), _CGI_script(), _CGI_pathInfo(), _CGI_querry(), _CGIinterpret(),
+_cookies(), _session_id() {}
 
 Request::~Request() {}
 

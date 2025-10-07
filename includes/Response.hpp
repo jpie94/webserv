@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 15:56:55 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/07 16:59:37 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <fcntl.h>
 #include <limits>
 #include "Request.hpp"
-#include "Cookies.hpp"
 #include "Utils.hpp"
 
 class Response : public Request
@@ -54,6 +53,7 @@ class Response : public Request
 		void		generateFileName(struct stat);
 		void		setResponseMsg(std::string output);
 		void 		postMultipart();
+		std::string	setCookies() const;
 };
 
 #endif
