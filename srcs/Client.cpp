@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/07 18:22:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 18:18:25 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,9 @@ void	Client::parserDispatcher()
 		if (this->_CGI == NULL)
 		{
 			this->_CGI = new CGI(*this->_request);
-			this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
+			size_t pos = findCRLFCRLF(this->_recieved);
+			if (pos != std::string::npos)
+				this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
 		}
 		write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		this->_timeout = std::time(0);

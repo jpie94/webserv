@@ -55,7 +55,7 @@ GET /hello.txt HTTP/1.1
 Accept-Language: fr
 
 
-DELETE /test.txt HTTP/1.1
+DELETE /tmp/test.txt HTTP/1.1
 Host: developer.mozilla.org
 Accept-Language: fr 
 
@@ -78,7 +78,7 @@ Host: Webserv
 Content-Type: text/plain
 Content-Length: 19
 
-hello post test
+hello post test 2 2 2
 
 
 POST /test.txt HTTP/1.1

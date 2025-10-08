@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 17:02:41 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 18:22:00 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,8 +126,6 @@ void Response::postMethode()//post to upload folder??
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
-	// this->_body.push_back('\0');//try something else
-	// ofs << this->_body.data();
 	ofs.write(this->_body.data(), this->_body.size());
 	ofs.close();
 	setResponse();
@@ -171,7 +169,7 @@ void Response::postMultipart()
 void Response::deleteMethode()
 {
 	if (std::remove(this->_path.c_str()))
-		return (setStatus("403"), setErrorPage());
+		return (std::cout << "del 403" << std::endl, setStatus("403"), setErrorPage());
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }

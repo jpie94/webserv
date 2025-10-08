@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 13:54:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 18:18:09 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,11 @@ void Request::resolvePath()
 	while (!temPath.empty())
 	{
 		size_t i = temPath.rfind('/');
+		if (i == std::string::npos)
+		{
+			temPath = "/" + temPath;
+			i = temPath.rfind('/');
+		}	
 		suffix.push_back(temPath.substr(i));
 	 	temPath = temPath.substr(0, i);
 	}
