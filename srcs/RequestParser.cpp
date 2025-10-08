@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 18:17:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 19:22:48 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,10 +116,13 @@ int	Request::parsChunk(std::vector<char>& msg)
 	chunk_len = std::strtol(msg.data(), &endpos, 16);
 	pos = find_mem(msg, CRLF);
 	if (pos == std::string::npos)
-		return (std::cout << "400 Error 123\n", setStatus("404"), 1);
+		return (std::cout << "400 Error 123\n", setStatus("400"), 1);
 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
-	msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+	if (msg.size() >= pos + chunk_len + 4)
+		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+	else
+		return (std::cout << "400 Error 456\n", setStatus("400"), 1);
 	return (0);
 }
 
@@ -197,7 +200,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
 	if (!filename.empty())
 	{
-		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName(10);//better without _ogRoot??
+		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName(10);
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open() || file.fail())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 18:18:09 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 19:12:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void	Request::checkCGIExt()
 
 void Request::clearTmpFiles()
 {
-	for (std::map<std::string, std::string>::iterator it = _files.begin(); it != _files.end(); ++it)
+	for (std::map<std::string, std::string>::iterator it = this->_files.begin(); it != this->_files.end(); ++it)
 		std::remove(it->second.c_str());
 	_files.clear();
 }

@@ -81,7 +81,7 @@ Content-Length: 19
 hello post test 2 2 2
 
 
-POST /test.txt HTTP/1.1
+POST /uploads/testchunk.txt HTTP/1.1
 Host: Webserv
 Content-Type: text/plain
 Transfer-Encoding: chunked
@@ -106,7 +106,7 @@ Accept-Language: fr
 
 /*** testchuncked transfer ***/
 
-curl --http1.1 -X POST http://localhost:8081/upload -H "Transfer-Encoding: chunked" \
+curl --http1.1 -X POST http://localhost:8091/upload -H "Transfer-Encoding: chunked" \
   -H "Content-Type: text/plain" \
   -d @- <<EOF
 Wiki
