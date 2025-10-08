@@ -116,7 +116,7 @@ EOF
 
 
 
-POST /index.html HTTP/1.1
+POST /testpost.txt HTTP/1.1
 Host: example.org
 Content-Type: multipart/form-data;boundary="boundary"
 
@@ -129,3 +129,4 @@ Content-Disposition: form-data; name="field2"; filename="example.txt"
 
 value2
 --boundary--
+

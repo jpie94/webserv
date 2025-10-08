@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 18:22:00 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 19:03:14 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,8 +146,10 @@ void Response::postMultipart()
 		{
 			field_name = it->first;
 			tmp_path = it->second;
+			std::cout << "field_name= " << field_name << std::endl;
 			pos = it->first.find(".");
-			ext = it->first.substr(pos);
+			if (pos != std::string::npos)
+				ext = it->first.substr(pos);
 			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName(10) + ext;
 			std::ifstream src(tmp_path.c_str(), std::ios::binary);
 			std::ofstream dst(final_path.c_str(), std::ios::binary);
