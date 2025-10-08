@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 18:19:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/08 17:02:41 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,12 @@ void Response::autoIndex()
 	path = this->_path.substr(_ogRoot.size() + 1);
 	while (path[path.size() - 1] == '/')
 		path = path.substr(0, path.size() - 1);
-	index_page += path + "/" + "</h1>";
+	while (this->_path[this->_path.size() - 1] == '/')
+			this->_path = this->_path.substr(0, this->_path.size() - 1);
+	path = "/" + path;
+	if (!path.empty() && path[path.size() - 1] != '/')
+        path += '/';
+    index_page += path + "</h1>";
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
@@ -193,7 +198,7 @@ void Response::autoIndex()
 				continue;
 			filename = ent->d_name;
 			index_page += "<a href=\"";
-			index_page += path + "/" + filename;
+			index_page += path + filename;
 			index_page += "\">";
 			index_page += filename;
 			index_page += "</a><br>\n";
@@ -209,6 +214,7 @@ void Response::autoIndex()
 	this->_responseBody = index_page;
 	setResponse();
 }
+
 
 void Response::setRedirect()
 {
