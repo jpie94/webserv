@@ -150,3 +150,21 @@ curl -v --http1.1 \
   -H "Expect:" \
   -H "Content-Length:" \
   --data-binary @./vid11.mp4
+
+
+
+
+
+curl http://localhost:8091/ &
+curl http://localhost:8091/ &
+curl http://localhost:8091/ &
+curl http://localhost:8091/ &
+curl http://localhost:8091/ &
+curl http://localhost:8091/ &
+curl http://localhost:8091/
+
+
+
+
+curl -i -c cookies.txt http://localhost:8091/
+curl -i -b cookies.txt http://localhost:8091/

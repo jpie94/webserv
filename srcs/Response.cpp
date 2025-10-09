@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 16:55:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 19:37:37 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,9 +187,9 @@ std::string	Response::setCookies() const
 {
 	std::string res("Set-Cookie: ");
 
-	res += "\"" + getTime() + "_" + generateRandomName(4) + "\"=";
-	res += "\"" + generateRandomName(10) + "\";";
-	res += " Max-Ages=\"34560000\";";
+	res += getTime() + "_" + generateRandomName(4) + "=";
+	res += generateRandomName(10) + ";";
+	res += " Max-Ages=34560000;";
 	//res += "; Expires=\"" + getTimeStr() + 400 + "\";";
 	res += "\r\n";
 	return (res);
