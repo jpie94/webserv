@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/08 18:56:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 13:36:25 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	Client::makeResponse()
 	_pfds[this->_index].events = POLLOUT;
 }
 
-void	Client::parserDispatcher()
+int	Client::parserDispatcher()
 {
 	if (this->_request->getProtocol() != "HTTP/1.1")
 		this->_request->parsRequest();
@@ -144,8 +144,10 @@ void	Client::parserDispatcher()
 		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-			this->_request->parsChunkedBody();
+			if (this->_request->parsChunkedBody())
+				return (1);
 	}
+	return (0);
 }
 
 int Client::clientRecv()
@@ -173,7 +175,7 @@ int Client::clientRecv()
 	this->_rcv_binary.insert(this->_rcv_binary.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	//std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
@@ -188,7 +190,8 @@ void Client::handle_request()
 		return;
 	this->_request->setRecieved(this->_recieved, this->_rcv_binary);
 	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
-		parserDispatcher();
+		if (parserDispatcher())
+			return;
 	if (this->_request->getRequestLineLen() &&
 		this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 	{

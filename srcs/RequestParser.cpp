@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 19:22:48 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 13:41:38 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,40 +103,76 @@ void Request::parsBody()
 	}
 }
 
+// int	Request::parsChunk(std::vector<char>& msg)
+// {
+// 	size_t	pos, chunk_len;
+// 	char* endpos;
+
+// 	if (!find_mem(msg, "0\r\n\r\n"))
+// 	{
+// 		msg.clear();
+// 		return (1);
+// 	}
+// 	chunk_len = std::strtol(msg.data(), &endpos, 16);
+// 	pos = find_mem(msg, CRLF);
+// 	std::cout << "MSG= ";
+// 	printVect(msg);
+// 	if (pos == std::string::npos)
+// 		return (1);
+// 	if (pos + 2 + chunk_len > msg.size())
+// 		return (1);
+// 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
+// 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
+// 	if (msg.size() >= pos + chunk_len + 4)
+// 		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+// 	else
+// 		return (1);
+// 	return (0);
+// }
+
 int	Request::parsChunk(std::vector<char>& msg)
 {
 	size_t	pos, chunk_len;
 	char* endpos;
 
-	if (!find_mem(msg, "0\r\n\r\n"))
-	{
-		msg.clear();
-		return (1);
-	}
-	chunk_len = std::strtol(msg.data(), &endpos, 16);
+	// if (!find_mem(msg, "0\r\n\r\n"))
+	// 	return (std::cout << "ok 1\n", 1);
 	pos = find_mem(msg, CRLF);
 	if (pos == std::string::npos)
-		return (std::cout << "400 Error 123\n", setStatus("400"), 1);
+		return (1);
+	chunk_len = std::strtol(msg.data(), &endpos, 16);
+	if (!chunk_len)
+	{
+		msg.clear();
+		return (0);
+	}
+	if (pos + 2 + chunk_len > msg.size())
+		return (1);
 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
 	if (msg.size() >= pos + chunk_len + 4)
 		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
-	else
-		return (std::cout << "400 Error 456\n", setStatus("400"), 1);
 	return (0);
 }
 
-void	Request::parsChunkedBody()
+int	Request::parsChunkedBody()
 {
 	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos == std::string::npos)
-		return;
+		return (0);
 	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
-	while (this->_rcv_binary.size())
+	while (1)
 	{
+		//std::cout << "rcv_bin1= ";
+		//printVect(this->_rcv_binary);
 		if (parsChunk(this->_rcv_binary))
-			break;
+			return (1);
+		//std::cout << "rcv_bin2= ";
+		//printVect(this->_rcv_binary);
+		if (this->_rcv_binary.empty())
+			return (0);
 	}
+	return (0);
 }
 
 int	Request::extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos)
