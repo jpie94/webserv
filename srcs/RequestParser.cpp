@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/09 13:41:38 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 18:33:14 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,12 +135,12 @@ int	Request::parsChunk(std::vector<char>& msg)
 	size_t	pos, chunk_len;
 	char* endpos;
 
-	// if (!find_mem(msg, "0\r\n\r\n"))
-	// 	return (std::cout << "ok 1\n", 1);
 	pos = find_mem(msg, CRLF);
 	if (pos == std::string::npos)
 		return (1);
 	chunk_len = std::strtol(msg.data(), &endpos, 16);
+	if (chunk_len > msg.size())
+		return (1);
 	if (!chunk_len)
 	{
 		msg.clear();
@@ -152,7 +152,7 @@ int	Request::parsChunk(std::vector<char>& msg)
 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
 	if (msg.size() >= pos + chunk_len + 4)
 		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
-	return (0);
+	return (1);
 }
 
 int	Request::parsChunkedBody()
@@ -163,13 +163,7 @@ int	Request::parsChunkedBody()
 	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
 	while (1)
 	{
-		//std::cout << "rcv_bin1= ";
-		//printVect(this->_rcv_binary);
-		if (parsChunk(this->_rcv_binary))
-			return (1);
-		//std::cout << "rcv_bin2= ";
-		//printVect(this->_rcv_binary);
-		if (this->_rcv_binary.empty())
+		if (!parsChunk(this->_rcv_binary))
 			return (0);
 	}
 	return (0);

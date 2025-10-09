@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/09 13:36:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 18:33:30 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,8 +144,15 @@ int	Client::parserDispatcher()
 		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-			if (this->_request->parsChunkedBody())
+		{
+			if(find_mem(this->_rcv_binary, "0\r\n\r\n") != std::string::npos)
+			{
+				if (this->_request->parsChunkedBody())
+					return (1);
+			}
+			else
 				return (1);
+		}
 	}
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 19:03:14 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 17:41:11 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,8 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
 	this->_path = _ogRoot;
-	if (this->_config.find("upload_folder") != this->_config.end())
-		this->_path += this->_config["upload_folder"];
 	if (this->_path[_path.size() - 1 ] != '/')
 		this->_path += "/";
-	this->_path += this->_fileName;
 }
 
 int	Response::expandPath(struct stat path_stat)
@@ -100,7 +97,7 @@ void Response::getMethode()
 		return (setErrorPage());
 }
 
-void Response::postMethode()//post to upload folder??
+void Response::postMethode()
 {
 	std::string status;
 	struct stat path_stat;
