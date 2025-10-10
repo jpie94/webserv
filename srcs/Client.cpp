@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/09 19:59:53 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 11:27:22 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ int Client::clientRecv()
 	this->_rcv_binary.insert(this->_rcv_binary.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
+	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
 	//std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
@@ -266,7 +266,7 @@ void	Client::send_answer()
 			clearClient();
 			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
 		}
-		std::cout << "Response= " << this->_response->getResponseMsg() << std::endl;
+		//std::cout << "Response= " << this->_response->getResponseMsg() << std::endl;
 		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, MSG_NOSIGNAL);//j'ai rajouter ce flag pour eviter un crash avec un client que firefox mais on peut aussi limiter les autres clients
 		if (sent < 0)
 		{

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/09 19:58:20 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 11:38:39 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,22 +310,25 @@ void Request::parsCookie()
 		key = trim_white_spaces(token.substr(0, pos));
 		value = trim_white_spaces(token.substr(pos + 1));
 		this->_cookies[key] = value;
-		std::cout << "cookie: " << key << "= " << value << std::endl;
+		//std::cout << "cookie: " << key << "= " << value << std::endl;
 	}
 	this->_session_id = this->_cookies.begin()->first;
 	if (_server_sessions.find(this->_session_id) != _server_sessions.end())
-		std::cout << BOLD << CYAN << "Welcome back my old friend " << RESET << GREEN << _server_sessions[this->_session_id][this->_cookies.begin()->first] << "!" << RESET << std::endl;
-	std::cout << "this->_session_id= " << this->_session_id << std::endl;
+	{
+		std::cout << BOLD << CYAN << "Welcome back " << RESET << GREEN << _server_sessions.find(this->_session_id)->first;
+		std::cout << BOLD << CYAN << " here is your cookie: " << GREEN << _server_sessions[this->_session_id][this->_cookies.begin()->first] << RESET << std::endl;
+	}
+//	std::cout << "this->_session_id= " << this->_session_id << std::endl;
 	for(std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++it)
 		_server_sessions[this->_session_id][it->first] = it->second;
-	std::cout  << BOLD << CYAN << "Cookies= " << RESET;
-	for (std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++ it)
-		std::cout << CYAN << it->first << RESET << " -> " << CYAN << it->second << RESET << std::endl;
-	std::cout << BOLD << PURPLE << "Sessions=\n\n" << RESET;
-	for(std::map<std::string, std::map<std::string, std::string> >::iterator it1 = _server_sessions.begin(); it1 != _server_sessions.end(); ++it1)
-	{
-		std::cout  << BOLD << GREEN << "Id= " << it1->first << RESET << std::endl;
-		for(std::map<std::string, std::string>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
-			std::cout << GREEN << it2->first << RESET << " -> " << GREEN << it2->second << RESET << std::endl;
-	}
+	// std::cout  << BOLD << CYAN << "Cookies= " << RESET;
+	// for (std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++ it)
+	// 	std::cout << CYAN << it->first << RESET << " -> " << CYAN << it->second << RESET << std::endl;
+	// std::cout << BOLD << PURPLE << "Sessions=\n\n" << RESET;
+	// for(std::map<std::string, std::map<std::string, std::string> >::iterator it1 = _server_sessions.begin(); it1 != _server_sessions.end(); ++it1)
+	// {
+	// 	std::cout  << BOLD << GREEN << "Id= " << it1->first << RESET << std::endl;
+	// 	for(std::map<std::string, std::string>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
+	// 		std::cout << GREEN << it2->first << RESET << " -> " << GREEN << it2->second << RESET << std::endl;
+	// }
 }
