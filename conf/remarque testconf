@@ -1,0 +1,7 @@
+/*
+marche avec :
+listen 0000;
+root hello;
+allowed_methods GET abc POST;
+autoindex bla;
+*/

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 15:23:32 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/07 18:03:08 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,12 @@ void Webserv::runWebserv()
 			if (_pfds[j].fd && _clients[_pfds[j].fd])
 				_clients[_pfds[j].fd]->checkStatusCGI();
 		}
-		status = poll(_pfds.data(), _pfds.size(), 2000);
+		status = poll(_pfds.data(), _pfds.size(), 500);
 		if (status < 0)
 			throw_error("Error in runWebserv : polling failed !");
 		if (status == 0)
 		{
-			std::cout << "Waiting for connection..." << std::endl;
+			//std::cout << "Waiting for connection..." << std::endl;
 			continue;
 		}
 		for (nfds_t j = 0; j < _pfds.size(); ++j)

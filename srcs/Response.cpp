@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:42:45 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 11:23:28 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,31 +162,6 @@ std::string Response::getFileExt(std::string value) const
 	return ("");
 }
 
-std::string Response::getTimeStr() const
-{
-	time_t rawtime;
-
-	std::time(&rawtime);
-	std::tm *gmt = std::gmtime(&rawtime);
-	std::string str = std::asctime(gmt);
-	return (str.erase(str.find_last_not_of("\n") + 1) + " GMT");
-}
-
-std::string	Response::getTime() const
-{
-    std::time_t now = std::time(NULL);
-    std::tm* t = std::localtime(&now);
-    std::ostringstream oss;
-
-	oss << (t->tm_year + 1900)
-		<< (t->tm_mon + 1 < 10 ? "0" : "") << (t->tm_mon + 1)
-		<< (t->tm_mday < 10 ? "0" : "") << t->tm_mday << "_"
-		<< (t->tm_hour < 10 ? "0" : "") << t->tm_hour
-		<< (t->tm_min < 10 ? "0" : "") << t->tm_min
-		<< (t->tm_sec < 10 ? "0" : "") << t->tm_sec;
-    return (oss.str());
-}
-
 std::string Response::getFileType()
 {
 	size_t pos = this->_fileName.rfind(".");
@@ -206,4 +181,16 @@ std::string Response::getContent_type()
 void	Response::setResponseMsg(std::string output)
 {
 	this->_response_msg = output;	
+}
+
+std::string	Response::setCookies() const
+{
+	std::string res("Set-Cookie: ");
+
+	res += "session_id_" + getTime() + "=";
+	res += "value_" + generateRandomName(10) + ";";
+	res += " Max-Ages=34560000;";
+	//res += "; Expires=\"" + getTimeStr() + 400 + "\";";
+	res += "\r\n";
+	return (res);
 }

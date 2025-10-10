@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 18:10:07 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 11:38:39 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void Request::parsRequest()
 	std::string key, value, line, msg(this->_recieved);
 	parsRequestLine(msg);
 	resolvePath();
-	this->printconfig();
+	//this->printconfig();
 	parsHeaders(msg);
 	checkRequest();
 	check_cgi();
@@ -82,6 +82,7 @@ void Request::parsHeaders(std::string &msg)
 	if (this->_config.find("client_max_body_size") != this->_config.end() && this->_config["client_max_body_size"] != "0")
 		if (this->_body_len > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 			return (setStatus("413"));
+	parsCookie();
 }
 
 void Request::parsBody()
@@ -89,7 +90,7 @@ void Request::parsBody()
 	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos == std::string::npos)
 		return;
-	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
@@ -97,41 +98,75 @@ void Request::parsBody()
 			this->_rcv_binary.pop_back();
 		if (this->_rcv_binary.back() == '\r')
 			this->_rcv_binary.pop_back();
-		this->_body2 = this->_rcv_binary;
+		this->_body = this->_rcv_binary;
+		printVect(this->_body);
 	}
 }
+
+// int	Request::parsChunk(std::vector<char>& msg)
+// {
+// 	size_t	pos, chunk_len;
+// 	char* endpos;
+
+// 	if (!find_mem(msg, "0\r\n\r\n"))
+// 	{
+// 		msg.clear();
+// 		return (1);
+// 	}
+// 	chunk_len = std::strtol(msg.data(), &endpos, 16);
+// 	pos = find_mem(msg, CRLF);
+// 	std::cout << "MSG= ";
+// 	printVect(msg);
+// 	if (pos == std::string::npos)
+// 		return (1);
+// 	if (pos + 2 + chunk_len > msg.size())
+// 		return (1);
+// 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
+// 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
+// 	if (msg.size() >= pos + chunk_len + 4)
+// 		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+// 	else
+// 		return (1);
+// 	return (0);
+// }
 
 int	Request::parsChunk(std::vector<char>& msg)
 {
 	size_t	pos, chunk_len;
 	char* endpos;
 
-	if (!find_mem(msg, "0\r\n\r\n"))
-	{
-		msg.clear();
-		return (1);
-	}
-	chunk_len = std::strtol(msg.data(), &endpos, 16);
 	pos = find_mem(msg, CRLF);
 	if (pos == std::string::npos)
-		return (std::cout << "400 Error 123\n", setStatus("404"), 1);
+		return (1);
+	chunk_len = std::strtol(msg.data(), &endpos, 16);
+	if (chunk_len > msg.size())
+		return (1);
+	if (!chunk_len)
+	{
+		msg.clear();
+		return (0);
+	}
+	if (pos + 2 + chunk_len > msg.size())
+		return (1);
 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
-	this->_body2.insert(this->_body2.end(), chunk.begin(), chunk.end());
-	msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
-	return (0);
+	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
+	if (msg.size() >= pos + chunk_len + 4)
+		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+	return (1);
 }
 
-void	Request::parsChunkedBody()
+int	Request::parsChunkedBody()
 {
 	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
 	if (pos == std::string::npos)
-		return;
+		return (0);
 	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
-	while (this->_rcv_binary.size())
+	while (1)
 	{
-		if (parsChunk(this->_rcv_binary))
-			break;
+		if (!parsChunk(this->_rcv_binary))
+			return (0);
 	}
+	return (0);
 }
 
 int	Request::extractPart(std::vector<char>& msg, const std::string &bound, std::vector<char>& part, size_t &sep_pos)
@@ -195,9 +230,9 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		return (std::cout << "400 Error -> 11\n", setStatus("400"), 1);
 	if (!filename.empty())
 	{
-		std::string tmp_path = _ogRoot + "/tmp/upload_tempfile_" + generateRandomName();//better without _ogRoot??
+		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName(10);
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
-		if (!file.is_open())
+		if (!file.is_open() || file.fail())
 			return (std::cout << "error 3" << std::endl, setStatus("500"), 1);
 		file.write(body_part.data(), body_part.size());
 		file.close();
@@ -257,4 +292,43 @@ void	Request::parsMultipart()
 		pos = find_mem(this->_rcv_binary, bound);
 	}
 	this->_body_len = this->_count - this->_request_line_len - this->_headers_len;
+}
+
+void Request::parsCookie()
+{
+	if (_headers.find("COOKIE") == _headers.end())
+		return;
+	std::string cookie_header = _headers["COOKIE"];
+	std::istringstream ss(cookie_header);
+	std::string token, key, value;
+	size_t pos;
+	while (std::getline(ss, token, ';'))
+	{
+		pos = token.find('=');
+		if (pos == std::string::npos)
+			continue;
+		key = trim_white_spaces(token.substr(0, pos));
+		value = trim_white_spaces(token.substr(pos + 1));
+		this->_cookies[key] = value;
+		//std::cout << "cookie: " << key << "= " << value << std::endl;
+	}
+	this->_session_id = this->_cookies.begin()->first;
+	if (_server_sessions.find(this->_session_id) != _server_sessions.end())
+	{
+		std::cout << BOLD << CYAN << "Welcome back " << RESET << GREEN << _server_sessions.find(this->_session_id)->first;
+		std::cout << BOLD << CYAN << " here is your cookie: " << GREEN << _server_sessions[this->_session_id][this->_cookies.begin()->first] << RESET << std::endl;
+	}
+//	std::cout << "this->_session_id= " << this->_session_id << std::endl;
+	for(std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++it)
+		_server_sessions[this->_session_id][it->first] = it->second;
+	// std::cout  << BOLD << CYAN << "Cookies= " << RESET;
+	// for (std::map<std::string, std::string>::iterator it = _cookies.begin(); it != _cookies.end(); ++ it)
+	// 	std::cout << CYAN << it->first << RESET << " -> " << CYAN << it->second << RESET << std::endl;
+	// std::cout << BOLD << PURPLE << "Sessions=\n\n" << RESET;
+	// for(std::map<std::string, std::map<std::string, std::string> >::iterator it1 = _server_sessions.begin(); it1 != _server_sessions.end(); ++it1)
+	// {
+	// 	std::cout  << BOLD << GREEN << "Id= " << it1->first << RESET << std::endl;
+	// 	for(std::map<std::string, std::string>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
+	// 		std::cout << GREEN << it2->first << RESET << " -> " << GREEN << it2->second << RESET << std::endl;
+	// }
 }

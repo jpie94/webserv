@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 18:11:59 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/07 15:58:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 std::vector<struct pollfd> Webserv::_pfds;
 std::map<int, Client *> Webserv::_clients;
 std::map<int, Server *> Webserv::_servers;
+std::map<std::string, std::map<std::string, std::string> >	Webserv::_server_sessions;
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
