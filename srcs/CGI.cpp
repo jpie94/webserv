@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/01 10:15:10 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/13 17:04:54 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,8 @@ void	CGI::newProcess()
 
 void	CGI::executeCGI()
 {
-	std::string script = this->_CGI_bin_path + this->_CGI_script;
+	chdir(this->_CGI_bin_path.c_str());
+	std::string script = this->_CGI_script;
 	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
 	if (execve(execArg[0], execArg, this->_varEnv) == -1)
 		{
