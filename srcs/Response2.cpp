@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/10 17:50:19 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:30:59 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	Response::generateFileName(struct stat path_stat)
 
 int	Response::expandPath(struct stat path_stat)
 {
-	if (this->_autoIndex == "on" && this->_methode == "GET")
+	if ((this->_autoIndex == "on" || this->_autoIndex == "ON") && this->_methode == "GET")
 		return (this->autoIndex(), 1);
 	if (this->_methode == "GET")
 	{
