@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/09 17:41:11 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 17:50:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ void Response::postMultipart()
 			dst << src.rdbuf();
 			src.close();
 			dst.close();
-			std::remove(tmp_path.c_str());
+			// std::remove(tmp_path.c_str());
 			this->_responseBody += "File: " + field_name + " saved to " + final_path + CRLF;
 			setResponse();
 		}
