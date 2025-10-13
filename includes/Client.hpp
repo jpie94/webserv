@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/02 17:57:00 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/09 12:51:01 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class Client : public Server
 		void			checkStatusCGI();
 	//	std::time_t		getTimeout() const;
 		void			add_to_recieved(std::vector<char> str);
-		void			parserDispatcher();
+		int				parserDispatcher();
 		void			resetClient();
 };
 

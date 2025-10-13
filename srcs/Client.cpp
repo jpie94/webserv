@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/03 17:22:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 14:55:58 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void Client::checkStatusCGI()
 			if (status != 0)
 			{
 				this->clearCGI();
+				std::cout << "500 error CGI 1\n";
 				this->_request->setStatus("500");
 			}
 			makeResponse();
@@ -114,7 +115,7 @@ void	Client::makeResponse()
 	_pfds[this->_index].events = POLLOUT;
 }
 
-void	Client::parserDispatcher()
+int	Client::parserDispatcher()
 {
 	if (this->_request->getProtocol() != "HTTP/1.1")
 		this->_request->parsRequest();
@@ -123,7 +124,9 @@ void	Client::parserDispatcher()
 		if (this->_CGI == NULL)
 		{
 			this->_CGI = new CGI(*this->_request);
-			this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
+			size_t pos = findCRLFCRLF(this->_recieved);
+			if (pos != std::string::npos)
+				this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
 		}
 		write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		this->_timeout = std::time(0);
@@ -141,8 +144,17 @@ void	Client::parserDispatcher()
 		else if (headers.find("CONTENT-LENGTH") != headers.end() && this->_request->getBody().size() < this->_request->getBodyLen())
 			this->_request->parsBody();
 		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
-			this->_request->parsChunkedBody();
+		{
+			if(find_mem(this->_rcv_binary, "0\r\n\r\n") != std::string::npos)
+			{
+				if (this->_request->parsChunkedBody())
+					return (1);
+			}
+			else
+				return (1);
+		}
 	}
+	return (0);
 }
 
 int Client::clientRecv()
@@ -185,8 +197,10 @@ void Client::handle_request()
 		return;
 	this->_request->setRecieved(this->_recieved, this->_rcv_binary);
 	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
-		parserDispatcher();
-	if (this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+		if (parserDispatcher())
+			return;
+	if (this->_request->getRequestLineLen() &&
+		this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
 	{
 		if (this->_CGI)
 		{
@@ -252,7 +266,8 @@ void	Client::send_answer()
 			clearClient();
 			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
 		}
-		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, 0);
+		//std::cout << "Response= " << this->_response->getResponseMsg() << std::endl;
+		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, MSG_NOSIGNAL);//j'ai rajouter ce flag pour eviter un crash avec un client que firefox mais on peut aussi limiter les autres clients
 		if (sent < 0)
 		{
 			std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';

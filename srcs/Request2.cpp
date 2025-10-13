@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/02 16:18:29 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 15:37:43 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,11 @@ void Request::resolvePath()
 	while (!temPath.empty())
 	{
 		size_t i = temPath.rfind('/');
+		if (i == std::string::npos)
+		{
+			temPath = "/" + temPath;
+			i = temPath.rfind('/');
+		}	
 		suffix.push_back(temPath.substr(i));
 	 	temPath = temPath.substr(0, i);
 	}
@@ -87,6 +92,8 @@ void	Request::check_cgi()
 	std::string temp, extension;
 	temp = this->_path;
 	size_t pos = temp.find(_ogRoot);
+	if (temp.size() == _ogRoot.size())
+		return;
 	if (pos != std::string::npos)
 		temp = temp.substr(_ogRoot.size() + 1);
 	pos = temp.find("/");
@@ -147,12 +154,12 @@ void	Request::checkCGIExt()
 			return ;
 		}
 	}
-	return (this->_isCGI=false, setStatus("500"));
+	this->_isCGI = false;
 }
 
 void Request::clearTmpFiles()
 {
-	for (std::map<std::string, std::string>::iterator it = _files.begin(); it != _files.end(); ++it)
+	for (std::map<std::string, std::string>::iterator it = this->_files.begin(); it != this->_files.end(); ++it)
 		std::remove(it->second.c_str());
 	_files.clear();
 }

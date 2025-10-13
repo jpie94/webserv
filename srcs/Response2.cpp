@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/03 16:54:28 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/10 17:50:19 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,8 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
 	this->_path = _ogRoot;
-	if (this->_config.find("upload_folder") != this->_config.end())
-		this->_path += this->_config["upload_folder"];
 	if (this->_path[_path.size() - 1 ] != '/')
 		this->_path += "/";
-	this->_path += this->_fileName;
 }
 
 int	Response::expandPath(struct stat path_stat)
@@ -100,7 +97,7 @@ void Response::getMethode()
 		return (setErrorPage());
 }
 
-void Response::postMethode()//post to upload folder??
+void Response::postMethode()
 {
 	std::string status;
 	struct stat path_stat;
@@ -108,7 +105,7 @@ void Response::postMethode()//post to upload folder??
 	std::map<std::string, std::string> headers = Request::getHeaders();
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		return (postMultipart());
-	if (this->_body2.empty())
+	if (this->_body.empty())
 		return ((void)(std::cout << "400 Error -> 7\n"), setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
@@ -126,11 +123,11 @@ void Response::postMethode()//post to upload folder??
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
 		return ((void)(std::cout << "500 Error -> 2\n"), setStatus("500"), setErrorPage());
-	this->_body2.push_back('\0');
-	ofs << this->_body2.data();
+	ofs.write(this->_body.data(), this->_body.size());
+	ofs.close();
 	setResponse();
 }
-
+ 
 void Response::postMultipart()
 {
 	std::string	field_name, tmp_path, ext, final_path;
@@ -146,9 +143,11 @@ void Response::postMultipart()
 		{
 			field_name = it->first;
 			tmp_path = it->second;
+			std::cout << "field_name= " << field_name << std::endl;
 			pos = it->first.find(".");
-			ext = it->first.substr(pos);
-			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName() + ext;
+			if (pos != std::string::npos)
+				ext = it->first.substr(pos);
+			final_path = upload_dir + "/" + field_name.substr(0, pos) + "_" + generateRandomName(10) + ext;
 			std::ifstream src(tmp_path.c_str(), std::ios::binary);
 			std::ofstream dst(final_path.c_str(), std::ios::binary);
 			if (!src.is_open() || !dst.is_open())
@@ -159,7 +158,7 @@ void Response::postMultipart()
 			dst << src.rdbuf();
 			src.close();
 			dst.close();
-			std::remove(tmp_path.c_str());
+			// std::remove(tmp_path.c_str());
 			this->_responseBody += "File: " + field_name + " saved to " + final_path + CRLF;
 			setResponse();
 		}
@@ -169,7 +168,7 @@ void Response::postMultipart()
 void Response::deleteMethode()
 {
 	if (std::remove(this->_path.c_str()))
-		return (setStatus("403"), setErrorPage());
+		return (std::cout << "del 403" << std::endl, setStatus("403"), setErrorPage());
 	this->_responseBody += "File: " + this->_fileName + " deleted" + CRLF;
 	setResponse();
 }
@@ -182,7 +181,12 @@ void Response::autoIndex()
 	path = this->_path.substr(_ogRoot.size() + 1);
 	while (path[path.size() - 1] == '/')
 		path = path.substr(0, path.size() - 1);
-	index_page += path + "/" + "</h1>";
+	while (this->_path[this->_path.size() - 1] == '/')
+			this->_path = this->_path.substr(0, this->_path.size() - 1);
+	path = "/" + path;
+	if (!path.empty() && path[path.size() - 1] != '/')
+        path += '/';
+    index_page += path + "</h1>";
 	if ((dir = opendir(this->_path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
@@ -191,7 +195,7 @@ void Response::autoIndex()
 				continue;
 			filename = ent->d_name;
 			index_page += "<a href=\"";
-			index_page += path + "/" + filename;
+			index_page += path + filename;
 			index_page += "\">";
 			index_page += filename;
 			index_page += "</a><br>\n";
@@ -208,13 +212,14 @@ void Response::autoIndex()
 	setResponse();
 }
 
+
 void Response::setRedirect()
 {
 	this->_response_msg += "HTTP/1.1 " + this->_responseStatus;
 	this->_response_msg += " Found ";
 	this->_response_msg += "\r\nServer: Webserv\r\n";
-	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
-	this->_response_msg += "Content-length: 0\r\n";
+	this->_response_msg += "Date: " + getTimeStr() + CRLF;
+	this->_response_msg += "Content-length: 0\r\n"; 
 	this->_response_msg += "Location: " + this->_config["return"] + CRLFCRLF;
 }
 
@@ -226,10 +231,12 @@ void Response::setResponse()
 	if (this->_responseStatus == "201")
 		this->_response_msg += " Created";
 	this->_response_msg += "\r\nServer: Webserv\r\n";
-	this->_response_msg += "Date: " + this->getTimeStr() + CRLF;
+	this->_response_msg += "Date: " + getTimeStr() + CRLF;
 	this->_response_msg += "Content-type: " + this->getContent_type() + CRLF;
-	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLFCRLF;
-	this->_response_msg += this->_responseBody;
+	this->_response_msg += "Content-Length: " + int_to_string(this->_responseBody.size()) + CRLF;
+	if (!this->_headers.empty() && this->_headers.find("COOKIE") == this->_headers.end())
+		this->_response_msg += setCookies();
+	this->_response_msg += CRLF + this->_responseBody;
 }
 
 void Response::callMethode()

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/03 17:36:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/13 15:36:39 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ void	Server::GetCGIConfig(std::string value)
 	std::string extension, path, check;
 	std::istringstream ss(value);
 	ss >> extension >> path >> check;
-	if (!check.empty())
+	if (!check.empty() || path.empty())
 		throw_error(std::string("Error in configuration file : wrong cgi directive (" + extension + ")").c_str());
 	this->_cgis[extension] = path;
 }
