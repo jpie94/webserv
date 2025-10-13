@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/13 16:30:59 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/13 17:25:16 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,13 +268,9 @@ void Response::setErrorPage()
 	std::ifstream file(target.c_str());
 	if (file.fail())
 	{
-		this->_responseBody = "<p style=\"text-align: center;\"><strong>500 Internal Server Error</strong></p> \
+		this->_responseBody = "<p style=\"text-align: center;\"><strong><span style=\"font-size: 30px;\">500 Internal Server Error</strong></p> \
 		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">___________________________________________________________________________________________</span></p> \
-		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">webserv</span></p> \
-		<p style=\"text-align: center;\"><br></p> \
-		<p style=\"text-align: center;\"><br></p> \
-		<p style=\"text-align: center;\"><br></p> \
-		<p style=\"text-align: center;\"><br></p>";
+		<p style=\"text-align: center;\"><span style=\"font-size: 10px;\">webserv</span></p>";
 		this->_fileName = "500.html";
 	}
 	else
