@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/08 19:12:27 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 15:37:43 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ void	Request::checkCGIExt()
 			return ;
 		}
 	}
-	return (std::cout << "500 error CGI 22\n", this->_isCGI=false, setStatus("500"));
+	this->_isCGI = false;
 }
 
 void Request::clearTmpFiles()
