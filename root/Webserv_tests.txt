@@ -141,7 +141,7 @@ curl -v --http1.1 \
   --data-binary @./audio2.mp3
 
 
-curl -X POST -F "username=askjdh" -F "img.jpg=@toystory.jpg" http://localhost:8091 & curl -X POST -F "username=ouais" -F "tt.txt=@long_text.txt" http://localhost:8091
+curl -X POST "img.jpg=@toystory.jpg" http://localhost:8091 & curl -X POST -F "tt.txt=@long_text.txt" http://localhost:8091
 
 
 curl -v --http1.1 \
@@ -162,9 +162,3 @@ curl http://localhost:8091/ &
 curl http://localhost:8091/ &
 curl http://localhost:8091/ &
 curl http://localhost:8091/
-
-
-
-
-curl -i -c cookies.txt http://localhost:8091/
-curl -i -b cookies.txt http://localhost:8091/

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response2.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 11:32:34 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 12:57:56 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,6 @@ void Response::postMultipart()
 		{
 			field_name = it->first;
 			tmp_path = it->second;
-			std::cout << "field_name= " << field_name << std::endl;
 			pos = it->first.find(".");
 			if (pos != std::string::npos)
 				ext = it->first.substr(pos);
