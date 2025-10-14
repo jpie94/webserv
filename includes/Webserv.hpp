@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 15:57:18 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:06:18 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,30 +46,29 @@ class Server;
 
 class Webserv
 {
-
 	protected:
-		static std::vector<struct pollfd>	_pfds;
-		static std::map<int, Client*>		_clients;
-		static std::map<int, Server*>		_servers;
+		static std::vector<struct pollfd>									_pfds;
+		static std::map<int, Client*>										_clients;
+		static std::map<int, Server*>										_servers;
 		static std::map<std::string, std::map<std::string, std::string> >	_server_sessions;
-		int									_fd;
-		int									_index;
+		int																	_fd;
+		int																	_index;
 	public:
 		/* Canonical Form + Paramtric constructor */
-											Webserv();
-											Webserv(std::string FileName);
-											Webserv(const Webserv& srcs);
-		Webserv&							operator=(const Webserv& rhs);
-		virtual								~Webserv();
+																			Webserv();
+																			Webserv(std::string FileName);
+																			Webserv(const Webserv& srcs);
+		Webserv&															operator=(const Webserv& rhs);
+		virtual																~Webserv();
 		/* Member Functions */
-		void								ServerMaker(std::string & Config);
-		void								CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts);
-		std::string							ExtractConfig(std::string Filename);
-		void								throw_error(const char*);
-		void								runWebserv();
-		void								setIndex();
-		void								clean_close();
-		void								erase_client();
+		void																ServerMaker(std::string & Config);
+		void																CheckAvailablePorts(std::string currentIP, std::vector<std::string>& tempPorts);
+		std::string															ExtractConfig(std::string Filename);
+		void																throw_error(const char*);
+		void																runWebserv();
+		void																setIndex();
+		void																clean_close();
+		void																erase_client();
 };
 
 #endif
