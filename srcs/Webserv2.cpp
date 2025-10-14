@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:14:09 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 13:26:29 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 void Webserv::runWebserv()
 {
 	int status;
-
+	
+	if (_pfds.empty())
+		throw_error("No server is running, exiting Webserv...");	 
 	while (1)
 	{
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
