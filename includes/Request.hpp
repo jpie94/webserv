@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:58 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 11:02:00 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 12:22:05 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,15 +66,15 @@ class Request : public Client
 		void										getCgiScript();
 		/* Member Functions */
 		void										parsRequest();
-		void										parsRequestLine(std::string &);
+		void										parsRequestLine(std::vector<char>&);
 		void										resolvePath();
-		void										parsHeaders(std::string &);
+		void										parsHeaders(std::vector<char>&);
 		void										parsBody();
 		int											parsChunkedBody();
 		int											parsChunk(std::vector<char>&);
 		void										checkRequest();
 		void										setStatus(std::string const &str);
-		void										setRecieved(std::string& str, std::vector<char>& str_bin);
+		void										setRecieved(std::vector<char>& vect_bin);
 		void		 								printURIConfig();
 		void										parsMultipart();
 		int											parsPart(std::vector<char>&, std::string&);

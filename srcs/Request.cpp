@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 17:00:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 18:14:17 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,10 @@ std::string Request::getProtocol() const
 	return (this->_protocol);
 }
 
-void Request::setRecieved(std::string& str, std::vector<char>& bin_vect)
+void Request::setRecieved(std::vector<char>& bin_vect)
 {
-	this->_recieved = str;
-	this->_rcv_binary = bin_vect;
+	//this->_recieved = str;
+	this->_recieved = bin_vect;
 }
 
 std::vector<char> Request::getBody() const
@@ -110,11 +110,6 @@ void Request::setStatus(std::string const &str)
 {
 	if (!this->_responseStatus.empty() && this->_responseStatus == "200")
 		this->_responseStatus = str;
-}
-
-std::string	Request::getRecieved() const
-{
-	return (this->_recieved);
 }
 
 bool	Request::get_isCGI() const

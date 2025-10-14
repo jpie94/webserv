@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/10/07 16:56:18 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/10/13 19:01:15 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,17 +49,17 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS)
-	@echo "\033[0;92m * $(NAME) program file was created\033[0m *"
+	@echo "\033[0;92m * $(NAME) program file created\033[0m *"
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 clean:
 	@$(RM) $(OBJ_DIR)
-	@echo "\033[0;91m* $(NAME) object files was deleted *\033[0m"
+	@echo "\033[0;91m* $(NAME) object files deleted *\033[0m"
 
 fclean: clean
 	@$(RM) $(NAME)
-	@echo "\033[0;91m* $(NAME) was deleted *\033[0m"
+	@echo "\033[0;91m* $(NAME) deleted *\033[0m"
 
 re: fclean all
 

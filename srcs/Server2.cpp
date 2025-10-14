@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server2.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:12:41 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 11:39:50 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 12:34:24 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	Server::make_listening_socket()
 	{
 		close(socket_fd);
 		freeaddrinfo(addr);
-		return (std::cerr << "Error in make_listening_socket : Could not bind " << _config["server_name"] << " on port " <<  _config["listen"] << " : " << std::strerror(errno) << std::endl, 0);
+		return (std::cerr << BOLD << RED <<  "Error in make_listening_socket : Could not bind " << RESET <<  _config["server_name"] << BOLD << RED <<  " on port " << RESET << _config["listen"] << BOLD << RED << " : " << std::strerror(errno) << RESET << std::endl, 0);
 	}
 	freeaddrinfo(addr);
 	if (listen(socket_fd, 1001) < 0)
