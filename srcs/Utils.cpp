@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:27:35 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 16:37:05 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:40:03 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ std::string generateRandomName(unsigned int len)
 		res += chars[std::rand() % chars.size()];
 	return (res);
 }
-/*del avant final push*/
+
 void	printVect(std::vector<char>& v)
 {
 	for(std::vector<char>::iterator it = v.begin(); it != v.end(); ++it)

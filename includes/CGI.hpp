@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:55 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/09/30 15:11:09 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 10:57:44 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@
 class CGI : public Request
 {
 	private:
-		char*			_varEnv[18];
-		int				_In;
-		int				_Out;
-		int				_PID;
+		char*		_varEnv[18];
+		int			_In;
+		int			_Out;
+		int			_PID;
 
 	public:
 		/* Canonical Form + Paramtric constructor */

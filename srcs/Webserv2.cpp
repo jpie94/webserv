@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 18:03:08 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:40:48 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@
 void Webserv::runWebserv()
 {
 	int status;
-	// for (std::map<int, Server *>::iterator it = _servers.begin(); it != _servers.end(); it++)
-	// 		it->second->printconfig();
+
 	while (1)
 	{
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
@@ -32,14 +31,9 @@ void Webserv::runWebserv()
 		if (status < 0)
 			throw_error("Error in runWebserv : polling failed !");
 		if (status == 0)
-		{
-			//std::cout << "Waiting for connection..." << std::endl;
 			continue;
-		}
 		for (nfds_t j = 0; j < _pfds.size(); ++j)
 		{
-			// if (!(_pfds[j].revents & POLLIN) && !(_pfds[j].revents & POLLOUT))
-			// 		continue;
 			if ((_pfds[j].revents & POLLIN) && _servers.find(_pfds[j].fd) != _servers.end())
 				_servers[_pfds[j].fd]->add_client_to_pollfds();
 			else if ((_pfds[j].revents & POLLIN) && _clients.find(_pfds[j].fd) != _clients.end())

@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/13 16:09:36 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 11:10:47 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void Request::checkRequest()
 	if (this->_methode.compare("GET") && this->_methode.compare("POST") && this->_methode.compare("DELETE"))
 			return (setStatus("501"));
 	if (this->_headers.find("HOST") == this->_headers.end())
-		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));	
+		return (setStatus("400"));	
 }
 
 void Request::resolvePath()
