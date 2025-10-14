@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/13 15:37:43 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:09:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,11 @@
 
 void Request::checkRequest()
 {
-	if (this->_methode.compare("GET") && this->_methode.compare("POST") && this->_methode.compare("DELETE"))
-	{
-		if (this->_methode.compare("HEAD") && this->_methode.compare("PUT") && this->_methode.compare("CONNECT")
-			&& this->_methode.compare("OPTIONS") && this->_methode.compare("TRACE") && this->_methode.compare("PATCH"))
-			return (setStatus("405"));
-		else
-			return (setStatus("501"));
-	}
-	else if(this->_config.find("allowed_methods") != this->_config.end())
+	if(this->_config.find("allowed_methods") != this->_config.end())
 		if(this->_config["allowed_methods"].find(this->_methode) == std::string::npos)
 			return (setStatus("405"));
+	if (this->_methode.compare("GET") && this->_methode.compare("POST") && this->_methode.compare("DELETE"))
+			return (setStatus("501"));
 	if (this->_headers.find("HOST") == this->_headers.end())
 		return ((void)(std::cout << "400 Error -> 6\n"), setStatus("400"));	
 }

@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/10 11:38:39 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 18:14:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,20 @@
 
 void Request::parsRequest()
 {
-	std::string key, value, line, msg(this->_recieved);
-	parsRequestLine(msg);
+	std::string key, value, line;
+	parsRequestLine(this->_recieved);
 	resolvePath();
 	//this->printconfig();
-	parsHeaders(msg);
+	parsHeaders(this->_recieved);
 	checkRequest();
 	check_cgi();
 }
 
-void Request::parsRequestLine(std::string &msg)
+void Request::parsRequestLine(std::vector<char>& rcv)
 {
+	rcv.push_back('\0');
+	std::string			line, tmp, msg(rcv.data());
 	std::istringstream	ss(msg);
-	std::string			line, tmp;
 
 	std::getline(ss, line, '\n');
 	this->_request_line_len += line.size() + 1;
@@ -40,14 +41,16 @@ void Request::parsRequestLine(std::string &msg)
 		return ((void)(std::cout << "400 Error -> 5\n"), setStatus("400"));
 	if (this->_path.size() >= 4000)
 		return (setStatus("414"));
-	msg = msg.substr(line.size() + 1);
+	rcv.erase(rcv.begin(), rcv.begin() + line.size() + 1);
+	//msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return ((void)(std::cout << "400 Error -> 2\n"), setStatus("400"));
 }
 
-void Request::parsHeaders(std::string &msg)
+void Request::parsHeaders(std::vector<char>& rcv)
 {
-	std::istringstream ss(msg);
+	rcv.push_back('\0');
+	std::istringstream ss(rcv.data());
 	std::string key, value, line;
 	std::size_t count = 0, found = std::string::npos;
 
@@ -73,9 +76,8 @@ void Request::parsHeaders(std::string &msg)
 			this->_headers[key] = value;
 		std::getline(ss, line, '\n');
 	}
-	msg = ss.str();
-	if (count + 1 <= msg.size())
-		msg = msg.substr(count + 1);
+	if (count + 1 <= ss.str().size())
+		rcv.erase(rcv.begin(), rcv.begin() + count + 1);
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
@@ -87,18 +89,18 @@ void Request::parsHeaders(std::string &msg)
 
 void Request::parsBody()
 {
-	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
+	size_t pos = find_mem(this->_recieved, CRLFCRLF);
 	if (pos == std::string::npos)
 		return;
-	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
+	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos + 4);
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
-		if (this->_rcv_binary.back() == '\n')
-			this->_rcv_binary.pop_back();
-		if (this->_rcv_binary.back() == '\r')
-			this->_rcv_binary.pop_back();
-		this->_body = this->_rcv_binary;
+		if (this->_recieved.back() == '\n')
+			this->_recieved.pop_back();
+		if (this->_recieved.back() == '\r')
+			this->_recieved.pop_back();
+		this->_body = this->_recieved;
 		printVect(this->_body);
 	}
 }
@@ -157,13 +159,13 @@ int	Request::parsChunk(std::vector<char>& msg)
 
 int	Request::parsChunkedBody()
 {
-	size_t pos = find_mem(this->_rcv_binary, CRLFCRLF);
+	size_t pos = find_mem(this->_recieved, CRLFCRLF);
 	if (pos == std::string::npos)
 		return (0);
-	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos + 4);
+	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos + 4);
 	while (1)
 	{
-		if (!parsChunk(this->_rcv_binary))
+		if (!parsChunk(this->_recieved))
 			return (0);
 	}
 	return (0);
@@ -281,15 +283,15 @@ void	Request::parsMultipart()
 	bound = this->_headers["CONTENT-TYPE"].substr(pos + 9);
 	removeQuotes(bound);
 	bound = "--" + bound;
-	pos = find_mem(this->_rcv_binary, CRLFCRLF);
+	pos = find_mem(this->_recieved, CRLFCRLF);
 	if (pos == std::string::npos)
 		return;
-	this->_rcv_binary.erase(this->_rcv_binary.begin(), this->_rcv_binary.begin() + pos);
+	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos);
 	while (pos != std::string::npos)
 	{
-		if (parsPart(this->_rcv_binary, bound))
+		if (parsPart(this->_recieved, bound))
 			break;
-		pos = find_mem(this->_rcv_binary, bound);
+		pos = find_mem(this->_recieved, bound);
 	}
 	this->_body_len = this->_count - this->_request_line_len - this->_headers_len;
 }

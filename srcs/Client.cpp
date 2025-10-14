@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/13 14:55:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 18:54:25 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
-Client::Client() : Server(),  _server_fd(), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
+Client::Client() : Server(),  _server_fd(), _count(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
 {
 	this->_timeout = std::time(0);
 }
@@ -42,16 +42,15 @@ Client &Client::operator=(Client const &rhs)
 		this->_fd = rhs._fd;
 		this->_index = rhs._index;
 		this->_count = rhs._count;
-		this->_recieved = rhs._recieved;
 		this->_request = rhs._request;
 		this->_response = rhs._response;
 		this->_timeout = rhs._timeout;
-		this->_rcv_binary = rhs._rcv_binary;
+		this->_recieved = rhs._recieved;
 	}
 	return (*this);
 }
 
-Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _recieved(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
+Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _request(), _response(), _CGI(), _execComplete(), _pipeReadingComplete(), _pipeWritingComplete()
 {
 	this->_server_fd = this->_fd;
 	this->_fd = fd;
@@ -124,15 +123,17 @@ int	Client::parserDispatcher()
 		if (this->_CGI == NULL)
 		{
 			this->_CGI = new CGI(*this->_request);
-			size_t pos = findCRLFCRLF(this->_recieved);
+			size_t pos = find_mem(this->_recieved, CRLFCRLF);
 			if (pos != std::string::npos)
-				this->_buff = _buff.substr(findCRLFCRLF(this->_recieved) + 4);
+				this->_buff = _buff.substr(find_mem(this->_recieved, CRLFCRLF) + 4);
 		}
 		write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		this->_timeout = std::time(0);
 	} 
 	else 
 	{
+		if (this->_request->getBodyLen() > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
+			return (0);
 		std::map<std::string, std::string> headers = this->_request->getHeaders();
 		if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		{
@@ -145,7 +146,7 @@ int	Client::parserDispatcher()
 			this->_request->parsBody();
 		else if (headers.find("TRANSFER-ENCODING") != headers.end() && headers["TRANSFER-ENCODING"] == "chunked")
 		{
-			if(find_mem(this->_rcv_binary, "0\r\n\r\n") != std::string::npos)
+			if(find_mem(this->_recieved, "0\r\n\r\n") != std::string::npos)
 			{
 				if (this->_request->parsChunkedBody())
 					return (1);
@@ -178,12 +179,12 @@ int Client::clientRecv()
 		this->erase_client();
 		return (1);
 	}
-	this->_recieved += buffer;
-	this->_rcv_binary.insert(this->_rcv_binary.end(), buffer, buffer + bytes_read);
+	this->_recieved.insert(this->_recieved.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n" << this->_recieved << '\n';
-	//std::cout << "bytes recieved= " << this->_count << std::endl;
+	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
+	printVect(this->_recieved);
+	std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
@@ -195,12 +196,13 @@ void Client::handle_request()
 		return;
 	if (!this->_request)
 		return;
-	this->_request->setRecieved(this->_recieved, this->_rcv_binary);
-	if (this->_count && findCRLFCRLF(this->_recieved) != std::string::npos)
+	this->_request->setRecieved(this->_recieved);
+	if (this->_count && find_mem(this->_recieved, CRLFCRLF) != std::string::npos)
 		if (parserDispatcher())
 			return;
-	if (this->_request->getRequestLineLen() &&
-		this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen())
+	if ((this->_request->getRequestLineLen() &&
+		this->_count >= this->_request->getBodyLen() + this->_request->getHeadersLen() + this->_request->getRequestLineLen()) ||
+		this->_request->getBodyLen() > static_cast<size_t>(atoi(this->_config["client_max_body_size"].c_str())))
 	{
 		if (this->_CGI)
 		{
@@ -244,8 +246,8 @@ void	Client::resetClient()
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
+		//this->_recieved.clear();
 		this->_recieved.clear();
-		this->_rcv_binary.clear();
 		clearClient();
 		this->_timeout = std::time(0);
 	}
@@ -262,7 +264,7 @@ void	Client::send_answer()
 		{
 			_pfds[this->_index].events = POLLIN;
 			this->_count = 0;
-			this->_recieved.clear();
+			//this->_recieved.clear();
 			clearClient();
 			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
 		}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/13 15:36:39 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:24:51 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ void	Server::ExtractBloc(std::string & Config, size_t it)
 			GetErrorPageConfig(value);
 		else if (key == "cgi")
 			GetCGIConfig(value);
+		else if ((key == "autoindex") && (value.compare("on") && value.compare("ON") && value.compare("off") && value.compare("OFF")))
+				throw_error(std::string("Error in configuration file : wrong autoindex value (" + value + ")").c_str());
 		else
 			this->_config[key] = value;
 	}
@@ -127,7 +129,7 @@ void	Server::GetErrorPageConfig(std::string value)
 	std::string code, uri, check;
 	std::istringstream ss(value);
 	ss >> code >> uri >> check;
-	if (!check.empty())
+	if (!check.empty() || uri.empty())
 		throw_error(std::string("Error in configuration file : wrong error_page directive (" + code + ")").c_str());
 	this->_error_pages[code] = uri;
 }
