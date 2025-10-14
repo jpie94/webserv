@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:57:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 16:02:58 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ int	Response::expandPath(struct stat path_stat)
 		return (this->autoIndex(), 1);
 	if (this->_methode == "GET")
 	{
+		if (this->_config.find("index") == this->_config.end())
+			return (setStatus("404"), 0);
 		std::string str(this->_path + this->_config["index"]);
 		std::ifstream ifs(str.c_str());
 		if (ifs.fail())
@@ -58,7 +60,7 @@ int Response::HandlePath()
 		return (setStatus("404"), 0);
 	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
-	if (!status && S_ISDIR(path_stat.st_mode))
+	if (S_ISDIR(path_stat.st_mode))
 		return(expandPath(path_stat));
 	else if (!status && this->_methode.compare("POST"))
 	{

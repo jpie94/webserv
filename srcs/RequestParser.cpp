@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 13:15:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 15:56:53 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,8 +199,6 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 {
 	std::string name = getName(headers_map["CONTENT-DISPOSITION"], "name=");
 	std::string filename = getName(headers_map["CONTENT-DISPOSITION"], "filename=");
-	if (name.empty())
-		return (setStatus("400"), 1);
 	if (!filename.empty())
 	{
 		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName(10);
@@ -211,6 +209,8 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		file.close();
 		this->_files[name] = tmp_path;
 	}
+	if (name.empty())
+		return (setStatus("400"), 1);
 	else
 	{
 		body_part.push_back('\0');

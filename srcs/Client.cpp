@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/14 13:16:40 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 15:51:41 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,8 +182,8 @@ int Client::clientRecv()
 	this->_recieved.insert(this->_recieved.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
-	// printVect(this->_recieved);
+	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
+	printVect(this->_recieved);
 	//std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
