@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/13 18:54:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 13:16:40 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,10 +160,10 @@ int	Client::parserDispatcher()
 
 int Client::clientRecv()
 {
-	char buffer[4096];
+	char buffer[8192];
 
 	std::memset(buffer, 0, sizeof(buffer));
-	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 4096, 0);
+	int bytes_read = recv(_pfds[this->_index].fd, &buffer, 8192, 0);
 	this->_buff = buffer;
 	if (bytes_read < 0)
 	{
@@ -182,9 +182,9 @@ int Client::clientRecv()
 	this->_recieved.insert(this->_recieved.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
-	printVect(this->_recieved);
-	std::cout << "bytes recieved= " << this->_count << std::endl;
+	//std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
+	// printVect(this->_recieved);
+	//std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
@@ -217,9 +217,9 @@ void Client::handle_request()
 
 void	Client::getCGIoutput()
 {
-	char buffer[4096];
+	char buffer[8192];
 	std::memset(buffer, 0, sizeof(buffer));
-	int i = read(this->_CGI->get_FD_Out(), buffer, 4096);
+	int i = read(this->_CGI->get_FD_Out(), buffer, 8192);
 	this->_CGIoutput += buffer;
 	this->_timeout = std::time(0);
 	if (i == 0)

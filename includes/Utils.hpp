@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 16:31:32 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:04:47 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ size_t		find_mem(const std::vector<char>& vect, const std::string &substr);
 
 int			hexStringToInt(std::string str);
 
-void		 strCapitalizer(std::string &str);
+void		strCapitalizer(std::string &str);
 
 std::string trim_white_spaces(std::string str);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/10 11:23:28 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:29:44 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ Response &Response::operator=(const Response &rhs)
 {
 	if (this != &rhs)
 	{
+		this->_autoIndex = rhs._autoIndex;
 		this->_config = rhs._config;
 		this->_error_pages = rhs._error_pages;
 		this->_cgis = rhs._cgis;
@@ -41,7 +42,7 @@ Response &Response::operator=(const Response &rhs)
 	return (*this);
 }
 
-Response::Response(Request &request) : Request(request), _fileName(), _responseBody()
+Response::Response(Request &request) : Request(request), _response_msg(), _fileName(), _responseBody()
 {
 	if(this->_config.find("autoindex") != this->_config.end())
 		this->_autoIndex = this->_config["autoindex"];
@@ -148,7 +149,6 @@ std::map<std::string, std::string> makeTypesMap()
 	types[".3gp"] = "video/3gpp";
 	types[".3g2"] = "video/3gpp2";
 	types[".7z"] = "application/x-7z-compressed";
-
 	return types;
 }
 
@@ -190,7 +190,6 @@ std::string	Response::setCookies() const
 	res += "session_id_" + getTime() + "=";
 	res += "value_" + generateRandomName(10) + ";";
 	res += " Max-Ages=34560000;";
-	//res += "; Expires=\"" + getTimeStr() + 400 + "\";";
 	res += "\r\n";
 	return (res);
 }
