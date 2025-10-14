@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 15:56:53 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 18:27:22 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ void Request::parsRequestLine(std::vector<char>& rcv)
 		return (setStatus("400"));
 	if (this->_path.size() >= 4000)
 		return (setStatus("414"));
+	rcv.pop_back();
 	rcv.erase(rcv.begin(), rcv.begin() + line.size() + 1);
-	//msg = msg.substr(line.size() + 1);
 	if (!tmp.empty())
 		return (setStatus("400"));
 }
@@ -75,8 +75,9 @@ void Request::parsHeaders(std::vector<char>& rcv)
 			this->_headers[key] = value;
 		std::getline(ss, line, '\n');
 	}
+	rcv.pop_back();
 	if (count + 1 <= ss.str().size())
-		rcv.erase(rcv.begin(), rcv.begin() + count + 1);
+		rcv.erase(rcv.begin(), rcv.begin() + count);
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
@@ -257,7 +258,6 @@ void	Request::parsMultipart()
 	pos = find_mem(this->_recieved, CRLFCRLF);
 	if (pos == std::string::npos)
 		return;
-	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos);
 	while (pos != std::string::npos)
 	{
 		if (parsPart(this->_recieved, bound))
