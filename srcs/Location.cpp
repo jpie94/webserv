@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/03 17:38:14 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 11:09:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ void	Location::ExtractLocBloc(std::string & Config, size_t & it)
 			GetErrorPageConfig(value);
 		else if (key == "cgi")
 			GetCGIConfig(value);
+		else if ((key == "autoindex") && (value.compare("on") && value.compare("ON") && value.compare("off") && value.compare("OFF")))
+				throw_error(std::string("Error in configuration file : wrong autoindex value (" + value + ")").c_str());
 		else
 			this->_config[key] = value;
 	}

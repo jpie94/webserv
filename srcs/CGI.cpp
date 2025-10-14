@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/13 17:04:54 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 11:08:20 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,6 @@ CGI::CGI(Request &request) : Request(request)
 {
 	fillVarEnv();
 	newProcess();
-	// int i = 0;
-	// while (this->_varEnv[i])
-	// {
-	// 	std::cout << this->_varEnv[i] <<std::endl;
-	// 	i++;
-	// }
 }
 
 CGI::~CGI() {}
@@ -65,10 +59,10 @@ void	CGI::fillVarEnv()
 	else
 		tempEnv.push_back("PATH_TRANSLATED=");
 	tempEnv.push_back("QUERY_STRING=" + this->_CGI_querry);
-	tempEnv.push_back("REMOTE_ADDR=" + this->_config["server_name"]); // j arrive pas a recuperer l ip a partir de la socket, j ai besoin de inet_ntop et cest pas une fonction autorisee
-	tempEnv.push_back("REMOTE_HOST="); // je peux pas le recuperer donc toujours set a null
-	tempEnv.push_back("REMOTE_IDENT="); //Depend du AUTH_TYPE, pas gere pas notre serveur
-	tempEnv.push_back("REMOTE_USER="); //Depend du AUTH_TYPE, pas gere pas notre serveur
+	tempEnv.push_back("REMOTE_ADDR=" + this->_config["server_name"]);
+	tempEnv.push_back("REMOTE_HOST=");
+	tempEnv.push_back("REMOTE_IDENT=");
+	tempEnv.push_back("REMOTE_USER=");
 	tempEnv.push_back("REQUEST_METHOD=" + this->_methode); 
 	tempEnv.push_back("SCRIPT_NAME=" + this->_CGI_bin_path + this->_CGI_script);
 	tempEnv.push_back("SERVER_NAME=" + this->_config["server_name"]);

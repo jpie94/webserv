@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Server2.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:12:41 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 14:36:06 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:39:50 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
-//#include <fcntl.h>
 
 int	Server::make_listening_socket()
 {
@@ -40,8 +39,6 @@ int	Server::make_listening_socket()
 	freeaddrinfo(addr);
 	if (listen(socket_fd, 1001) < 0)
 		return (std::cerr << "Error in make_listening_socket : Listen failed on fd " << socket_fd << "for server " << _config["server_name"] << ":" <<  _config["listen"] << " : " << std::strerror(errno) << std::endl, 0);
-	// if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1)
-	// 	throw_error("fcntl error");
 	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
 	_pfds.push_back(newPollfd);
 	this->_fd = socket_fd;

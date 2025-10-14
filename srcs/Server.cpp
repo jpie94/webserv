@@ -6,7 +6,7 @@
 /*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/13 16:24:51 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/14 11:35:25 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Location.hpp"
   
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
-Server::Server(): Webserv(), _locations(), _config() {} 
+Server::Server(): Webserv(), _locations(), _config(), _error_pages(), _cgis() {} 
 
 Server::Server(const Server& srcs)
 {
