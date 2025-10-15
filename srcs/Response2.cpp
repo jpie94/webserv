@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 19:57:57 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:22:40 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void Response::readFile()
 	std::ifstream file(this->_path.c_str(), std::ios::in | std::ios::binary);
 
 	if (file.fail())
-		return (std::cout << "500 error 4\n", setStatus("500"), setErrorPage());
+		return (setStatus("500"), setErrorPage());
 	os << file.rdbuf();
 	this->_responseBody = os.str();;
 }
@@ -109,11 +109,11 @@ void Response::postMethode()
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		return (postMultipart());
 	if (this->_body.empty())
-		return (std::cout << "error 6\n", setStatus("400"), setErrorPage());
+		return (setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
 		if (this->_config.find("upload_folder") == this->_config.end())
-			return (std::cout << "500 error 5\n", setStatus("500"), setErrorPage());
+			return (setStatus("500"), setErrorPage());
 		setStatus("201");
 		this->_responseBody = "Resource succesfully created";
 	}
@@ -125,7 +125,7 @@ void Response::postMethode()
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
-		return (std::cout << "500 error 6\n", setStatus("500"), setErrorPage());
+		return (setStatus("500"), setErrorPage());
 	ofs.write(this->_body.data(), this->_body.size());
 	ofs.close();
 	setResponse();
@@ -206,7 +206,7 @@ void Response::autoIndex()
 		}
 		index_page += "</p>\n</body>\n</html>\n";
 		if (closedir(dir) < 0)
-			return (std::cout << "500 error 7\n", setStatus("500"), setErrorPage());
+			return (setStatus("500"), setErrorPage());
 	}
 	else
 		return (setStatus("403"), setErrorPage());

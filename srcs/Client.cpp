@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/15 20:59:17 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:24:30 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ Client::Client(int fd, nfds_t index, Server &serv) : Server(serv), _count(), _re
 	this->_fd = fd;
 	this->_index = index;
 	this->_timeout = std::time(0);
-	// printconfig();
 }
 
 Client::~Client() {}
@@ -181,9 +180,6 @@ int Client::clientRecv()
 	this->_recieved.insert(this->_recieved.end(), buffer, buffer + bytes_read);
 	this->_count += bytes_read;
 	this->_timeout = std::time(0);
-	// std::cout << "[" << _pfds[this->_index].fd << "] Got message:\n";
-	// printVect(this->_recieved);
-	std::cout << "bytes recieved= " << this->_count << std::endl;
 	return (0);
 }
 
@@ -245,7 +241,6 @@ void	Client::resetClient()
 	{
 		_pfds[this->_index].events = POLLIN;
 		this->_count = 0;
-		//this->_recieved.clear();
 		this->_recieved.clear();
 		clearClient();
 		this->_timeout = std::time(0);
@@ -263,12 +258,10 @@ void	Client::send_answer()
 		{
 			_pfds[this->_index].events = POLLIN;
 			this->_count = 0;
-			//this->_recieved.clear();
 			clearClient();
-			return ((void)(std::cout << "strlen est egal a 0 pour message len" << std::endl));
+			return ;
 		}
-		//std::cout << "Response= " << this->_response->getResponseMsg() << std::endl;
-		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, MSG_NOSIGNAL);//j'ai rajouter ce flag pour eviter un crash avec un client que firefox mais on peut aussi limiter les autres clients
+		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, MSG_NOSIGNAL);
 		if (sent < 0)
 		{
 			std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';

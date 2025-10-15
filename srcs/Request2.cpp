@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 17:33:47 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:21:13 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void Request::checkRequest()
 	if (this->_methode.compare("GET") && this->_methode.compare("POST") && this->_methode.compare("DELETE"))
 			return (setStatus("501"));
 	if (this->_headers.find("HOST") == this->_headers.end())
-		return (std::cout << "error 1\n", setStatus("400"));	
+		return (setStatus("400"));	
 }
 
 void Request::resolvePath()
