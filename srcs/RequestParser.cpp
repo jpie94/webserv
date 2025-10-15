@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 18:27:22 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:15:36 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void Request::parsRequestLine(std::vector<char>& rcv)
 	ss.str(line);
 	ss >> this->_methode >> this->_path >> this->_protocol >> tmp;
 	if (this->_methode.empty() || this->_path.empty() || this->_protocol.empty())
-		return (setStatus("400"));
+		return (std::cout << "error 2\n", setStatus("400"));
 	if (this->_protocol.compare("HTTP/1.1"))
 		return (setStatus("505"));
 	if (this->_path[0] != '/' || (this->_path[1] && this->_path[0] == '/' && this->_path[1] == '/'))
@@ -43,7 +43,7 @@ void Request::parsRequestLine(std::vector<char>& rcv)
 	rcv.pop_back();
 	rcv.erase(rcv.begin(), rcv.begin() + line.size() + 1);
 	if (!tmp.empty())
-		return (setStatus("400"));
+		return (std::cout << "error 4\n", setStatus("400"));
 }
 
 void Request::parsHeaders(std::vector<char>& rcv)
@@ -76,7 +76,7 @@ void Request::parsHeaders(std::vector<char>& rcv)
 		std::getline(ss, line, '\n');
 	}
 	rcv.pop_back();
-	if (count + 1 <= ss.str().size())
+	if (count + 1 <= ss.str().size() && this->_headers.find("TRANSFER-ENCODING") != this->_headers.end() && this->_headers["TRANSFER-ENCODING"] == "chunked")
 		rcv.erase(rcv.begin(), rcv.begin() + count);
 	this->_headers_len += count;
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
@@ -89,10 +89,6 @@ void Request::parsHeaders(std::vector<char>& rcv)
 
 void Request::parsBody()
 {
-	size_t pos = find_mem(this->_recieved, CRLFCRLF);
-	if (pos == std::string::npos)
-		return;
-	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos + 4);
 	if (this->_responseStatus == "200" && this->_headers.find("CONTENT-LENGTH") != this->_headers.end())
 	{
 		this->_body_len = std::atoi(this->_headers["CONTENT-LENGTH"].c_str());
@@ -110,6 +106,8 @@ int	Request::parsChunk(std::vector<char>& msg)
 	char* endpos;
 
 	pos = find_mem(msg, CRLF);
+	// std::cout << "initial msg=\n";
+	// printVect(msg);
 	if (pos == std::string::npos)
 		return (1);
 	chunk_len = std::strtol(msg.data(), &endpos, 16);
@@ -124,14 +122,21 @@ int	Request::parsChunk(std::vector<char>& msg)
 		return (1);
 	std::vector<char> chunk(msg.begin() + pos + 2, msg.begin() + pos + 2 + chunk_len);
 	this->_body.insert(this->_body.end(), chunk.begin(), chunk.end());
+	// std::cout << "body=\n";
+	// printVect(this->_body);
 	if (msg.size() >= pos + chunk_len + 4)
 		msg.erase(msg.begin(), msg.begin() + pos + chunk_len + 4);
+	// std::cout << "final msg=\n";
+	// printVect(msg);
 	return (1);
 }
 
 int	Request::parsChunkedBody()
 {
+	// std::cout << "rcv=\n";
+	// printVect(this->_recieved);
 	size_t pos = find_mem(this->_recieved, CRLFCRLF);
+	// std::cout << "pos= " << pos << std::endl;
 	if (pos == std::string::npos)
 		return (0);
 	this->_recieved.erase(this->_recieved.begin(), this->_recieved.begin() + pos + 4);
@@ -205,7 +210,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		std::string tmp_path = "/tmp/upload_tempfile_" + generateRandomName(10);
 		std::ofstream file(tmp_path.c_str(), std::ios::binary);
 		if (!file.is_open() || file.fail())
-			return (setStatus("500"), 1);
+			return (std::cout << "500 error 2\n", setStatus("500"), 1);
 		file.write(body_part.data(), body_part.size());
 		file.close();
 		this->_files[name] = tmp_path;
@@ -219,7 +224,7 @@ int	Request::handleContent(std::map<std::string, std::string>& headers_map, std:
 		std::string tmp_path = _ogRoot + "/tmp/form_data.csv";
 		std::ofstream csv(tmp_path.c_str(), std::ios::app);
 		if (!csv.is_open())
-			return (setStatus("500"), 1);
+			return (std::cout << "500 error 3\n", setStatus("500"), 1);
 		body_str = trim_white_spaces(body_str);
 		if (body_str.find(',') != std::string::npos)
 			body_str = "\"" + body_str + "\"";

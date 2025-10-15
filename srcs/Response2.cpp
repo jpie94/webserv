@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 16:02:58 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 19:57:57 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName = this->_fileName.substr(0, pos);
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
-	this->_path = _ogRoot;
 	if (this->_path[_path.size() - 1 ] != '/')
 		this->_path += "/";
+	this->_path += this->_fileName;
 }
 
 int	Response::expandPath(struct stat path_stat)
@@ -68,7 +68,7 @@ int Response::HandlePath()
 		if (ifs.fail() || !ifs.is_open())
 			return (setStatus("403"), 0);
 	}
-	else if (!status && !this->_methode.compare("POST"))
+	else if (!this->_methode.compare("POST"))
 	{
 		std::ofstream ofs(this->_path.c_str(), std::ofstream::out);
 		if (ofs.fail() || !ofs.is_open())
@@ -86,7 +86,7 @@ void Response::readFile()
 	std::ifstream file(this->_path.c_str(), std::ios::in | std::ios::binary);
 
 	if (file.fail())
-		return (setStatus("500"), setErrorPage());
+		return (std::cout << "500 error 4\n", setStatus("500"), setErrorPage());
 	os << file.rdbuf();
 	this->_responseBody = os.str();;
 }
@@ -109,11 +109,11 @@ void Response::postMethode()
 	if (headers.find("CONTENT-TYPE") != headers.end() && !std::strncmp(headers["CONTENT-TYPE"].c_str(), "multipart/form-data", 19))
 		return (postMultipart());
 	if (this->_body.empty())
-		return (setStatus("400"), setErrorPage());
+		return (std::cout << "error 6\n", setStatus("400"), setErrorPage());
 	if (stat(this->_path.c_str(), &path_stat) != 0)
 	{
 		if (this->_config.find("upload_folder") == this->_config.end())
-			return (setStatus("500"), setErrorPage());
+			return (std::cout << "500 error 5\n", setStatus("500"), setErrorPage());
 		setStatus("201");
 		this->_responseBody = "Resource succesfully created";
 	}
@@ -125,7 +125,7 @@ void Response::postMethode()
 	this->_responseBody += CRLF;
 	std::ofstream ofs(this->_path.c_str(), std::ios::out | std::ios::binary);
 	if (!ofs.is_open() || ofs.fail())
-		return (setStatus("500"), setErrorPage());
+		return (std::cout << "500 error 6\n", setStatus("500"), setErrorPage());
 	ofs.write(this->_body.data(), this->_body.size());
 	ofs.close();
 	setResponse();
@@ -161,9 +161,11 @@ void Response::postMultipart()
 			src.close();
 			dst.close();
 			this->_responseBody += "File: " + field_name + " saved to " + final_path + CRLF;
-			setResponse();
 		}
 	}
+	else if (this->_body.empty())
+		this->_responseBody += "Form saved to /tmp/form_data.csv\r\n";
+	setResponse();
 }
 
 void Response::deleteMethode()
@@ -204,7 +206,7 @@ void Response::autoIndex()
 		}
 		index_page += "</p>\n</body>\n</html>\n";
 		if (closedir(dir) < 0)
-			return (setStatus("500"), setErrorPage());
+			return (std::cout << "500 error 7\n", setStatus("500"), setErrorPage());
 	}
 	else
 		return (setStatus("403"), setErrorPage());
