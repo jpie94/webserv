@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 21:24:23 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:39:04 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Client.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "Client.hpp"
 
 std::map<std::string, std::string>	Request::_files;
 

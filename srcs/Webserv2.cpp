@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv2.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 13:26:29 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/16 10:41:52 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
-#include "Server.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
+#include "Webserv.hpp"
 
 void Webserv::runWebserv()
 {

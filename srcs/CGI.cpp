@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:13:46 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:31:27 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGI.hpp"
-#include "Request.hpp"
 #include "Client.hpp"
+#include "Request.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
@@ -121,7 +121,7 @@ void	CGI::executeCGI()
 	char * execArg[] = {const_cast<char *>(this->_CGIinterpret.c_str()), const_cast<char *>(script.c_str()), NULL};
 	if (execve(execArg[0], execArg, this->_varEnv) == -1)
 		{
-			std::cerr << "Error in CGI::executeCGI : execve failed for " + this->_CGI_script << std::endl;
+			std::cerr << BOLD << RED << "Error in CGI::executeCGI : execve failed for " << RESET << this->_CGI_script << std::endl;
 			exit(1);			
 		}
 }

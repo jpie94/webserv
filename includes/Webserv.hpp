@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:49 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:17:44 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:27:48 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
+#include <fstream>
 #include <iostream>
+#include <map>
 #include <netdb.h>
 #include <poll.h>
 #include <stdexcept>
@@ -28,18 +30,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
-#include <fstream>
-#include <map>
 #include <sstream>
 #include "Utils.hpp"
 
-#define GREEN "\033[32m"
-#define RED "\033[31m"
-#define CYAN "\033[36m"
-#define PURPLE "\e[35m"
-#define YELLOW "\e[33m"
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
+#define CYAN "\033[36m"
+#define GREEN "\033[32m"
+#define PURPLE "\e[35m"
+#define RED "\033[31m"
+#define YELLOW "\e[33m"
 
 class Client;
 class Server;

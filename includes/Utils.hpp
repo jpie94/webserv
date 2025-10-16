@@ -6,20 +6,20 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 21:24:00 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:28:12 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <stdlib.h>
-#include <vector>
 #include <cstring>
 #include <ctime>
+#include <iostream>
+#include <sstream>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 std::string	int_to_string(int value);
 

@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:06 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 15:38:15 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:51:09 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.hpp"
-#include "Request.hpp"
 #include "Client.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
 
 std::map<std::string, std::string> makeTypesMap();
 std::map<std::string, std::string> Response::_types = makeTypesMap();
