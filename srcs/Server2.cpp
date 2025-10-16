@@ -6,12 +6,12 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:12:41 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:34:24 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:36:03 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
 
 int	Server::make_listening_socket()
 {
@@ -23,12 +23,12 @@ int	Server::make_listening_socket()
 	hint.ai_family = AF_INET;
 	hint.ai_socktype = SOCK_STREAM;
 	if (getaddrinfo(_config["server_name"].c_str(), _config["listen"].c_str(), &hint, &addr) != 0)
-		return (std::cerr << RED << "Error in make_listening_socket : Could not resolve "  << RESET  << BOLD << _config["server_name"] << RESET << std::endl, 0);
+		return (std::cerr << RED << BOLD << "Error in make_listening_socket : Could not resolve "  << RESET  << BOLD << _config["server_name"] << RESET << std::endl, 0);
 	int socket_fd = socket(addr->ai_family, addr->ai_socktype, 0);
 	if (socket_fd < 0)
 	{
 		freeaddrinfo(addr);
-		return (std::cerr << "Error in make_listening_socket : Could not create a socket for " << _config["server_name"] << std::endl, 0);
+		return (std::cerr << RED << "Error in make_listening_socket : Could not create a socket for " << RESET << BOLD << _config["server_name"] << RESET << std::endl, 0);
 	}
 	if (bind(socket_fd, addr->ai_addr, addr->ai_addrlen) != 0)
 	{
@@ -38,7 +38,7 @@ int	Server::make_listening_socket()
 	}
 	freeaddrinfo(addr);
 	if (listen(socket_fd, 1001) < 0)
-		return (std::cerr << "Error in make_listening_socket : Listen failed on fd " << socket_fd << "for server " << _config["server_name"] << ":" <<  _config["listen"] << " : " << std::strerror(errno) << std::endl, 0);
+		return (std::cerr << RED << BOLD << "Error in make_listening_socket : Listen failed on fd " << RESET << socket_fd << BOLD << RED << "for server " << RESET << _config["server_name"] << BOLD << RED << ":" << RESET << _config["listen"] << BOLD << RED << " : " << std::strerror(errno) << RESET << std::endl, 0);
 	struct pollfd newPollfd = {socket_fd, POLLIN, 0};
 	_pfds.push_back(newPollfd);
 	this->_fd = socket_fd;

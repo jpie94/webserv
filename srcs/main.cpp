@@ -6,14 +6,14 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:16 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/06 12:25:25 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:30:33 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
 #include "Request.hpp"
-#include "Signals.hpp"
 #include "Response.hpp"
+#include "Signals.hpp"
+#include "Webserv.hpp"
 
 int	main(int argc, char *argv[])
 {

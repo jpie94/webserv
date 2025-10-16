@@ -6,12 +6,12 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:01:59 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 21:21:13 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:39:12 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Request.hpp"
 #include "Location.hpp"
+#include "Request.hpp"
 
 void Request::checkRequest()
 {

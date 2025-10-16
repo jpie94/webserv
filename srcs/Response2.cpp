@@ -6,12 +6,12 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/15 21:22:40 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:39:37 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.hpp"
 #include "Location.hpp"
+#include "Response.hpp"
 
 void	Response::generateFileName(struct stat path_stat)
 {

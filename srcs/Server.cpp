@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 11:26:15 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/14 12:14:02 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:32:59 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
 #include "Client.hpp"
 #include "Location.hpp"
+#include "Server.hpp"
   
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 Server::Server(): Webserv(), _locations(), _config(), _error_pages(), _cgis() {} 

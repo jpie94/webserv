@@ -6,13 +6,13 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/15 21:24:30 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:49:10 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "CGI.hpp"
 #include "Client.hpp"
 #include "Response.hpp"
-#include "CGI.hpp"
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
 
@@ -232,7 +232,7 @@ void	Client::resetClient()
 	if (this->_request->getHeaders().find("CONNECTION") != this->_request->getHeaders().end()
 		&& this->_request->getHeaders()["CONNECTION"] == "close")
 	{
-		std::cout << "connection close ---> erase client...\n";
+		std::cout << BOLD << YELLOW << "connection close ---> erase client...\n" << RESET;
 		clearClient();
 		this->erase_client();
 		return;
@@ -264,7 +264,7 @@ void	Client::send_answer()
 		size_t sent = send(_pfds[this->_index].fd, this->_response->getResponseMsg().c_str() + this->_count, msg_len - this->_count, MSG_NOSIGNAL);
 		if (sent < 0)
 		{
-			std::cerr << "[" << this->_index << "] Error: send, connection closed." << '\n';
+			std::cerr << BOLD << RED << "[" << RESET << this->_index << BOLD <<RESET << "] Error: send, connection closed.\n" << RESET;
 			this->erase_client();
 		}
 		this->_count += sent;

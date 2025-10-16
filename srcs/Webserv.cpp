@@ -6,17 +6,17 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:29 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/07 15:58:42 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:41:31 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
-#include "Server.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
+#include "Webserv.hpp"
 
-std::vector<struct pollfd> Webserv::_pfds;
-std::map<int, Client *> Webserv::_clients;
-std::map<int, Server *> Webserv::_servers;
+std::vector<struct pollfd>									Webserv::_pfds;
+std::map<int, Client *>										Webserv::_clients;
+std::map<int, Server *>										Webserv::_servers;
 std::map<std::string, std::map<std::string, std::string> >	Webserv::_server_sessions;
 
 /*****************	CANONICAL + PARAMETRIC CONSTRUCTOR 	*******************/
@@ -136,7 +136,7 @@ void Webserv::CheckAvailablePorts(std::string currentIP, std::vector<std::string
 		{
 			if (it->second->getConfig()["listen"] == *tempPorts.rbegin())
 			{
-				std::cerr << "Error in configuration file : conflicting server name \"" << currentIP << "\" on port " << *tempPorts.rbegin() << ", ignored" << std::endl;
+				std::cerr << RED << "Error in configuration file : conflicting server name \"" << RESET << currentIP << RED << "\" on port " << RESET << *tempPorts.rbegin() << RED << ", ignored" << RESET << std::endl;
 				tempPorts.pop_back();
 			}
 		}
