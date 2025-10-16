@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:55:52 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/14 12:20:16 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:31:36 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Client : public Server
 		void				clearCGI();
 		void				makeResponse();
 		int					checkTimeout();
-		void				getCGIoutput();
+		int					getCGIoutput();
 		void				checkStatusCGI();
 		int					parserDispatcher();
 		void				resetClient();

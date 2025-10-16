@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/16 10:49:10 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:54:12 by jpiech           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,8 +125,16 @@ int	Client::parserDispatcher()
 			if (pos != std::string::npos)
 				this->_buff = _buff.substr(find_mem(this->_recieved, CRLFCRLF) + 4);
 		}
-		write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
-		this->_timeout = std::time(0);
+		int i = write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
+		if (i == -1)
+		{
+			std::cerr << "[" << this->_fd << "] Error in parseDispatcher: write _CGI _In failed, connection closed." << '\n';
+			this->clearClient();
+			this->erase_client();
+			return (1);
+		}
+		if (i != 0)
+			this->_timeout = std::time(0);
 	} 
 	else 
 	{
@@ -165,7 +173,7 @@ int Client::clientRecv()
 	this->_buff = buffer;
 	if (bytes_read < 0)
 	{
-		std::cout << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
+		std::cerr << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
 		this->clearClient();
 		this->erase_client();
 		return (1);
@@ -210,11 +218,17 @@ void Client::handle_request()
 	}
 }
 
-void	Client::getCGIoutput()
+int	Client::getCGIoutput()
 {
 	char buffer[8192];
 	std::memset(buffer, 0, sizeof(buffer));
 	int i = read(this->_CGI->get_FD_Out(), buffer, 8192);
+	if (i == -1)
+	{
+		std::cerr << BOLD << RED << "[" << RESET << this->_index << BOLD <<RESET << "] Error in getCGIoutput : read _CGI _Out failed : connection closed.\n" << RESET;
+		this->clearCGI();
+		return(1);		
+	}
 	this->_CGIoutput += buffer;
 	this->_timeout = std::time(0);
 	if (i == 0)
@@ -225,6 +239,7 @@ void	Client::getCGIoutput()
 			throw std::runtime_error(std::string(std::string("Error in getCGIoutput : close _CGI _Out failed : ") + std::strerror(errno)).c_str());
 		this->clearCGI();
 	}
+	return(0);
 }
 
 void	Client::resetClient()
@@ -250,7 +265,13 @@ void	Client::resetClient()
 void	Client::send_answer()
 {
 	if (this->_request->get_isCGI() == true)
-		getCGIoutput();
+	{
+		if (getCGIoutput())
+		{
+			clearClient();
+			this->erase_client();			
+		}
+	}
 	else
 	{
 		size_t msg_len = this->_response->getResponseMsg().size();
@@ -265,8 +286,11 @@ void	Client::send_answer()
 		if (sent < 0)
 		{
 			std::cerr << BOLD << RED << "[" << RESET << this->_index << BOLD <<RESET << "] Error: send, connection closed.\n" << RESET;
+			clearClient();
 			this->erase_client();
 		}
+		if (sent != 0)
+			this->_timeout = std::time(0);
 		this->_count += sent;
 		if (this->_count == msg_len)
 			resetClient();
