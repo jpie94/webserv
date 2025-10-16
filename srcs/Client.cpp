@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:59:58 by jpiech            #+#    #+#             */
-/*   Updated: 2025/10/16 12:54:12 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/16 13:12:42 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,10 +76,7 @@ int	Client::checkTimeout()
 				makeResponse();
 		}
 		else
-		{
-			clearClient();
 			erase_client();
-		}
 		return (1);
 	}
 	return (0);
@@ -128,8 +125,7 @@ int	Client::parserDispatcher()
 		int i = write(this->_CGI->get_FD_In(), this->_buff.c_str(), this->_buff.size());
 		if (i == -1)
 		{
-			std::cerr << "[" << this->_fd << "] Error in parseDispatcher: write _CGI _In failed, connection closed." << '\n';
-			this->clearClient();
+			std::cerr << BOLD << RED << "[" << RESET << this->_fd << BOLD << RED << "] Error in parseDispatcher: write _CGI _In failed, connection closed." << '\n';
 			this->erase_client();
 			return (1);
 		}
@@ -173,15 +169,13 @@ int Client::clientRecv()
 	this->_buff = buffer;
 	if (bytes_read < 0)
 	{
-		std::cerr << "[" << this->_fd << "] Error: recv, connection closed." << '\n';
-		this->clearClient();
+		std::cerr << BOLD << RED << "[" << this->_fd << "] Error: recv, connection closed." << RESET << '\n';
 		this->erase_client();
 		return (1);
 	}
 	if (bytes_read == 0)
 	{
 		std::cout << BOLD << PURPLE << "[" << this->_fd << "] Client socket closed connection." << RESET << '\n';
-		this->clearClient();
 		this->erase_client();
 		return (1);
 	}
@@ -225,7 +219,7 @@ int	Client::getCGIoutput()
 	int i = read(this->_CGI->get_FD_Out(), buffer, 8192);
 	if (i == -1)
 	{
-		std::cerr << BOLD << RED << "[" << RESET << this->_index << BOLD <<RESET << "] Error in getCGIoutput : read _CGI _Out failed : connection closed.\n" << RESET;
+		std::cerr << BOLD << RED << "[" <<  this->_index << "] Error in getCGIoutput : read _CGI _Out failed : connection closed.\n" << RESET;
 		this->clearCGI();
 		return(1);		
 	}
@@ -248,7 +242,6 @@ void	Client::resetClient()
 		&& this->_request->getHeaders()["CONNECTION"] == "close")
 	{
 		std::cout << BOLD << YELLOW << "connection close ---> erase client...\n" << RESET;
-		clearClient();
 		this->erase_client();
 		return;
 	}
@@ -267,10 +260,7 @@ void	Client::send_answer()
 	if (this->_request->get_isCGI() == true)
 	{
 		if (getCGIoutput())
-		{
-			clearClient();
 			this->erase_client();			
-		}
 	}
 	else
 	{
