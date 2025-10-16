@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:15:37 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/16 10:41:52 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/16 13:11:57 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void Webserv::erase_client()
 		throw_error(std::string(std::string("Error in erase_client : close failed : ") + std::strerror(errno)).c_str());
 	_pfds.erase(_pfds.begin() + this->_index);
 	std::map<int, Client *>::iterator it = _clients.find(this->_fd);
+	it->second->clearClient();
 	delete it->second;
 	_clients.erase(it);
 	setIndex();
