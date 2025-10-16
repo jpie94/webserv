@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jpiech <jpiech@student.42.fr>              +#+  +:+       +#+        */
+/*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:28:12 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 11:04:47 by jpiech           ###   ########.fr       */
+/*   Updated: 2025/10/15 21:24:00 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ std::string	getName(const std::string& str, const std::string& key);
 
 std::string	generateRandomName(unsigned int len);
 
-void		printVect(std::vector<char>&);//del
+void		printVect(std::vector<char>&);
 
 std::string getTime();
 

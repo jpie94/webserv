@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 14:16:19 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/13 18:14:17 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:24:23 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ std::string Request::getProtocol() const
 
 void Request::setRecieved(std::vector<char>& bin_vect)
 {
-	//this->_recieved = str;
 	this->_recieved = bin_vect;
 }
 

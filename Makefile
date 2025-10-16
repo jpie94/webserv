@@ -6,7 +6,7 @@
 #    By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/12 16:43:52 by jpiech            #+#    #+#              #
-#    Updated: 2025/10/13 19:01:15 by qsomarri         ###   ########.fr        #
+#    Updated: 2025/10/15 16:49:54 by qsomarri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -65,4 +65,5 @@ re: fclean all
 
 vlg : 
 	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./$(NAME) ./conf/1.conf
+
 .PHONY: all clean fclean re

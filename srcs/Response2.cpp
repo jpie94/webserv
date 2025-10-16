@@ -6,7 +6,7 @@
 /*   By: qsomarri <qsomarri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 18:09:52 by qsomarri          #+#    #+#             */
-/*   Updated: 2025/10/14 12:57:56 by qsomarri         ###   ########.fr       */
+/*   Updated: 2025/10/15 21:22:40 by qsomarri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ void	Response::generateFileName(struct stat path_stat)
 		this->_fileName = this->_fileName.substr(0, pos);
 		this->_fileName += getTime() + getFileExt(this->_headers["CONTENT-TYPE"]);
 	}
-	this->_path = _ogRoot;
 	if (this->_path[_path.size() - 1 ] != '/')
 		this->_path += "/";
+	this->_path += this->_fileName;
 }
 
 int	Response::expandPath(struct stat path_stat)
@@ -35,6 +35,8 @@ int	Response::expandPath(struct stat path_stat)
 		return (this->autoIndex(), 1);
 	if (this->_methode == "GET")
 	{
+		if (this->_config.find("index") == this->_config.end())
+			return (setStatus("404"), 0);
 		std::string str(this->_path + this->_config["index"]);
 		std::ifstream ifs(str.c_str());
 		if (ifs.fail())
@@ -58,7 +60,7 @@ int Response::HandlePath()
 		return (setStatus("404"), 0);
 	if ((access(this->_path.c_str(), R_OK | W_OK) && (S_ISDIR(path_stat.st_mode) || S_ISREG(path_stat.st_mode))))
 		return (setStatus("403"), 0);
-	if (!status && S_ISDIR(path_stat.st_mode))
+	if (S_ISDIR(path_stat.st_mode))
 		return(expandPath(path_stat));
 	else if (!status && this->_methode.compare("POST"))
 	{
@@ -66,7 +68,7 @@ int Response::HandlePath()
 		if (ifs.fail() || !ifs.is_open())
 			return (setStatus("403"), 0);
 	}
-	else if (!status && !this->_methode.compare("POST"))
+	else if (!this->_methode.compare("POST"))
 	{
 		std::ofstream ofs(this->_path.c_str(), std::ofstream::out);
 		if (ofs.fail() || !ofs.is_open())
@@ -159,9 +161,11 @@ void Response::postMultipart()
 			src.close();
 			dst.close();
 			this->_responseBody += "File: " + field_name + " saved to " + final_path + CRLF;
-			setResponse();
 		}
 	}
+	else if (this->_body.empty())
+		this->_responseBody += "Form saved to /tmp/form_data.csv\r\n";
+	setResponse();
 }
 
 void Response::deleteMethode()
