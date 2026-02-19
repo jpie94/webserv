@@ -82,7 +82,7 @@ curl -v localhost:8080
 
 * Memory Management: Strictly ensuring no memory leaks occur during high-traffic stress tests.
 
-##### 📬 Contact
+### 📬 Contact
 Login: jpiech, qsomarri
 
 School: 42 Paris
