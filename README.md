@@ -26,7 +26,7 @@ Mandatory Features
 
 * Directory Listing: Automatic generation of directory index pages.
 
-🌟 Bonus Features
+Bonus Features
 * CGI Execution: Fully functional Common Gateway Interface to handle dynamic content (e.g., .php, .py, .sh).
 
 * Cookies & Session Management: Ability to handle Set-Cookie and track user sessions.
@@ -38,11 +38,13 @@ Mandatory Features
 ### ⚙️ Configuration File
 The server is configured via a file that defines its behavior. Example:
 
+```
 server {
 	listen 8090;
 	root root;
 	client_max_body_size 55000000;
 	upload_folder /uploads;
+
 
 	location /error
 	{
@@ -57,6 +59,7 @@ server {
 		allowed_methods GET POST;
 	}
 }
+```
 ### 🚀 Getting Started
 ```Bash
 # Compilation
@@ -65,7 +68,7 @@ make
 # Execution
 ./webserv [path_to_config_file]
 
-If no config file is provided, the server uses a default configuration.
+# If no config file is provided, the server uses a default configuration.
 ```
 ### Testing
 You can test the server using a web browser at http://localhost:8080 or using curl:
@@ -79,7 +82,7 @@ curl -v localhost:8080
 
 * Memory Management: Strictly ensuring no memory leaks occur during high-traffic stress tests.
 
-📬 Contact
+##### 📬 Contact
 Login: jpiech, qsomarri
 
 School: 42 Paris
